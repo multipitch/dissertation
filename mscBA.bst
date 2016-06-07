@@ -4,13 +4,11 @@
 %%
 %% The original source files were:
 %%
-%% merlin.mbs  (with options: `babel,ay,cay,annote,pres,pres-sc,nm-rev1,jnrlst,nmdash,nmd-2,keyxyr,note-yr,trnum-it,vol-bf,volp-sp,num-xser,isbn,issn,doi,edpar,in-col,xedn,and-xcom,etal-it,url,url-nl,nfss,')
+%% merlin.mbs  (with options: `ay,cay,annote,pres,pres-sc,nm-rev1,jnrlst,nmdash,nmd-2,keyxyr,note-yr,trnum-it,vol-bf,volp-sp,num-xser,isbn,issn,doi,edpar,in-col,xedn,and-xcom,etal-it,url,url-nl,nfss,')
 %% ----------------------------------------
-%% *** APA style citations, along the lines of "Management Science"       ***
-%% *** SMcG 2009: intended for use by MSc Business Analytics among others ***
-%% *** allows the use of annote field but does not display citation key   ***
+%% *** Replacing original mscBA.bst provided on course MIS40750 with one without babel, all other options the same. ***
 %% 
-%% Copyright 1994-2007 Patrick W Daly
+%% Copyright 1994-2011 Patrick W Daly
  % ===============================================================
  % IMPORTANT NOTICE:
  % This bibliographic style (bst) file has been generated from one or
@@ -22,11 +20,10 @@
  % version 1 of the License, or any later version.
  % ===============================================================
  % Name and version information of the main mbs file:
- % \ProvidesFile{merlin.mbs}[2007/04/24 4.20 (PWD, AO, DPC)]
+ % \ProvidesFile{merlin.mbs}[2011/11/18 4.33 (PWD, AO, DPC)]
  %   For use with BibTeX version 0.99a or later
  %-------------------------------------------------------------------
- % This bibliography style file requires a file named  babelbst.tex
- %   containing the definitions of word commands like \bbleditor, etc.
+ % This bibliography style file is intended for texts in ENGLISH
  % This is an author-year citation style bibliography. As such, it is
  % non-standard LaTeX, and requires a special package file to function properly.
  % Such a package is    natbib.sty   by Patrick W. Daly
@@ -34,17 +31,6 @@
  % The form of the bibitem entries is
  %   \bibitem[\protect\citeauthoryear{Jones, Baker, and Smith}
  %        {Jones et al.}{1990}{key}...
- % The \cite command and relatives function as follows:
- %   \citet{key} ==>>                Jones et al. (1990)
- %   \citet*{key} ==>>               Jones, Baker, and Smith (1990)
- %   \citep{key} ==>>                (Jones et al., 1990)
- %   \citep*{key} ==>>               (Jones, Baker, and Smith, 1990)
- %   \citep[chap. 2]{key} ==>>       (Jones et al., 1990, chap. 2)
- %   \citep[e.g.][]{key} ==>>        (e.g. Jones et al., 1990)
- %   \citep[e.g.][p. 32]{key} ==>>   (e.g. Jones et al., p. 32)
- %   \citeauthor{key} ==>>           Jones et al.
- %   \citeauthor*{key} ==>>          Jones, Baker, and Smith
- %   \citeyear{key} ==>>             1990
  %---------------------------------------------------------------------
 
 ENTRY
@@ -126,10 +112,10 @@ FUNCTION {fin.entry}
   newline$
   annote missing$
     { "\bibAnnoteFile{" cite$ * "}" * write$ newline$ }
-    { "\bibAnnote{" cite$ * "}{" * annote * "}" * write$ newline$ }
+    { "\bibAnnote{" cite$ * "}{" * annote * "}" * write$ newline$
+    }
   if$
 }
-
 
 FUNCTION {new.block}
 { output.state before.all =
@@ -212,87 +198,87 @@ FUNCTION {tie.or.space.prefix}
 }
 
 FUNCTION {capitalize}
-{ "\capitalize" swap$ * }
+{ "u" change.case$ "t" change.case$ }
 
 FUNCTION {space.word}
 { " " swap$ * " " * }
  % Here are the language-specific definitions for explicit words.
  % Each function has a name bbl.xxx where xxx is the English word.
- % The BABEL language selection is made here; definitions in babelbst.tex.
+ % The language selected here is ENGLISH
 FUNCTION {bbl.and}
-{ "\bbland{}"}
+{ "and"}
 
 FUNCTION {bbl.etal}
-{ "\bbletal{}"}
+{ "et~al." }
 
 FUNCTION {bbl.editors}
-{ "\bbleditors{}" }
+{ "editors" }
 
 FUNCTION {bbl.editor}
-{ "\bbleditor{}" }
+{ "editor" }
 
 FUNCTION {bbl.edby}
-{ "\bbledby{}" }
+{ "edited by" }
 
 FUNCTION {bbl.edition}
-{ "\bbledition{}" }
+{ "edition" }
 
 FUNCTION {bbl.volume}
-{ "\bblvolume{}" }
+{ "volume" }
 
 FUNCTION {bbl.of}
-{ "\bblof{}" }
+{ "of" }
 
 FUNCTION {bbl.number}
-{ "\bblnumber{}" }
+{ "number" }
 
 FUNCTION {bbl.nr}
-{ "\bblno{}" }
+{ "no." }
 
 FUNCTION {bbl.in}
-{ "\bblin{}" }
+{ "in" }
 
 FUNCTION {bbl.pages}
-{ "\bblpages{}" }
+{ "pages" }
 
 FUNCTION {bbl.page}
-{ "\bblpage{}" }
+{ "page" }
 
 FUNCTION {bbl.chapter}
-{ "\bblchapter{}" }
+{ "chapter" }
 
 FUNCTION {bbl.techrep}
-{ "\bbltechreport{}" }
+{ "Technical Report" }
 
 FUNCTION {bbl.mthesis}
-{ "\bblmthesis{}" }
+{ "Master's thesis" }
 
 FUNCTION {bbl.phdthesis}
-{ "\bblphdthesis{}" }
+{ "Ph.D. thesis" }
 
-MACRO {jan} {"\bbljan{}"}
+MACRO {jan} {"January"}
 
-MACRO {feb} {"\bblfeb{}"}
+MACRO {feb} {"February"}
 
-MACRO {mar} {"\bblmar{}"}
+MACRO {mar} {"March"}
 
-MACRO {apr} {"\bblapr{}"}
+MACRO {apr} {"April"}
 
-MACRO {may} {"\bblmay{}"}
+MACRO {may} {"May"}
 
-MACRO {jun} {"\bbljun{}"}
+MACRO {jun} {"June"}
 
-MACRO {jul} {"\bbljul{}"}
+MACRO {jul} {"July"}
 
-MACRO {aug} {"\bblaug{}"}
+MACRO {aug} {"August"}
 
-MACRO {sep} {"\bblsep{}"}
+MACRO {sep} {"September"}
 
-MACRO {oct} {"\bbloct{}"}
+MACRO {oct} {"October"}
 
-MACRO {nov} {"\bblnov{}"}
+MACRO {nov} {"November"}
 
-MACRO {dec} {"\bbldec{}"}
+MACRO {dec} {"December"}
 
 MACRO {acmcs} {"ACM Computing Surveys"}
 
@@ -371,9 +357,11 @@ FUNCTION {bibinfo.warn}
   if$
 }
 FUNCTION {write.url}
-{ url empty$
-    { skip$ }
-    { "\newline\urlprefix\url{" url * "}" * write$ newline$ }
+{
+  url
+  duplicate$ empty$
+    { pop$ }
+    { "\newline\urlprefix\url{" swap$ * "}" * write$ newline$ }
   if$
 }
 
@@ -533,11 +521,11 @@ FUNCTION {format.issn}
 }
 
 FUNCTION {format.doi}
-{ doi "doi" bibinfo.check
-  duplicate$ empty$ 'skip$
+{ doi empty$
+    { "" }
     {
       new.block
-      "\doi{" swap$ * "}" *
+      "\doi{" doi * "}" *
     }
   if$
 }
@@ -993,8 +981,6 @@ FUNCTION {article}
   author format.key output
   name.or.dash
   new.block
-  format.date "year" output.check
-  new.block
   format.title "title" output.check
   new.block
   crossref missing$
@@ -1004,6 +990,7 @@ FUNCTION {article}
       emphasize
       "journal" output.check
       format.vol.num.pages output
+      format.date "year" output.check
     }
     { format.article.crossref output.nonnull
       format.pages output
@@ -1032,8 +1019,6 @@ FUNCTION {book}
     }
   if$
   new.block
-  format.date "year" output.check
-  new.block
   format.btitle "title" output.check
   crossref missing$
     { format.bvolume output
@@ -1048,6 +1033,7 @@ FUNCTION {book}
     }
   if$
   format.edition output
+  format.date "year" output.check
   format.isbn output
   format.doi output
   new.block
@@ -1061,12 +1047,11 @@ FUNCTION {booklet}
   author format.key output
   name.or.dash
   new.block
-  format.date "year" output.check
-  new.block
   format.title "title" output.check
   new.block
   howpublished "howpublished" bibinfo.check output
   address "address" bibinfo.check output
+  format.date "year" output.check
   format.isbn output
   format.doi output
   new.block
@@ -1091,8 +1076,6 @@ FUNCTION {inbook}
     }
   if$
   new.block
-  format.date "year" output.check
-  new.block
   format.btitle "title" output.check
   crossref missing$
     {
@@ -1110,6 +1093,7 @@ FUNCTION {inbook}
     }
   if$
   format.edition output
+  format.date "year" output.check
   crossref missing$
     { format.isbn output }
     'skip$
@@ -1127,8 +1111,6 @@ FUNCTION {incollection}
   author format.key output
   name.or.dash
   new.block
-  format.date "year" output.check
-  new.block
   format.title "title" output.check
   new.block
   crossref missing$
@@ -1139,6 +1121,7 @@ FUNCTION {incollection}
       new.sentence
       format.publisher.address output
       format.edition output
+      format.date "year" output.check
       format.isbn output
     }
     { format.incoll.inproc.crossref output.nonnull
@@ -1156,8 +1139,6 @@ FUNCTION {inproceedings}
   format.authors "author" output.check
   author format.key output
   name.or.dash
-  format.date "year" output.check
-  new.block
   new.block
   format.title "title" output.check
   new.block
@@ -1173,6 +1154,7 @@ FUNCTION {inproceedings}
           format.publisher.address output
         }
       if$
+      format.date "year" output.check
       format.isbn output
       format.issn output
     }
@@ -1193,13 +1175,12 @@ FUNCTION {manual}
   author format.key output
   name.or.dash
   new.block
-  format.date "year" output.check
-  new.block
   format.btitle "title" output.check
   organization address new.block.checkb
   organization "organization" bibinfo.check output
   address "address" bibinfo.check output
   format.edition output
+  format.date "year" output.check
   format.doi output
   new.block
   format.note output
@@ -1213,14 +1194,13 @@ FUNCTION {mastersthesis}
   author format.key output
   name.or.dash
   new.block
-  format.date "year" output.check
-  new.block
   format.btitle
   "title" output.check
   new.block
   bbl.mthesis format.thesis.type output.nonnull
   school "school" bibinfo.warn output
   address "address" bibinfo.check output
+  format.date "year" output.check
   format.doi output
   new.block
   format.note output
@@ -1234,11 +1214,10 @@ FUNCTION {misc}
   author format.key output
   name.or.dash
   new.block
-  format.date "year" output.check
-  new.block
   format.title output
   new.block
   howpublished "howpublished" bibinfo.check output
+  format.date "year" output.check
   format.doi output
   new.block
   format.note output
@@ -1251,14 +1230,13 @@ FUNCTION {phdthesis}
   author format.key output
   name.or.dash
   new.block
-  format.date "year" output.check
-  new.block
   format.btitle
   "title" output.check
   new.block
   bbl.phdthesis format.thesis.type output.nonnull
   school "school" bibinfo.warn output
   address "address" bibinfo.check output
+  format.date "year" output.check
   format.doi output
   new.block
   format.note output
@@ -1293,8 +1271,6 @@ FUNCTION {proceedings}
   editor format.key output
   name.or.dash
   new.block
-  format.date "year" output.check
-  new.block
   format.btitle "title" output.check
   format.bvolume output
   format.number.series output
@@ -1305,6 +1281,7 @@ FUNCTION {proceedings}
       format.publisher.address output
     }
   if$
+  format.date "year" output.check
   format.isbn output
   format.issn output
   format.doi output
@@ -1320,14 +1297,13 @@ FUNCTION {techreport}
   author format.key output
   name.or.dash
   new.block
-  format.date "year" output.check
-  new.block
   format.title
   "title" output.check
   new.block
   format.tr.number emphasize output.nonnull
   institution "institution" bibinfo.warn output
   address "address" bibinfo.check output
+  format.date "year" output.check
   format.doi output
   new.block
   format.note output
@@ -1341,9 +1317,8 @@ FUNCTION {unpublished}
   author format.key output
   name.or.dash
   new.block
-  format.date "year" output.check
-  new.block
   format.title "title" output.check
+  format.date "year" output.check
   format.doi output
   new.block
   format.note "note" output.check
@@ -1473,9 +1448,10 @@ FUNCTION {sort.format.names}
         {
           "   "  *
           namesleft #1 = t "others" = and
-            { "zzzzz" * }
-            { t sortify * }
+            { "zzzzz" 't := }
+            'skip$
           if$
+          t sortify *
         }
         { t sortify * }
       if$
@@ -1566,17 +1542,30 @@ FUNCTION {presort}
 ITERATE {presort}
 SORT
 STRINGS { last.label next.extra }
-INTEGERS { last.extra.num number.label }
+INTEGERS { last.extra.num last.extra.num.extended last.extra.num.blank number.label }
 FUNCTION {initialize.extra.label.stuff}
 { #0 int.to.chr$ 'last.label :=
   "" 'next.extra :=
   #0 'last.extra.num :=
+  "a" chr.to.int$ #1 - 'last.extra.num.blank :=
+  last.extra.num.blank 'last.extra.num.extended :=
   #0 'number.label :=
 }
 FUNCTION {forward.pass}
 { last.label label =
     { last.extra.num #1 + 'last.extra.num :=
-      last.extra.num int.to.chr$ 'extra.label :=
+      last.extra.num "z" chr.to.int$ >
+       { "a" chr.to.int$ 'last.extra.num :=
+         last.extra.num.extended #1 + 'last.extra.num.extended :=
+       }
+       'skip$
+      if$
+      last.extra.num.extended last.extra.num.blank >
+        { last.extra.num.extended int.to.chr$
+          last.extra.num int.to.chr$
+          * 'extra.label := }
+        { last.extra.num int.to.chr$ 'extra.label := }
+      if$
     }
     { "a" chr.to.int$ 'last.extra.num :=
       "" 'extra.label :=
@@ -1637,16 +1626,17 @@ FUNCTION {begin.bib}
   write$ newline$
   "  \providecommand{\doi}{doi:\discretionary{}{}{}\begingroup \urlstyle{rm}\Url}\fi"
   write$ newline$
-  "\input{babelbst.tex}" write$ newline$
-  "\newcommand{\Capitalize}[1]{\uppercase{#1}}" write$ newline$
-  "\newcommand{\capitalize}[1]{\expandafter\Capitalize#1}" write$ newline$
   "\providecommand{\bibAnnoteFile}[1]{%"
   write$ newline$
-  "  \IfFileExists{#1}{\begin{quotation}\noindent\textsc{Annotation:}\ \input{#1}\end{quotation}}{}}"
+  "  \IfFileExists{#1}{\begin{quotation}\noindent\textsc{Key:} #1\\"
+  write$ newline$
+  "  \textsc{Annotation:}\ \input{#1}\end{quotation}}{}}"
   write$ newline$
   "\providecommand{\bibAnnote}[2]{%"
   write$ newline$
-  "  \begin{quotation}\noindent\textsc{Annotation:}\ #2\end{quotation}}"
+  "  \begin{quotation}\noindent\textsc{Key:} #1\\"
+  write$ newline$
+  "  \textsc{Annotation:}\ #2\end{quotation}}"
   write$ newline$
 }
 EXECUTE {begin.bib}
@@ -1657,21 +1647,6 @@ FUNCTION {end.bib}
   "\end{thebibliography}" write$ newline$
 }
 EXECUTE {end.bib}
-%
-%% The following 12 lines are the original code for the \bibAnnoteFile and \bibAnnote 
-%% commands ~20 lines above (this code displays the Key as well) SMcG 22Feb2010
-%  "\providecommand{\bibAnnoteFile}[1]{%"
-%  write$ newline$
-%  "  \IfFileExists{#1}{\begin{quotation}\noindent\textsc{Key:} #1\\"
-%  write$ newline$
-%  "  \textsc{Annotation:}\ \input{#1}\end{quotation}}{}}"
-%  write$ newline$
-%  "\providecommand{\bibAnnote}[2]{%"
-%  write$ newline$
-%  "  \begin{quotation}\noindent\textsc{Key:} #1\\"
-%  write$ newline$
-%  "  \textsc{Annotation:}\ #2\end{quotation}}"
-%  write$ newline$
 %% End of customized bst file
 %%
 %% End of file `mscBA.bst'.

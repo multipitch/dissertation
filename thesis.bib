@@ -1,99 +1,61 @@
-% BiBTex database for MScBA Thesis
-% Sean Tully
-% Based on a template from Sean McGarraghy, which is reproduced without 
-% modification in the following 100 lines or so and is followed with my
-% additions in a clearly defined block
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%    START OF TEMPLATE                                                         %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%  BiBTeX database for thesis "Xxxxxxxxxxxxxxxxx"
+%   MSc Business Analytics Dissertation
+%   Format based on skeleton template provided as part of module MIS40750
 %
-%% bibtexfile{
-%%  author    = "Sean McGarraghy",
-%%  version   = "0.10",
-%%  date      = "25 June 1999",
-%%  filename  = "thesis.bib",
-%%  address   = "Centre for Business Analytics,
-%%               School of Business,
-%%               University College,
-%%               Dublin 4,
-%%               Ireland",
-%%  email     = "<Sean.McGarraghy at ucd.ie>" }
+%   Title:     Optimising the design of buffer preparation in bioprocessing
+%              facilities
+%   Author:    Sean Tully
+%
+%   Bibliography
+%
 
 @Preamble{{} 
 # {\hyphenation{Post-Script Sprin-ger}}
 }
-
-@String{AMS = {{Amer. Math. Soc.}}}
-@String{AW  = {{Addison-Wesley}}}
-@String{BEN = {{W.A. Benjamin, Inc, Mathematics Lecture Note Series}}}
-@String{BEN:adr = {{Reading, Massachusetts}}}
-@String{CUP = {{Cambridge University Press}}}
-@String{EA  = {{Edward Arnold}}}
-@String{FVS = {{Friedr. Vieweg \& Sohn}}}
-@String{FVS:adr = {{Braunschweig/Wiesbaden}}}
-@String{GBS = {{Gordon and Breach Science Publishers}}}
-@String{MGH = {{McGraw-Hill}}}
-@String{OUP = {{Oxford University Press}}}
-@String{OUP:adr = {{Oxford, London, New York}}}
-@String{RKP = {{Routledge and Kegan Paul}}}
-@String{SV  = {{Springer-Verlag}}}
-@String{SV:adr = {{Berlin-Heidelberg-Tokyo-New York}}}
-@String{WHF = {{W. H. Freeman and Company}}}
-@String{WI  = {{Wiley}}}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%    END OF TEMPLATE                                                           %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
- 
-% My bibliography starts here:
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %    Articles                                                                  %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 @article{Ahmed:2000,
+  author = {Ahmed, S. and N. V. Sahinidis},
   title = {Analytical investigations of the process planning problem},
   journal = {Computers \& Chemical Engineering},
   volume = {23},
-  number = {11–12},
-  pages = {1605 - 1621},
+  number = {11--12},
+  pages = {1605--1621},
   year = {2000},
-  doi = {http://dx.doi.org/10.1016/S0098-1354(99)00312-9},
-  author = {Shabbir Ahmed and Nikolaos V. Sahinidis},
+  doi = {10.1016/S0098-1354(99)00312-9},
 }
 
 @article{Al-Otaibi:2004,
-  title={Simulation model determines optimal tank farm design},
-  author={Al-Otaibi, Ghanim A and Stewart, Michael D and others},
-  journal={Oil \& gas journal},
-  volume={102},
-  number={7},
-  pages={50--55},
-  year={2004},
+  title = {Simulation model determines optimal tank farm design},
+  author = {Al-Otaibi, Ghanim A and Stewart, Michael D and others},
+  journal = {Oil \& gas journal},
+  volume = {102},
+  number = {7},
+  pages = {50--55},
+  year = {2004},
 }
 
 @article{Bettinelli:2010,
-  author={Bettinelli,Andrea and Ceselli,Alberto and Righini,Giovanni},
-  year={2010},
-  month={09},
-  title={A branch-and-price algorithm for the variable size bin packing problem with minimum filling constraint},
-  journal={Annals of Operations Research},
-  volume={179},
-  number={1},
-  pages={221-241},
+  author = {Bettinelli,Andrea and Ceselli,Alberto and Righini,Giovanni},
+  year = {2010},
+  month = {09},
+  title = {A branch-and-price algorithm for the variable size bin packing problem with minimum filling constraint},
+  journal = {Annals of Operations Research},
+  volume = {179},
+  number = {1},
+  pages = {221--241},
+  doi = {10.1007/s10479-008-0452-9},
 }
 
 @article{Brunet:2012,
   title = {Hybrid simulation-optimization based approach for the optimal design of single-product biotechnological processes},
   journal = {Computers \& Chemical Engineering},
   volume = {37},
-  pages = {125 - 135},
+  pages = {125--135},
   year = {2012},
-  doi = {http://dx.doi.org/10.1016/j.compchemeng.2011.07.013},
+  doi = {10.1016/j.compchemeng.2011.07.013},
   author = {Robert Brunet and Gonzalo Guillén-Gosálbez and J. Ricardo Pérez-Correa and José Antonio Caballero and Laureano Jiménez},
 }
 
@@ -102,9 +64,9 @@
   journal = {Computers \& Chemical Engineering},
   volume = {28},
   number = {4},
-  pages = {459 - 478},
+  pages = {459--478},
   year = {2004},
-  doi = {http://dx.doi.org/10.1016/j.compchemeng.2003.07.002},
+  doi = {10.1016/j.compchemeng.2003.07.002},
   author = {L. Cavin and U. Fischer and F. Glover and K. Hungerbühler},
 }
 
@@ -113,20 +75,21 @@
   journal = {Computers \& Chemical Engineering},
   volume = {29},
   number = {8},
-  pages = {1770 - 1786},
+  pages = {1770--1786},
   year = {2005},
-  doi = {http://dx.doi.org/10.1016/j.compchemeng.2005.02.039},
-  author = {L. Cavin and U. Fischer and A. Mošat́ and K. Hungerbühler},
+  doi = {10.1016/j.compchemeng.2005.02.039},
+  author = {L. Cavin and U. Fischer and A. Moša{\'t} and K. Hungerbühler},
 }
 
 @article{Dantzig:1957,
+  title = {Discrete-Variable Extremum Problems},
   author = {George B. Dantzig},
   journal = {Operations Research},
-  number = {2},
-  pages = {266-277},
-  title = {Discrete-Variable Extremum Problems},
   volume = {5},
+  number = {2},
+  pages = {266--277},
   year = {1957},
+  doi = {10.1287/opre.5.2.266},
 }
 
 @article{Dedieu:2003,
@@ -134,31 +97,31 @@
   journal = {Computers \& Chemical Engineering},
   volume = {27},
   number = {12},
-  pages = {1723 - 1740},
+  pages = {1723--1740},
   year = {2003},
-  doi = {http://dx.doi.org/10.1016/S0098-1354(03)00155-8},
+  doi = {10.1016/S0098-1354(03)00155-8},
   author = {Samuel Dedieu and Luc Pibouleau and Catherine Azzaro-Pantel and Serge Domenech},
 }
 
 @article{Dietz:2007,
-  title = "Optimal design of batch plants under economic and ecological considerations: Application to a biochemical batch plant ",
-  journal = "Mathematical and Computer Modelling ",
-  volume = "46",
-  number = "1–2",
-  pages = "109 - 123",
-  year = "2007",
-  doi = "http://dx.doi.org/10.1016/j.mcm.2006.12.032",
-  author = "A. Dietz and C. Azzaro-Pantel and L. Pibouleau and S. Domenech",
+  title = {Optimal design of batch plants under economic and ecological considerations: Application to a biochemical batch plant},
+  journal = {Mathematical and Computer Modelling},
+  volume = {46},
+  number = {1--2},
+  pages = {109--123},
+  year = {2007},
+  doi = {10.1016/j.mcm.2006.12.032},
+  author = {A. Dietz and C. Azzaro-Pantel and L. Pibouleau and S. Domenech},
 }
 
 @article{Dietz:2008,
   title = {A fuzzy multiobjective algorithm for multiproduct batch plant: Application to protein production},
   journal = {Computers \& Chemical Engineering},
   volume = {32},
-  number = {1–2},
-  pages = {292 - 306},
+  number = {1--2},
+  pages = {292--306},
   year = {2008},
-  url = {http://www.sciencedirect.com/science/article/pii/S0098135407001391},
+  doi = {10.1016/j.compchemeng.2007.05.011},
   author = {A. Dietz and A. Aguilar-Lasserre and C. Azzaro-Pantel and L. Pibouleau and S. Domenech},
 }
 
@@ -168,7 +131,7 @@
   journal = {Industrial \& Engineering Chemistry Process Design and Development},
   volume = {18},
   number = {2},
-  pages = {343-348},
+  pages = {343--348},
   year = {1979},
   doi = {10.1021/i260070a031},
 }
@@ -177,9 +140,9 @@
   title = {Scope for industrial applications of production scheduling models and solution methods},
   journal = {Computers \& Chemical Engineering},
   volume = {62},
-  pages = {161 - 193},
+  pages = {161--193},
   year = {2014},
-  doi = {http://dx.doi.org/10.1016/j.compchemeng.2013.12.001},
+  doi = {10.1016/j.compchemeng.2013.12.001},
   author = {Iiro Harjunkoski and Christos T. Maravelias and Peter Bongers and Pedro M. Castro and Sebastian Engell and Ignacio E. Grossmann and John Hooker and Carlos Méndez and Guido Sand and John Wassick},
 }
 
@@ -199,10 +162,10 @@
   journal = {Chinese Journal of Chemical Engineering},
   volume = {16},
   number = {1},
-  pages = {39 - 42},
+  pages = {39--42},
   year = {2008},
-  doi = {http://dx.doi.org/10.1016/S1004-9541(08)60033-6},
-  author = {Li Sun and Helen H. Lou},
+  doi = {10.1016/S1004-9541(08)60033-6},
+  author = {Sun Li and Helen H. Lou},
 }
 
 @article{Loonkar:1970,
@@ -211,7 +174,7 @@
   journal = {Industrial \& Engineering Chemistry Process Design and Development},
   volume = {9},
   number = {4},
-  pages = {625-629},
+  pages = {625--629},
   year = {1970},
   doi = {10.1021/i260036a023},
 }
@@ -221,20 +184,20 @@
   journal = {Computers \& Chemical Engineering},
   volume = {32},
   number = {3},
-  pages = {512 - 529},
+  pages = {512--529},
   year = {2008},
-  doi = {http://dx.doi.org/10.1016/j.compchemeng.2007.03.017},
-  author = {Andrej Mošat́ and Laurent Cavin and Ulrich Fischer and Konrad Hungerbühler},
+  doi = {10.1016/j.compchemeng.2007.03.017},
+  author = {Andrej Moša{\'t} and Laurent Cavin and Ulrich Fischer and Konrad Hungerbühler},
 }
 
 @article{Neiro:2004,
   title = {A general modeling framework for the operational planning of petroleum supply chains},
   journal = {Computers \& Chemical Engineering},
   volume = {28},
-  number = {6–7},
-  pages = {871 - 896},
+  number = {6--7},
+  pages = {871--896},
   year = {2004},
-  doi = {http://dx.doi.org/10.1016/j.compchemeng.2003.09.018},
+  doi = {10.1016/j.compchemeng.2003.09.018},
   author = {Sérgio M.S. Neiro and José M. Pinto},
 }
 
@@ -244,7 +207,7 @@
   journal = {Industrial \& Engineering Chemistry Research},
   volume = {29},
   number = {10},
-  pages = {2054-2062},
+  pages = {2054--2062},
   year = {1990},
   doi = {10.1021/ie00106a013},
 }
@@ -254,9 +217,9 @@ title = {Optimize Manufacturing of Pharmaceutical Products with Process Simulati
 journal = {Chemical Engineering Research and Design},
 volume = {85},
 number = {7},
-pages = {1086 - 1097},
+pages = {1086--1097},
 year = {2007},
-doi = {http://dx.doi.org/10.1205/cherd06240},
+doi = {10.1205/cherd06240},
 author = {V. Papavasileiou and A. Koulouris and C. Siletti and D. Petrides},
 }
 
@@ -270,14 +233,25 @@ author = {V. Papavasileiou and A. Koulouris and C. Siletti and D. Petrides},
   year={2011},
 }
 
+@Article{Petrides:2014,
+  author = {Petrides, Demetri and Carmichael, Doug and Siletti, Charles and Koulouris, Alexandros},
+  title = {Biopharmaceutical Process Optimization with Simulation and Scheduling Tools},
+  journal = {Bioengineering},
+  volume = {1},
+  year = {2014},
+  number = {4},
+  pages = {154--187},
+  doi = {10.3390/bioengineering1040154}
+}
+
 @article{Pinto:2000,
   title = {Planning and scheduling models for refinery operations},
   journal = {Computers \& Chemical Engineering},
   volume = {24},
-  number = {9–10},
-  pages = {2259 - 2276},
+  number = {9--0},
+  pages = {2259--2276},
   year = {2000},
-  doi = {http://dx.doi.org/10.1016/S0098-1354(00)00571-8},
+  doi = {10.1016/S0098-1354(00)00571-8},
   author = {J.M. Pinto and M. Joly and L.F.L. Moro},
 }
 
@@ -285,10 +259,10 @@ author = {V. Papavasileiou and A. Koulouris and C. Siletti and D. Petrides},
 title = {Completion times algorithm and optimal scheduling of single line multi-purpose batch process},
 journal = {Computers \& Chemical Engineering},
 volume = {23, Supplement},
-pages = {S543 - S546},
+pages = {S543--S546},
 year = {1999},
-doi = {http://dx.doi.org/10.1016/S0098-1354(99)80134-3},
-author = {Sangdae Park and Jae Hak Jung},
+doi = {10.1016/S0098-1354(99)80134-3},
+author = {Sangdae, Park and Jung, Jae Hak},
 }
 
 @article{Sparrow:1975,
@@ -297,7 +271,7 @@ author = {Sangdae Park and Jae Hak Jung},
   journal = {Industrial \& Engineering Chemistry Process Design and Development},
   volume = {14},
   number = {3},
-  pages = {197-203},
+  pages = {197--203},
   year = {1975},
   doi = {10.1021/i260055a001},
 }
@@ -316,7 +290,7 @@ author = {Sangdae Park and Jae Hak Jung},
   journal = {Industrial \& Engineering Chemistry Process Design and Development},
   volume = {21},
   number = {1},
-  pages = {94-100},
+  pages = {94--100},
   year = {1982},
   doi = {10.1021/i200016a017},
 }
@@ -327,7 +301,7 @@ author = {Sangdae Park and Jae Hak Jung},
   journal = {Industrial \& Engineering Chemistry Research},
   volume = {47},
   number = {17},
-  pages = {6648-6660},
+  pages = {6648--6660},
   year = {2008},
   doi = {10.1021/ie701737a},
 }
@@ -336,11 +310,11 @@ author = {Sangdae Park and Jae Hak Jung},
   title = {Evolutionary design of noncontinuous plants},
   journal = {Computers \& Chemical Engineering},
   volume = {22},
-  number = {1–2},
-  pages = {69 - 85},
+  number = {1--2},
+  pages = {69--85},
   year = {1998},
-  doi = {http://dx.doi.org/10.1016/S0098-1354(96)00352-3},
-  author = {Shufeng Tan and Richard S.H. Mah"},
+  doi = {10.1016/S0098-1354(96)00352-3},
+  author = {Tan, Shufeng and Richard S.H. Mah"},
 }
 
 @article{Terrazas-Moreno:2012,
@@ -349,7 +323,7 @@ author = {Sangdae Park and Jae Hak Jung},
   journal = {Industrial \& Engineering Chemistry Research},
   volume = {51},
   number = {18},
-  pages = {6441-6454},
+  pages = {6441--6454},
   year = {2012},
   doi = {10.1021/ie202217v},
 }
@@ -360,7 +334,7 @@ author = {Sangdae Park and Jae Hak Jung},
   journal = {Industrial \& Engineering Chemistry Research},
   volume = {31},
   number = {5},
-  pages = {1315-1325},
+  pages = {1315--1325},
   year = {1992},
   doi = {10.1021/ie00005a012},
 }
@@ -370,11 +344,12 @@ author = {Sangdae Park and Jae Hak Jung},
   journal = {Computers \& Chemical Engineering},
   volume = {20},
   number = {11},
-  pages = {1335 - 1360},
+  pages = {1335--1360},
   year = {1996},
-  doi = {http://dx.doi.org/10.1016/0098-1354(96)81812-6},
+  doi = {10.1016/0098-1354(96)81812-6},
   author = {V.T. Voudouris and I.E. Grossmann},
 }
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %    Books                                                                     %
@@ -390,7 +365,7 @@ author = {Sangdae Park and Jae Hak Jung},
   address={Berlin, Heidelberg},
   pages={815--822},
   isbn={978-3-642-33558-7},
-  doi={10.1007/978-3-642-33558-7_58},
+  doi={10.1007/978-3-642-33558-7{\_}58},
 }
 
 
@@ -406,6 +381,3 @@ author = {Sangdae Park and Jae Hak Jung},
   year={2009},
   organization={IEEE},
 }
- 
- 
-
