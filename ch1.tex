@@ -16,65 +16,67 @@
 \chapter{Introduction}\label{C.intro}
 
 \begin{quote}
-We have some freedom in setting up our personal standards of beauty, but it is
-especially nice when the things we regard as beautiful are also regarded by
-other people as useful.
+Well I don't think we're \emph{for} anything. We're just products of evolution.
+You can say, ``Gee, your life must be pretty bleak if you don't think there's a
+purpose.'' But I'm anticipating having a good lunch.
 
-\hspace{2cm}--- Donald Knuth, \emph{Computer Programming as an Art}
+\hspace{2cm}--- James Watson, \emph{in conversation with Richard Dawkins}
 \end{quote}
 
 
 \section{Background}\label{S.intro1}
 
-We begin by \ldots
+This chapter gives a brief outline of bioprocessing and explains the background
+to the research.
 
-\subsection{Particular Background}\label{SS.xyz}
+\subsection{Bioprocessing}\label{SS.bioproc}
 
-Here are some examples of indexing: Newton's algorithm\index{Newton's algorithm}\index{algorithm!Newton} is 
-still widely used, with modifications.  
+Before the advent of biotechnology, most therapeutics (medicines) were what are
+now termed \emph{small molecule} drugs. The pharmaceutical industry was
+concerned with the synthesis of these products via predominantly chemical
+processes, such as reaction, distillation and  crystallisation.  Small molecule
+drugs typically consist of tens or hundreds of atoms, such as paracetamol, which
+has a molar mass of approximately 151 g/mol, or aspirin (acetylsalicylic acid),
+which has a molar mass of approximately 180 g/mol.
 
-Note that the \verb|\index{algorithm!Newton}| gives an index subentry for Newton under the entry for algorithm.
-The index entries and/or their page numbers can be formatted using a pipe $|$ symbol in the \verb!\index{}! 
-command as follows:
+With the advent of recombinant D.N.A technology, biochemists gained
+the ability to program the D.N.A. of simple biological microorganisms such as
+\textit{Escherichia coli} and, eventually, mammalian cells, such as those of the
+Chinese Hamster (\textit{Cricetulus griseus}).  The genetic structure of these
+cells could be modified to produce complex molecules, which had previously
+proved difficult or impossible to synthesise by any other means.  The
+biopharmaceutical industry is concerned with the synthesis of therapeutics via
+such biological pathways.  These products are known by various names, such as
+\emph{biopharmaceuticals}, \emph{protein therapeutics} or, colloquially, as
+\emph{biotech drugs}.
+
+The first protein therapeutic to be synthesised on a large scale using 
+biological pathways was insulin, which is a hormone used to regulate metabolism
+and is administered to individuals suffering from diabetes.  Human insulin has a
+molar mass of approximately 5808 g/mol.  It was not possible to commercialy
+synthesise insulin chemically and it was initially produced by extracting the
+hormone from the pancreases of mammals such as cows or pigs.  In 1978, 
+scientists working at  the American company Genentech successfully modified 
+cells of \textit{E. coli} to produce insulin and this synthetic insulin was
+first brought to market in 1982.
+
+The industry that has grown up around the production of biopharmaceuticals is 
+known as the \emph{biopharmaceutical industry}, or, colloquially, as the
+\emph{biotech} or \emph{biopharma} industry.  McKinsey (http://www.mckinsey.com/industries/pharmaceuticals-and-medical-products/our-insights/rapid-growth-in-biopharma) ***NOTE: add as ref*** estimated that
+the biopharmaceutical market had global revenues of \$163 billion per annum and 
+was worth 20\% of the overall pharmaceutical market.  The McKinsey report also
+notes that large-scale biopharmaceutical manufactring facilities typically cost
+in the region of ``\$200 million to \$500 million or more'' to build.
+
+\subsection{Bioprocess Engineering}\label{SS.bioproceng}
 
 \begin{defn}
-The strictest definition of an \emph{algorithm}\index{algorithm@\textit{algorithm}} is: a finite set of instructions 
-that can be carried out in a finite amount of time: that is, it must terminate.
-
-These instructions must be clear and unambiguous as they are to be interpreted by a (dumb) 
-machine, so we must be absolutely precise about their meaning --- mathematical logic is 
-thus crucial in the design of algorithms\index{algorithm@\textbf{algorithm}}.
+``Bioprocess engineering: A specialist branch of (chemical) engineering that
+involves the design and operation of processes used for the production of
+biological products such as foods, pharmaceuticals, and biopolymers.''
+--- \citet{Schaschke:2014}.
 \end{defn}
 
-In practice, many useful numerical ``algorithms''\index{algorithm|textbf} that we study may get closer and closer 
-to the desired solution without reaching it in a finite time.  So, typically, we accept as an 
-``algorithm''\index{algorithm|textit} a finite set of instructions that will get within any desired tolerance 
-of the true solution in a finite time.
-If the algorithm is stochastic (involves probability, as many modern ones do) the term 
-``metaheuristic''\index{metaheuristic|textbf} is sometimes used.
+\subsection{Buffers and Media}\label{SS.buffmed}
 
-In particular, you could use the \verb|\index{algorithm@\textit{algorithm}}| or \verb!\index{algorithm|\textbf}! to
-indicate the first or most important occurrence in the text of the term ``algorithm'', etc.
-
-Some minor examples of other things indexing can do:
-\begin{itemize}
-\item You can handle accented words as in \'ecole\index{ecole@\'ecole}: the index entry appears in the correct 
-order under E, as desired;
-\item You can put in cross-references, as in 
-
-Are metaheuristics\index{metaheuristic|see{algorithm}} really algorithms\index{algorithm|seealso{metaheuristic}}?
-\end{itemize}
-
-Note: when you LaTeX your file \texttt{myfile.tex}, a file \texttt{myfile.idx} is produced by \verb|\makeindex|; 
-this file must be sorted by an operating system command, e.g.,
-
-\texttt{makeindex myfile} 
-
-This generated a \emph{sorted} index file \texttt{myfile.ind}.  Running LaTeX one more time gets the index printed 
-in the right place by \verb|\printindex|.
-
-Here is a dummy theorem to show how to reference notation:
-\begin{thm}\label{Th.FF.fte.field}
-Let $\FF_q$ be a finite field of $q$ elements.  Then $q$ is a power of some prime number $p$.
-\end{thm}
-
+\subsection{Proposal}\label{SS.proposal}
