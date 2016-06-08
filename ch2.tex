@@ -16,25 +16,58 @@
 \chapter{Literature Review}\label{C.litreview}
 
 \begin{quote}
-Athenian: \textit{And what of the relations of line and surface to volume, or of line and 
-surface to one another? \ldots\ A man must be able to distinguish them on examination or 
-else be a very poor creature.  We should frequently propound such problems to each other 
---- a much more elegant pastime for the elderly than draughts --- and give our passion 
-for victory an outlet in amusements worthy of us.} 
+It was long before I got at the maxim, that in reading an old mathematician you
+will not read his riddle unless you plough with his heifer; you must see with
+his light, if you want to know how much he saw.
 
-Clinias: \textit{I dare say, after all, the game of draughts and these studies are not so 
-widely different.}
-\vspace{0.1cm}
-
---- Plato, \emph{Laws VII, 820 a--d}
+\hspace{2cm}--- Augustus de Morgan, \emph{letter to W. R. Hamilton}
 \end{quote}
 
 \section{Introduction}\label{S.intro2}
 
-It is well-known that \ldots
+In this chapter, recent papers related to the design of bioprocess facilities
+are reviewed.  This is followed by the review of papers related to solving
+similar problems in other industries.  Finally, papers relating to more
+general methodologies for solving scheduling and optimisation problems are
+reviewed.
 
-\subsection{Examples of citations}\label{SS.citations}
+\subsection{Bioprocess Facility Design}\label{SS.bioprocdes}
 
-In \citet{Ahmed:2000} and \citet{Al-Otaibi:2004} and \citet{Bettinelli:2010}, Atiyah builds on the work of \citet{Brunet:2012} to develop 
-the foundations of topological $K$-theory.  \citet{Cavin:2005} and \citet{Schaus:2012} later extend parts of 
-this to a previously unexplored algebraic setting.
+Current bioprocess facility design leverages software packages for creating mass
+balances and for schedule simulation.  The mass balance tool
+\emph{SuperPro Designer\textsuperscript{\textregistered}} 
+and the scheduling tool \emph{SchedulePro\textsuperscript{\textregistered}}
+from Intelligen, Inc. (\emph{Scotch Plains, New Jersey, U.S.A.}) are examples of
+widely used software packages in the industry.
+\citet{Petrides:2014} outlines a workflow for the design of a ``typical''
+monoclonal antibody facility using 
+\emph{SuperPro Designer\textsuperscript{\textregistered}} and
+\emph{SchedulePro\textsuperscript{\textregistered}} and compares the use of
+these packages with other methodologies (it should be noted that Petrides is the 
+C.E.O. of Intelligen, Inc.).  While this paper does touch on buffer preparation,
+it does not elaborate on a strategy for optimising the area, stating:
+\begin{quote}In most real processes, buffer scheduling is considerably more
+complex and challenging because of the larger number of buffers required for a
+typical process (more than twenty), the shared use of pipe segments and transfer
+panels, as well as constraints imposed by the limited availability of labor.
+\end{quote}
+\citet{Petrides:2014} cite an earlier paper by \citet{Toumi:2010} which also
+looks at design of a facility for monoclonal antibody production.
+\citet{Toumi:2010} also mention the difficulty of optimising the sizing and 
+selection of buffer equipment, but do not outline a methodology for doing so.
+
+
+\citet{Dietz:2008} outlines a genetic algorithm approach to optimising the 
+design of protein production facilities, which is capable of dealing with
+imprecise demands.  It is primarily looking at the specification of the main
+process equipment and mass balance and it does not touch on buffer preparation.
+
+No mentions could be found of methodologies for optimising buffer preparation in
+bioprocess facility design.
+
+\subsection{Facility Design Optimisation in the Process Industry}
+\label{SS.fdopi}
+Casting the net wider to the pharmaceutical, chemical and other process
+industries yields several articles that deal with similar families of problems.
+
+

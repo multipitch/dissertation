@@ -40,7 +40,7 @@ has a molar mass of approximately 151 g/mol, or aspirin (acetylsalicylic acid),
 which has a molar mass of approximately 180 g/mol.
 
 With the advent of recombinant D.N.A technology, biochemists gained
-the ability to program the D.N.A. of simple biological microorganisms such as
+the ability to re-program the D.N.A. of simple biological microorganisms such as
 \textit{Escherichia coli} and, eventually, mammalian cells, such as those of the
 Chinese Hamster (\textit{Cricetulus griseus}).  The genetic structure of these
 cells could be modified to produce complex molecules, which had previously
@@ -56,27 +56,177 @@ and is administered to individuals suffering from diabetes.  Human insulin has a
 molar mass of approximately 5808 g/mol.  It was not possible to commercialy
 synthesise insulin chemically and it was initially produced by extracting the
 hormone from the pancreases of mammals such as cows or pigs.  In 1978, 
-scientists working at  the American company Genentech successfully modified 
+scientists working at  the American company Genentech (now a subsidiary of the
+Swiss pharmaceutical company F. Hoffmann-La Roche AG) successfully modified 
 cells of \textit{E. coli} to produce insulin and this synthetic insulin was
 first brought to market in 1982.
 
 The industry that has grown up around the production of biopharmaceuticals is 
 known as the \emph{biopharmaceutical industry}, or, colloquially, as the
-\emph{biotech} or \emph{biopharma} industry.  McKinsey (http://www.mckinsey.com/industries/pharmaceuticals-and-medical-products/our-insights/rapid-growth-in-biopharma) ***NOTE: add as ref*** estimated that
-the biopharmaceutical market had global revenues of \$163 billion per annum and 
-was worth 20\% of the overall pharmaceutical market.  The McKinsey report also
-notes that large-scale biopharmaceutical manufactring facilities typically cost
-in the region of ``\$200 million to \$500 million or more'' to build.
+\emph{biotech} or \emph{biopharma} industry.  A report by strategy consultants
+McKinsey \& Company \citep{Otto:2014} estimates that the biopharmaceutical 
+market had global revenues of \$163 billion per annum and was worth 20\% of the
+overall pharmaceutical market.  \citet{Otto:2014} also note that large-scale
+biopharmaceutical manufactring facilities typically cost in the region of
+``\$200 million to \$500 million or more'' to build.
 
 \subsection{Bioprocess Engineering}\label{SS.bioproceng}
 
-\begin{defn}
-``Bioprocess engineering: A specialist branch of (chemical) engineering that
-involves the design and operation of processes used for the production of
-biological products such as foods, pharmaceuticals, and biopolymers.''
---- \citet{Schaschke:2014}.
-\end{defn}
+\citet{Schaschke:2014} defines bioprocess engineering as ``A specialist branch
+of (chemical) engineering that involves the design and operation of processes
+used for the production of biological products such as foods, pharmaceuticals,
+and biopolymers.''  The design of a large-scale biopharmaceutical facility
+typically takes about two years and requires a multidisciplinary team of
+engineers and scientists.
+
+\subsection{Upstream and Downstream}\label{SS.updown}
+
+A complete facility typically starts with frozen vials of cells (the 
+\emph{working cell bank}) and finishes with the final formulated product in
+either bulk form or filled into its final packaging \textit{e.g.} syringes.
+Facilities are nominally divided into \emph{upstream} and \emph{downstream} 
+sections.
+The upstream section is predominantly concerned with the expansion of cells
+from a small vial into progressively larger tanks of \emph{media}.  
+The final stage of this growth occurs in the \emph{production bioreactor}, 
+wherein the conditions can be altered to encourage the cells to produce the 
+target protein.
+
+At the interface between upstream and downstream lies the \emph{harvest}
+section. In the harvest section, some initial separation is performed to begin
+to isolate the target protein from the contents of the batch (which at this
+point include cells, cell waste, growth media, antibiotics and myriad other
+contaminants).  At the end of the harvest section, all traces of the host cells
+should be removed and the batch is said to be \emph{cell-free}.  Different
+interpretations exist in the industry as to where the upstream-downstream split
+occurs, but it usually is defined as being at some point in the harvest section.
+
+Downstream processing is concerned with taking the cell-free but otherwise 
+contaminated batch and purifying it through a series of orthogonal processes.
+Such processes can include filtration, ultrafiltration/diafiltration 
+(\emph{UF/DF}), chromatogrpahy, reaction, virus inactivation and formulation.
+At the end of downstream processing, a batch should consist of formulated bulk
+product, ready to be filled into its final packaging for delivery. The final 
+fill/finish steps often occur in a separate, sterile facility.
 
 \subsection{Buffers and Media}\label{SS.buffmed}
 
-\subsection{Proposal}\label{SS.proposal}
+Both upstream and downstream sections require large volumes of aqueous solutions
+to be prepared and stored.  Solutions used upstream are typically referred to as
+\emph{media} and those used downstream are typically referred to as
+\emph{buffers}.  Strictly speaking, media refers to the solutions of nutrients
+into which cells are expanded, but the term is usually used to encompass all
+other upstream solutions, such as acids and bases antifoam used in the
+bioreactors.  Strictly speaking, a chemist would define a buffer as a solution
+which maintains its pH over a wide range of concentrations.  Most solutions used
+downstream do indeed meet this criteria, but the term \emph{buffers} is
+generally used as a catch-all for all solutions used in the downstream section.
+A typical process to produce a \emph{monoclonal antibody} (a common family of 
+protein therapeutics) can use tens or hundreds of litres of buffers and media 
+per litre volume in the production bioreactor.  Typical large-scale production
+bioreactor volumes for such processes are in the range 10,000--30,000 litres.
+Each batch may use in the region of 20--40 different buffers and media.
+
+\subsection{Buffers and Media Preparation}\label{SS.buffmedprep}
+
+One of the reasons for the catch-all definitions of \emph{buffers} and
+\emph{media} in the section above is to do with segregation.  The upstream and
+downstream sections of the plant are segregated to prevent cross-contamination.
+As a result, there are typically two main areas where solutions are prepared.
+Buffers are prepared in an area called \emph{buffer preparation} and media are
+prepared in an area called \emph{media preparation}.  There may also be a
+seperate area for preparing sterile buffers for the final formulation, again to
+reduce the possibility of contamination and ensure sterility is maintained.  In
+both media and buffer preparation, one vessel is used to prepare the solution
+and then it is typically sterile filtered into either a hold vessel or the
+destination vessel.
+
+\subsection{Buffer Preparation Design}\label{SS.buffprepdes}
+
+For a given product, a production process is defined at laboratory scale.  The
+definition of key parameters at laboratory scale can allow process engineers to
+generate a produciton-scale mass balance.  This mass balance provides, amongst
+other things, lists of all buffers and media required to make a batch.  Two
+complex optimisation problems now emerge; how do we design the buffer and media
+preparation areas?  For media, the problem is relatively easy to solve with some
+trial and error, since there are typically only about 10 media used per batch
+and they often differ vastly in scale -- the initial bioreactor may be 20 litres
+in volume and the production bioreactor may be 20,000 litres in volume.  Because
+of this, the sizing of preparation vessels usually proceeds by picking a vessel
+capable of preparing the largest medium, defining a minimum fill volume and
+seeing what else can be prepared in it, then defining another vessel, and so on
+until sufficient vessels are defined.  Media hold vessels, if required, may be 
+similarly defined.
+
+The problem of designing a buffer preparation area is more difficult to solve.
+There may be 20 or more different buffer compositions.  Often each buffer is
+used multiple times in the same operation or multiple times across multiple
+operations.  In operations such as chromatography, somewhere in the region of
+5--10 buffers may be needed in rapid succession.  They tend to be of similar 
+volumes, so an efficient solution will look to maximise the number of buffers
+prepared in a given preparation vessel.  Since they may be needed in rapid
+succession, this then involves a requirement for multiple hold vessels so
+some buffers can be made ahead of time.  Where buffers are required for multiple
+steps in an operation or across multiple operations, is it best to perform
+many preparations, or few; additionally, is it best to hold the buffer
+in many seperate hold vessels, allowing them to be individually freed up more
+quickly, or is it better to consolidate and minimised the number of vessels?
+Defining success in the design of buffer preparation is also difficult -- there
+are trade-offs between efficiency and flexibility, capital and operating costs,
+and many other factors such as installed area, installed volume, operability, 
+layout/adjacency, piepwork complexity and cleanability.
+
+Due to the high salt concentrations in some buffers, they can prove corrosive
+to the commonly used grades of stianless steel, such as 316L.  Such buffers
+may have to be prepared or held in vessels made from expensive alloys such as
+AL-6XN\textsuperscript{\textregistered}, which is about 3.5 times more
+expensive, or a steel from the Hastelloy\textsuperscript{\textregistered}
+family, which can be eight or more times more expensive than 316L.
+Ideally, the use of these alloys should be minimised.
+
+Another factor is the use of disposable technology.  Buffer preparation, at
+scales of up to 3,000 litres, can be carried out in disposable sterile bags,
+rather than vessels.  These have a higher consumable cost but are faster to turn
+around between preparations and reduce the utilisation of cleaning equipment.
+Similarly, buffers can be held in disposable bags at volumes of up to 5,000
+litre.
+
+\subsection{Problem Definition}\label{SS.probdef}
+
+The task of designing a buffer preparation area is complex.  Current workflows
+are largely based on trial-and-error methods using process engineering
+scheduling software.  Typically, a conservatively large array of vessels is
+chosen and the schedule is run.  If there is an individual vessel for each task,
+the shedule will resolve easily, but the capital and space requirements will be
+onerous.  Via trial-and-error, individual vessels may be removed or resized and
+the schedule re-run to see if it can be resolved.  After some iteration, it
+becomes difficult or impossible to remove or reduce the vessels any further and 
+resolve the schedule.  At this point, iteration stops.  In the early feasibility
+or concept stages of a project, this process is cumbersome, the end points are 
+poorly defined and any development of the underlying process which varies the 
+volumes required may necessitate starting the optimisation from scratch.
+An additional factor is that a working solution may exist for a given
+configuration, but the schedulign software is unable to resolve the problem,
+giving a false negative.
+
+A more streamlined methodology for solving this optimisation problem is
+required and this dissertation is concerned with developing such a methodology
+and a software tool to implement it.
+The aim is to start with a reduced or basic case, including a number of
+simplifying assumptions, and develop a working tool to schedule the operations
+in buffer preparation and to vary the size and number of vessels and the 
+preparation strategy to optimise the process with respect to some metric.
+One a working framework has been developed, additional constraints can be added
+and simplifications can be removed to provide a better approximation of 
+real-world conditions
+
+Success will be defined both in terms of the ability for the software tool to
+provide an optimum solution and the speed at which it can be implemented
+relative to other methods or benchmarks.
+
+The business imperatives are twofold.  For an engineering consultancy, the
+ability to rapidly, accurately and repeatably solve such problems gives a
+competitive edge, which can be used to win more business and to deliver designs
+more cheaply.  For a biopharmaceutical client, optimising this problem results
+in cost savings and having a well defined methodology for doing so gives
+confidence that an in-progress design is indeed optimal.
