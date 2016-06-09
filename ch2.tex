@@ -27,7 +27,7 @@ his light, if you want to know how much he saw.
 
 In this chapter, recent papers related to the design of bioprocess facilities
 are reviewed.  This is followed by the review of papers related to solving
-similar problems in other industries.  Finally, papers relating to more
+similar problems in related industries.  Finally, papers relating to more
 general methodologies for solving scheduling and optimisation problems are
 reviewed.
 
@@ -38,13 +38,16 @@ balances and for schedule simulation.  The mass balance tool
 \emph{SuperPro Designer\textsuperscript{\textregistered}} 
 and the scheduling tool \emph{SchedulePro\textsuperscript{\textregistered}}
 from Intelligen, Inc. (\emph{Scotch Plains, New Jersey, U.S.A.}) are examples of
-widely used software packages in the industry.
-\citet{Petrides:2014} outlines a workflow for the design of a ``typical''
-monoclonal antibody facility using 
+software packages that are widely used, particularly by American firms.
+The \emph{INOSIM} family of software from INOSIM Software GmbH
+\emph{Dortmund, Germany} is used particularly by German and Swiss firms.
+
+\citet{Petrides:2014} outline a workflow for 
+the design of a ``typical'' monoclonal antibody facility using 
 \emph{SuperPro Designer\textsuperscript{\textregistered}} and
 \emph{SchedulePro\textsuperscript{\textregistered}} and compares the use of
-these packages with other methodologies (it should be noted that Petrides is the 
-C.E.O. of Intelligen, Inc.).  While this paper does touch on buffer preparation,
+these packages with other methodologies.
+While this paper does touch on buffer preparation,
 it does not elaborate on a strategy for optimising the area, stating:
 \begin{quote}In most real processes, buffer scheduling is considerably more
 complex and challenging because of the larger number of buffers required for a
@@ -55,7 +58,6 @@ panels, as well as constraints imposed by the limited availability of labor.
 looks at design of a facility for monoclonal antibody production.
 \citet{Toumi:2010} also mention the difficulty of optimising the sizing and 
 selection of buffer equipment, but do not outline a methodology for doing so.
-
 
 \citet{Dietz:2008} outlines a genetic algorithm approach to optimising the 
 design of protein production facilities, which is capable of dealing with
@@ -70,4 +72,105 @@ bioprocess facility design.
 Casting the net wider to the pharmaceutical, chemical and other process
 industries yields several articles that deal with similar families of problems.
 
+Of particular relevance to buffer preparation are efforts to simulate tank farm
+design \citep{Al-Otaibi:2004, Stewart:2005, Sharda:2009, Terrazas-Moreno:2012}.
+Tank farms commonly exist in large pharmaceutical, chemical and oil \&
+gas facilities and consist of arrays of tens of tanks that are usually dedicated
+to particular chemicals or products, but may me multi-use.  These tanks are used
+to support the main process being carried out in the facility, similar to the
+role of buffer hold vessels.  There are a great deal of papers that deal with
+optimising throughput or productivity of existing tank farms or existing batch
+processes, but very little articles relating to the optimisation of the design
+of such processes.
 
+\citet{Al-Otaibi:2004} describes efforts to optimise the design of a tank farm
+for the oil \& gas industry using both linear programming and Monte Carlo
+simulation methods.  Their brief magazine article does not provide any detail on
+how the simulations were carried out.
+
+\citet{Stewart:2005} cite the work of \citet{Al-Otaibi:2004} and outline a
+method for optimising tank farm design using Monte Carlo simulation.  They
+mention the use of a software tool called \emph{GRTMPS} from 
+\emph{Haverley Systems, Inc., Houston, Texas, U.S.A}, supported by \emph{Excel}
+spreadsheet software and \emph{Access} database software
+(\emph{Microsoft Inc, Redmond, Washington, U.S.A}).
+Again, this is a short magazine article.  It indicates that the scheduling 
+produced useful results but does not give any technical detail as to how the
+simulation was carried out.
+
+\citet{Sharda:2009} outline the use of the discrete-event simulation tool
+\emph{Arena\textsuperscript{\textregistered}} from
+\emph{Rockwell Automation, Inc., Milwaukee, Wisconsin, U.S.A.} to optimise the 
+utilisation of existing tank farm facilities and cite the work of
+\citet{Sharda:2009}
+
+\citet{Terrazas-Moreno:2012}, citing \citet{Stewart:2005} and 
+\citet{Sharda:2009} provide a far more detailed description of efforts to
+optimise tank farm operations using mixed integer linear programming 
+\emph{MILP}.  Their work looks at optimising both schedule and tank selection, 
+but is not strictly designed with the design of the facility itself, but rather
+the optimal operation of a designed facility.
+
+The work of \citet{Terrazas-Moreno:2012} provides some useful information on
+techniques that could be applied to solve the problem of buffer preparation
+area design, namely MILP and process scheduling.  Branching out further into
+these fields yields more relevant literature.
+
+\citet{Dedieu:2003} suggests a hybrid apprach using genetic
+algorithms and discrete-event simulation to address the problem of 
+multiobjective batch plant design.
+
+In \citet{Cavin:2004, Cavin:2005}, tabu search is discussed as a methodology to
+optimise the design of multi-purpose batch plants.
+
+\subsection{Simulation and Optimisation}\label{SS.simopt}
+
+Casting the net wider still to look at techniques for solving generalised
+scheduling and optimisation problems yields far more material, but further 
+research is required to decide which techniques, if any, are relevant to the 
+problem at hand.
+
+There are two aspects to optimising the design.  The first aspect is scheduling,
+as the ability to make a tank do more than one task will depend on the times
+at which the tasks must (or may) occur.  The second aspect is selecting the
+optimal sizes and numbers of vessels, which can be seen as a combinatorial
+optimisation problem.
+
+In his seminal 1957 paper, George Dantzig \nocite{Dantzig:1957} outlines several
+types of combinatorial optimisation problems, one of which is the
+\emph{knapsack problem}.  This problem relates to finding the most valuable
+selection of objects that can be carried in a knapsack, subject to a total
+weight limit, given a selection of candidate items, each having a weight and a 
+value.
+A whole range of knapsack-type problems have been researched in the intervening
+period.  Detailed descriptions of the most common problems and the research 
+carried out over the half century following Dantzig's paper are given by 
+\citet{Korte:2012} and \citet{Martello:1990}.
+
+One knapsack-type problem that may be of particular relevance is the bin-packing
+problem.  \citet{Martello:1990} describes the bin packing problem as one in
+which there are a number of items with associated weights and a number of bins
+with associated capacities.  The aim is to each item to a bin so that the weight
+capacity of the bin is not exceeded and the number of bins is minimised.
+A number of algorithms for both exact and approximate solutions of the
+bin-pakcing problem have been developed. \citet{Korte:2012} state that the
+bin-packing problem is strongly $\mathcal{NP}$-hard, indicating that efforts
+should be taken to minimise the sample space when dealing with optimising vessel
+selection.
+
+\citet{Bettinelli:2010} investigates a particular variant of the bin packing
+problem where there is a minimum filling constraint.  This is an important
+consideration in vessel selection, usually some minimum fill level,
+\textit{e.g.} 20--30\% is defined so that the impeller in the vessel remains
+sumbmerged during the mixing process and to reduce the volume of cleaning
+solutions or water required to clean the vessel as a fraction of the volume of 
+buffer produced.
+
+In terms of process scheduling methodologies, a number of papers exist in the 
+field of chemical engineering \citep{Ahmed:2000},
+
+\citet{Ahmed:2000} states that the general process planning problem is also
+$\mathcal{NP}$-hard.
+
+A detailed synopsis of scheduling methodologies applicable to the chemical 
+and process industries is given by \citet{Harjunkoski:2014}.

@@ -130,22 +130,25 @@ Each batch may use in the region of 20--40 different buffers and media.
 \subsection{Buffers and Media Preparation}\label{SS.buffmedprep}
 
 One of the reasons for the catch-all definitions of \emph{buffers} and
-\emph{media} in the section above is to do with segregation.  The upstream and
-downstream sections of the plant are segregated to prevent cross-contamination.
+\emph{media} in the section above is to do with segregation.
+The upstream and downstream sections of the plant are segregated to prevent
+cross-contamination.
 As a result, there are typically two main areas where solutions are prepared.
-Buffers are prepared in an area called \emph{buffer preparation} and media are
-prepared in an area called \emph{media preparation}.  There may also be a
-seperate area for preparing sterile buffers for the final formulation, again to
-reduce the possibility of contamination and ensure sterility is maintained.  In
-both media and buffer preparation, one vessel is used to prepare the solution
+Buffers are prepared in an area called \emph{buffer preparation}, for use
+downstream and media are prepared in an area called \emph{media preparation},
+for use upstream.
+There may also be a seperate area for preparing sterile buffers for the final
+formulation, again to reduce the possibility of contamination and ensure
+sterility is maintained.
+In both media and buffer preparation, one vessel is used to prepare the solution
 and then it is typically sterile filtered into either a hold vessel or the
 destination vessel.
 
-\subsection{Buffer Preparation Design}\label{SS.buffprepdes}
+\subsection{Design of Buffer Preparation Areas}\label{SS.buffprepdes}
 
 For a given product, a production process is defined at laboratory scale.  The
 definition of key parameters at laboratory scale can allow process engineers to
-generate a produciton-scale mass balance.  This mass balance provides, amongst
+generate a production-scale mass balance.  This mass balance provides, amongst
 other things, lists of all buffers and media required to make a batch.  Two
 complex optimisation problems now emerge; how do we design the buffer and media
 preparation areas?  For media, the problem is relatively easy to solve with some
@@ -156,7 +159,8 @@ of this, the sizing of preparation vessels usually proceeds by picking a vessel
 capable of preparing the largest medium, defining a minimum fill volume and
 seeing what else can be prepared in it, then defining another vessel, and so on
 until sufficient vessels are defined.  Media hold vessels, if required, may be 
-similarly defined.
+similarly defined.  The design of media preparation is usually relatively
+insensitive to schedule.
 
 The problem of designing a buffer preparation area is more difficult to solve.
 There may be 20 or more different buffer compositions.  Often each buffer is
@@ -168,7 +172,7 @@ prepared in a given preparation vessel.  Since they may be needed in rapid
 succession, this then involves a requirement for multiple hold vessels so
 some buffers can be made ahead of time.  Where buffers are required for multiple
 steps in an operation or across multiple operations, is it best to perform
-many preparations, or few; additionally, is it best to hold the buffer
+many preparations, or few?  Additionally, is it best to hold the buffer
 in many seperate hold vessels, allowing them to be individually freed up more
 quickly, or is it better to consolidate and minimised the number of vessels?
 Defining success in the design of buffer preparation is also difficult -- there
@@ -180,8 +184,9 @@ Due to the high salt concentrations in some buffers, they can prove corrosive
 to the commonly used grades of stianless steel, such as 316L.  Such buffers
 may have to be prepared or held in vessels made from expensive alloys such as
 AL-6XN\textsuperscript{\textregistered}, which is about 3.5 times more
-expensive, or a steel from the Hastelloy\textsuperscript{\textregistered}
-family, which can be eight or more times more expensive than 316L.
+expensive than 316L, or a steel from the
+Hastelloy\textsuperscript{\textregistered} family, which can be eight or more
+times more expensive than 316L.
 Ideally, the use of these alloys should be minimised.
 
 Another factor is the use of disposable technology.  Buffer preparation, at
@@ -189,7 +194,10 @@ scales of up to 3,000 litres, can be carried out in disposable sterile bags,
 rather than vessels.  These have a higher consumable cost but are faster to turn
 around between preparations and reduce the utilisation of cleaning equipment.
 Similarly, buffers can be held in disposable bags at volumes of up to 5,000
-litre.
+litre.  Development of disposables technology is currently rapid and the
+available sizes and product ranges are increasing each year, so much so that 
+the state of the art has often moved on between the finish of the detailed
+design of a facility and the start of the first saleable production batch.
 
 \subsection{Problem Definition}\label{SS.probdef}
 
@@ -204,10 +212,14 @@ becomes difficult or impossible to remove or reduce the vessels any further and
 resolve the schedule.  At this point, iteration stops.  In the early feasibility
 or concept stages of a project, this process is cumbersome, the end points are 
 poorly defined and any development of the underlying process which varies the 
-volumes required may necessitate starting the optimisation from scratch.
+volumes required may necessitate starting the optimisation again from scratch.
 An additional factor is that a working solution may exist for a given
-configuration, but the schedulign software is unable to resolve the problem,
-giving a false negative.
+configuration, but the scheduling software is unable to resolve the problem,
+giving a false negative. The scheduling tools used for the process tend to be
+deterministic, rather than stochastic (although some senitivity analysis is
+usually built in as an add-on); this makes it difficult to have confidence that
+a working schedule can handle the real-world batch-to-batch variability inherent
+in a process that has living cells as its engine.
 
 A more streamlined methodology for solving this optimisation problem is
 required and this dissertation is concerned with developing such a methodology
@@ -218,7 +230,7 @@ in buffer preparation and to vary the size and number of vessels and the
 preparation strategy to optimise the process with respect to some metric.
 One a working framework has been developed, additional constraints can be added
 and simplifications can be removed to provide a better approximation of 
-real-world conditions
+real-world conditions.
 
 Success will be defined both in terms of the ability for the software tool to
 provide an optimum solution and the speed at which it can be implemented
@@ -229,4 +241,4 @@ ability to rapidly, accurately and repeatably solve such problems gives a
 competitive edge, which can be used to win more business and to deliver designs
 more cheaply.  For a biopharmaceutical client, optimising this problem results
 in cost savings and having a well defined methodology for doing so gives
-confidence that an in-progress design is indeed optimal.
+confidence that an in-progress design is indeed optimal and robust.
