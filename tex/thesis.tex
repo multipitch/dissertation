@@ -1,0 +1,225 @@
+%   MSc Business Analytics Dissertation
+%   Format based on skeleton template provided as part of module MIS40750
+%
+%   Title:     Optimising the design of buffer preparation in bioprocessing
+%              facilities
+%   Author:    Sean Tully
+%
+%   This file is the top level file for a dissertation.  It contains:
+%   - usepackage commands for any packages required
+%   - document-wide parameter settings such as textwidth, etc
+%   - The text of small items of the frontmatter (title, abstract, etc.) and 
+%     backmatter
+%
+%   Chapter 1: Introduction
+%   Chapter 2: Literature Review
+%   Chapter 3: Data
+%   Chapter 4: Methodology
+%   Chapter 5: Results
+%   Chapter 6: Discussion
+%   Chapter 7: Conclusions
+%
+%   Change Control:
+%   When     Who   Ver  What
+%   -------  ----  ---  --------------------------------------------------------
+%   01Sep10  SMcG  0.0  Developed MSc Business Analytics Dissertation LaTeX
+%                       template
+%   06Jun16  ST    0.1  Begun dissertation proper
+%
+
+\documentclass[a4paper,12pt,bibtotoc]{book}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{makeidx}
+\usepackage{amsthm,amsmath,amsfonts,amssymb,latexsym,graphicx,appendix,
+subfigure}
+\usepackage{algorithm2e}
+\usepackage[subfigure]{tocloft} % passing `subfigure' stops clash on compilation
+\usepackage{natbib}
+\usepackage{lineno}
+\usepackage[hyphens]{url}
+
+\input{macros}
+\input{declarns}
+
+\linespread{1.25}         % spacing between lines
+\parindent0pt             % no paragraph indentation
+\parskip\smallskipamount  % small space between paragraphs
+
+%\setlength{ \topmargin      }{  -1cm }
+%\setlength{ \textheight     }{  24cm }
+\setlength{ \textwidth      }{  14cm }
+\setlength{ \oddsidemargin  }{ 1.0cm }
+\setlength{ \evensidemargin }{ 1.0cm }
+
+\numberwithin{equation}{section}
+\numberwithin{figure}{chapter}
+
+\pagestyle{plain} % just puts a page number at the bottom of each page
+
+\makeindex % generates the index entries (unsorted: need to run makeindex from
+%            the command line to sort them)
+
+\includeonly{
+  preface,
+  ch1,
+  ch2,
+  ch3,
+  ch4,
+  ch5,
+  ch6,
+  ch7,
+  appendix1, 
+  appendix2, 
+  glossary,
+  notation
+}
+
+\begin{document}
+
+\frontmatter 
+
+\title
+{Optimising the design of buffer preparation in bioprocessing facilities}
+
+\author{Sean Tully, M.A. (\emph{Cantab.}), M.Eng.}
+
+\maketitle
+
+{\normalsize 
+\vfill
+\begin{center} 
+\textup{A thesis submitted to University College Dublin in part fulfilment 
+of the requirements of the degree of Master of Science in Business Analytics}
+\end{center}
+\vfill
+\begin{center} 
+Michael Smurfit Graduate School of Business,
+\end{center}
+\begin{center} 
+University College Dublin
+\end{center}
+\vfill
+\begin{center} 
+\textit{August, 2017}
+\end{center}
+\vfill
+\begin{center} 
+\textup{Supervisor: Prof. M. O'Neill}
+\end{center}
+\vfill
+\begin{center} 
+\textup{Head of School: Professor Ciar\'an \'O h\'Ogartaigh}
+\end{center}
+\vfill
+}
+
+\thispagestyle{empty}
+
+\clearpage
+
+%% Dedication
+\chapter*{Dedication} 
+To \ldots
+
+
+%% Table of Contents
+\cleardoublepage
+\tableofcontents
+\clearpage
+
+%% List of Figures (Illustrations)
+\listoffigures\addcontentsline{toc}{chapter}{List of figures}
+\clearpage
+
+%% List of Tables
+\listoftables\addcontentsline{toc}{chapter}{List of tables}
+
+%% List of Algorithms (if any): need to \usepackage{algorithm2e} for nice 
+%  algorithm layout and this command
+\listofalgorithms\addcontentsline{toc}{chapter}{List of algorithms}
+
+
+%% Preface
+\include{preface}
+
+
+%% Acknowledgements (including permissions and other credits).
+\chapter*{Acknowledgements}
+
+I would like to thank \ldots
+
+%% Abstract
+%%\begin{abstract}
+\chapter*{Abstract} 
+It is intended that the abstract be used, while work is ongoing, as a brief
+summary of the state of progress of the dissertation.  The abstract shall be
+completed once the main body of the dissertation is complete.  On completion, it
+will contain a high-level overview of the work done, in simple, plain language.
+%%\end{abstract}
+
+%%   List of important abbreviations (including special fonts, e.g.,
+%    \ {\tt fixed width} for program code)
+ 
+% Bulk of thesis. line numbers in arabic numerals, 1, 2, 3, ...
+\mainmatter 
+
+\linespread{1.3} % adjust line spacing (if desired)
+
+\include{ch1}
+\include{ch2}
+\include{ch3}
+\include{ch4}
+\include{ch5}
+\include{ch6}
+\include{ch7}
+
+%% Back matter (loose ends: continue arabic page numbering)
+\backmatter
+
+%%   Appendices, if any: there will almost certainly be one or more.
+%%   This is where you put material which the reader may like to refer to but 
+%%   which might break the train of thought in the thesis proper.  Large tables,
+%%   etc might go here.  You may also include program code if not too long: say
+%%   a few important chunks.  But the majority of this should just be put on the
+%%   accompanying CD/DVD. \include appendix/ces as it/they will be big enough to
+%%   justify its/their own ``chapter(s)''
+\cleardoublepage
+\appendix
+\addappheadtotoc         % adds a separating entry to the TOC, saying Appendices
+\noappendicestocpagenum  % ensures there is no page number after that TOC 
+%                          separating entry
+% It may happen that the first appendix (e.g., Detailed Tables) appears before
+% the "Appendices" line in the table of contents.  If so, edit thesis.toc and
+% move the Appendices line there above the first appendix, then re-run LaTeX to 
+% get the thesis.dvi file right.  You may have to repeatedly do this every time 
+% you LaTeX!
+\cleardoublepage
+\include{appendix1}
+\include{appendix2} 
+% and so on
+
+%%   Endnotes (if needed)
+
+%%   Glossary of terms
+%%   \include this as it may be big enough to justify its own ``chapter''
+\cleardoublepage
+\addcontentsline{toc}{chapter}{Glossary}
+\include{glossary}
+
+%%   Bibliography (References)
+\cleardoublepage
+\addcontentsline{toc}{chapter}{Bibliography}
+\bibliographystyle{mscBA} % the BibTeX style file to use %was mscBA
+\bibliography{thesis}     % the BibTeX database file to use 
+
+\cleardoublepage
+\addcontentsline{toc}{chapter}{List of Notation}
+\include{notation}
+
+%%   Index
+\cleardoublepage
+\addcontentsline{toc}{chapter}{Index}
+\printindex
+
+\end{document}

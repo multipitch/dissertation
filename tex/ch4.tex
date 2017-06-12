@@ -1,0 +1,133 @@
+%   MSc Business Analytics Dissertation
+%   Format based on skeleton template provided as part of module MIS40750
+%
+%   Title:     Optimising the design of buffer preparation in bioprocessing
+%              facilities
+%   Author:    Sean Tully
+%
+%   Chapter 4: Methodology
+%
+%   Change Control:
+%   When     Who   Ver  What
+%   -------  ----  ---  --------------------------------------------------------
+%   06Jun16  ST    0.1  Begun 
+%
+
+\chapter{Methodology}\label{C.methodology}
+
+\begin{quote}
+Just as the largest library, badly arranged, is not so useful as a very moderate
+one that is well arranged, so the greatest amount of knowledge, if not
+elaborated by our own thoughts, is worth much less than a far smaller volume
+that has been abundantly and repeatedly though over.  For only by universally
+combining what we know, by comparing every truth with every other, do we fully
+assimilate our own knowledge and get it into our power.
+
+\hspace{2cm}--- Arthur Schopenhauer, \emph{On Thinking for Oneself}
+\end{quote}
+
+\section{Introduction}\label{S.intro4}
+
+In the context of the problem to be optimised, the term ``methodology'' could be
+understood to cover either the methodology leading to the selection of a 
+framework for solving the problem or to the framework itself.  This chapter
+aims to cover both of these definitions and, in the process, outline the thought
+processes underpinning the research.
+
+\subsection{Methodology for developing a solution framework}\label{SS.method1}
+
+The current workflow for designing buffer preparation areas involves choosing a
+candidate set of vessels and apportioning particular operations to them in 
+some scheduling package.  Using some engineering heuristics and a good deal of
+trial and error, the selection and sizing of vessels and the strategy for
+preparing buffers in them is iteratively improved upon.
+It is proposed that this approach will be used as a starting point in developing
+a methodology for solving the optimisation problem.
+
+Thus the workflow would look something like this:
+\begin{enumerate}
+\item Solve schedule model for a candidate vessel matrix and buffer strategy
+\item Observe results and identify clashes or vessels that could be removed
+\item Resolve clashes or remove un-needed vessels and iterate
+\end{enumerate}
+
+The above method depends on iteratively performing a scheduling simulation over
+with differing input parameters.  Such a framework would require two main
+components, the first is a tool to schedule buffer operations, given some inputs
+and the second is to use some heuristics to determine how the inputs should be
+varied to optimise the design with respect to some metric.
+
+Initially, these two elements should be designed to be as simple as possible, as
+a proof of concept.  More detail will then be added once an initial working
+framework is devised.  For instance, it is assumed that the main process
+schedule is fixed.  This means that, relative to the start of a batch, it is
+known when certain buffers are required by the process (both start and end
+times) and the volume required in each instance is also known. 
+
+A finite, small (less than 20) list of available vessel sizes is specified.
+A minimum fill level (percentage) is defined that applies to all vessels.
+A lit of available buffer preparation and hold vessels is somehow generated --
+this may be a worst-case list, whereby each preparation has a dedicated vessel
+and each hold has a dedicated vessel.  Preparation vessels cannot be used for
+holding buffers and holding vessels cannot be used for preparing buffers.
+
+It is initially assumed that all buffers are to be made once per operation, once
+per batch.  For example, if we have a 20 batch campaign and a chromatography
+operation requires \emph{Buffer A} for four different steps per cycle and the
+chromatography colum processes a batch in three cycles, we only have to prepare
+\emph{Buffer A} once per batch, \emph{i.e.} 20 times over the course of the 
+campaign. A prepared buffer is stored in a single hold vessel - no buffer lots
+are split or combined between preparation and hold.
+In addition to information on the times when buffers are needed, the cycle time
+of the main process is required (we assume that only one main process will be
+running and that it has a fixed cycle time).  It is assumed that all operations
+have a fixed duration and that they occur at fixed times relative to the start
+of a batch \emph{i.e.} each batch is the same.  It is assumed that the
+duration of individual steps in buffer preparation and hold vessels are 
+independent of vessel volume or the volume of buffer being prepared.  
+It is assumed that no step in buffer preparation or hold activities need compete
+for an external resource, such as the availability of resources, such as labour
+or utilties.  Buffers are assumed not to expire and allowable equipment clean 
+and dirty hold times are assumed infinite (exceeding a clean equpment hold time
+means the equipment is no longer considered sterile and must be re-cleaned,
+exceeding a dirty equipment hold time means additional deep cleaning steps may
+be required in addition to regular cleaning).  It is assumed that there are
+no material compatibility issues, no interconnectivity constraints and no
+buffers requiring additional segregation due to sterility or flammability
+concerns.
+
+The simplified model above will be input to some scheduling tool which will
+aim to produce a working schedule for buffer preparation.  Note that one issue
+here is that a working schedule for given inputs is not the only possible 
+working schedule, which may detrimentally affect the ability to optimise
+equipment - a strategy to cope with this fact must be developed.
+
+A set of heuristics will be developed to examine the last known working schedule
+and decide on what changes to make to the vessel matrix and buffer strategy.
+The heuristic will need a metric it seeks to optimise. The simplest metric is
+capital cost, which could be calculated based for each vessel based on its
+volume and whether it is a preparation vessel (with impeller) or a hold vessel
+(without impeller).  The heuristic may proceed, for example, by applying a
+series of tests, allowing it to remove or resize vessels. One example would be 
+if it can be seen that, \emph{e.g} there are four 2,000 litre hold vessels and
+the operations that occur in each vessel do not overlap with the operations in
+any of the other three, then three of the four vessels could be removed.
+One heuristic might look at the largest size preparation required, which sets
+the size of the largest vessel, then, looking at the idle times in that vessel
+and looking at other preparations that are above the minimum fill level, it may
+choose to move the other preparations to the largest vessel and removing some
+other, smaller vessels.
+
+Exhaustive enumeration of vessel sizes and counts (subject to some sensible
+limits) should also be explored - if results can be found in reasonable time,
+then this may be preferable as it would guard against finding a local optimum
+and provide a greater degree of certainty in the results.
+
+If a working framework can be developed, some of the simplifying assumptions can
+be replaced with more detailed parameters and more complications can be added
+to provide a tool that is better suited to simulating the detailed problems that
+arise in practice in the industry.
+
+\subsection{Methodology employed in the solution}\label{SS.method1}
+This section will form the bulk of the research to be carried out and has not 
+yet been commenced.
