@@ -18,8 +18,8 @@ min_fill_ratio = 0.3
 buffer_vol = [12456, 18943, 2345, 6539, 21045, 7787, 10492]
 time_of_first_use = [12, 32, 45, 27, 45, 45, 60]
 duration_of_use = [2, 7, 20, 8, 20, 20, 12]
-L = len(buffer_vol)
-if len(time_of_first_use) != L or len(duration_of_use) != L:
+N = len(buffer_vol)
+if len(time_of_first_use) != N or len(duration_of_use) != N:
     raise ValueError ("Buffer data incomplete")
 
 # define vessel data
@@ -29,26 +29,28 @@ vessel_costs = [math.pow(i, 0.6) for i in available_vessels]
 M  = len(available_vessels)
 
 # define slots data
-N = L
+P = N
 
 # initialise problem
 prob = cplex.Cplex()    
 prob.objective.set_sense(prob.objective.sense.minimize)
 
-# initialise booleans x_l_n: buffer l made in slot n
-for n in range(N):
-    prob.variables.add(lb=[0.0]*L, ub=[1.0]*L, types=["B"]*L,
-                       names=["x_{}_{}".format(l, n) for l in range(L)])
+# initialise booleans x_n_p: buffer n made in slot p for all n in N, p in P
+for p in range(P):
+    prob.variables.add(
+            lb=[0.0]*N, ub=[1.0]*N, types=["B"]*N,
+            names=["x_{}_{}".format(n, p) for n in range(N)])
 
-# initialise booleans y_m_n: vessel size m in slot n
-for n in range(N):
-    prob.variables.add(obj=vessel_costs, lb=[0.0]*M, ub=[1.0]*M, types=["B"]*M,
-                       names=["y_{}_{}".format(m, n) for m in range(M)])
+# initialise booleans y_m_p: vessel size m in slot p for all m in M, p in P
+for p in range(P):
+    prob.variables.add(
+            obj=vessel_costs, lb=[0.0]*M, ub=[1.0]*M, types=["B"]*M,
+            names=["y_{}_{}".format(m, p) for m in range(M)])
 
-# initialise duration_hold_l: hold duration for all buffers l of L
-prob.variables.add(lb=[duration_hold_min]*L, ub=[duration_hold_max]*L,
-                   types=["C"]*L, 
-                   names=["duration_hold_{}".format(l) for l in range(L)])
+# initialise z_n: hold duration for buffer n for all n in N
+prob.variables.add(
+        lb=[duration_hold_min]*N, ub=[duration_hold_max]*N, types=["C"]*N,
+        names=["z_{}".format(n) for n in range(N)])
 
 # TODO: wrap the above in a function once it's working                      
 
