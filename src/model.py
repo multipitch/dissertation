@@ -18,7 +18,7 @@ TOLERANCE = 1E-6
 
 class Parameters():
     
-    def __init__(self, filename="parameters.dat"):
+    def __init__(self, filename="parameters.ini"):
         parser = SafeConfigParser()
         parser.read(filename)
         parameters = parser.items("parameters")
