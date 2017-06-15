@@ -1,9 +1,12 @@
+import csv
 import math
 
 import cplex
-import pandas
+import pandas as pd
+import numpy as np
 
 from configparser import SafeConfigParser
+
 from cplex.exceptions import CplexSolverError
 
 
@@ -12,8 +15,6 @@ TOLERANCE = 1E-6
 
 # TODO: create nice interface so that constraints can be switched off/on for a
 # run
-
-# define general data TODO: repalce with data file
 
 
 class Parameters():
@@ -31,82 +32,56 @@ class Parameters():
         return lines[:-1] # strip trailing newline
 
 
-class Vessel():
-    
-    def __init__(self, name, volume, cost):
-        self.name = name
-        self.volume = volume
-        self.cost = cost
-    
+class DataClass():
+
+    def __init__(self, filename):
+        self.filename = filename        
+        self.__dict__ = csv_columns_to_dict_of_lists(self.filename)
+
     def __repr__(self):
-        return self.name
-
-
-class Buffer():
-    
-    def __init__(self, name, volume, use_start_time, use_duration):
-        self.name = name
-        self.volume = volume
-        self.use_start_time = use_start_time
-        self.use_duration = use_duration
-    
-    def __repr__(self):
-        return self.name
-
-# TODO: populate
-class Vessels():
-    
-    def __init__(self):
-        #don't do much - maybe set up empty data structure
-        pass
+        return str(self.__dict__)
         
-    def read(self, filename):
-        #read from file and populate data structure
-        pass
 
-    def __repr__(self):
-        #print something useful
-        pass
-
-# TODO: populate
-class Buffers():
-
-    def __init__(self):
-        #don't do much - maybe set up empty data structure
-        pass
-        
-    def read(self, filename):
-        #read from file and populate data structure
-        pass
-
-    def __repr__(self):
-        #print something useful
-        pass
-
-# TODO: perhaps Vessels and Buffers could inherit from a common data-reading
-# class???
-
-# define buffer data TODO: replace with data file
-buffer_volumes = [12456.0, 18943.0, 2345.0, 6539.0, 21045.0, 7787.0, 10492.0]
-buffer_use_start_times = [12.0, 32.0, 45.0, 27.0, 45.0, 45.0, 60.0]
-buffer_use_durations = [2.0, 7.0, 20.0, 8.0, 20.0, 20.0, 12.0]
-
-# define vessel data TODO: replace with data file
-vessel_volumes = [
-        2000.0, 4000.0, 5000.0, 8000.0, 10000.0, 12000.0, 15000.0, 20000.0,
-        25000.0]
-vessel_costs = [math.pow(i, 0.6) for i in vessel_volumes]  # cost function
+class Vessels(DataClass):
+    
+    def __init__(self, filename="vessels.csv"):
+        self.filename = filename
+        self.__dict__ = csv_columns_to_dict_of_lists(self.filename)
 
 
+class Buffers(DataClass):
+    
+    def __init__(self, filename="buffers.csv"):
+        self.filename = filename
+        self.__dict__ = csv_columns_to_dict_of_lists(self.filename)
 
-# initialise problem
-prob = cplex.Cplex()
-prob.objective.set_sense(prob.objective.sense.minimize)
+
+def csv_columns_to_dict_of_lists(filename):    
+    with open(filename) as f:
+        reader = csv.reader(f, skipinitialspace=True, delimiter=",",
+                            quoting=csv.QUOTE_NONNUMERIC)
+        data_list = list(reader)
+        lines = len(data_list)
+        data_dict = {}        
+        for i, key in enumerate(data_list[0]):
+            data_dict[key] = [data_list[j][i] for j in range(1, lines)]
+        return data_dict
+                
 
 def build_model(params, buffers, vessels):
     # TODO: create function for initialising variables which feeds into tracker of
     # variables - possibly in a problem class, similarly create  a function for 
     # initialising constraints, also in the same class
+
+    prob = cplex.Cplex()
+    prob.objective.set_sense(prob.objective.sense.minimize)
+
+    buffer_volumes = buffers.volumes
+    buffer_use_start_times = buffers.use_start_times
+    buffer_use_durations = buffers.use_durations
+    vessel_volumes = vessels.volumes
+    vessel_costs = vessels.costs
+
     
     # derive some values from the data
     M  = len(vessel_volumes)  # M = number of available vessel sizes
@@ -370,9 +345,9 @@ def build_model(params, buffers, vessels):
 
 
     # TODO: wrap all the above in functions once it's working
+    return prob
 
-
-def solve_model():
+def solve_model(prob):
     try:
         prob.solve()
     except CplexSolverError as e:
@@ -421,7 +396,13 @@ def print_solution():
 
 if __name__ == "__main__":
     params = Parameters()
-    buffers = pandas.read_csv("buffers.csv")
-    vessels = pandas.read_csv("vessels.csv")
-    build_model(params, buffers, vessels)
-    solve_model()
+    buffers = Buffers()
+    vessels = Vessels()
+    print(params)
+    print(buffers)
+    print(vessels)
+    #buffers = pd.read_csv("buffers.csv")
+    #vessels = pd.read_csv("vessels.csv")
+    #prob = initialise_problem()
+    prob = build_model(params, buffers, vessels)
+    solve_model(prob)
