@@ -4,8 +4,6 @@ from configparser import SafeConfigParser
 
 import cplex
 
-import numpy as np
-
 
 # global parameters
 TOLERANCE = 1E-6
@@ -17,52 +15,50 @@ class Parameters:
         parser = SafeConfigParser()
         parser.read(filename)
         parameters = parser.items("parameters")
-        self.__dict__ = dict([(p[0], float(p[1])) for p in parameters])
+        self.input_dict = dict([(p[0], float(p[1])) for p in parameters])
+        self.cycle_time = self.input_dict["cycle_time"]
+        self.prep_pre_duration = self.input_dict["prep_pre_duration"]
+        self.prep_post_duration = self.input_dict["prep_post_duration"]
+        self.transfer_duration = self.input_dict["transfer_duration"]
+        self.hold_pre_duration = self.input_dict["hold_pre_duration"]
+        self.hold_post_duration = self.input_dict["hold_post_duration"]
+        self.hold_duration_min = self.input_dict["hold_duration_min"]
+        self.hold_duration_max = self.input_dict["hold_duration_max"]
+        self.minimum_fill_ratio = self.input_dict["minimum_fill_ratio"]
     
     def __repr__(self):
         lines = ""
         for k, v in self.__dict__.items():
-            lines += "{}: {}\n".format(k,v)
+            if k != "input_dict":
+                lines += "{}: {}\n".format(k,v)
         return lines[:-1] # strip trailing newline
 
 
-class DataClass:
-    
-    def __init__(self, filename):
-        self.filename = filename
-        self.__dict__ = csv_columns_to_dict_of_lists(self.filename)
-    
-    def __repr__(self):
-        lines = ""
-        data_columns = []
-        for k, v in self.__dict__.items():
-            lines += "{:<20}".format(k)
-            data_columns.append(v)
-        rows = len(data_columns[0])
-        columns = len(self.__dict__)
-        if rows > 0:
-            for r in range(rows):
-                line = "\n"
-                for c in range(columns):
-                    line += "{:<20}".format(data_columns[c][r])
-                lines += line
-        return lines
-
-
-class Vessels(DataClass):
+class Vessels:
     
     def __init__(self, filename="vessels.csv"):
         self.filename = filename
-        self.__dict__ = csv_columns_to_dict_of_lists(self.filename)
+        self.input_dict = csv_columns_to_dict_of_lists(self.filename)
+        self.names = self.input_dict["names"]
+        self.volumes = self.input_dict["volumes"]
+        self.costs = self.input_dict["costs"]
+        self.max_volume = max(self.volumes)
 
-
-class Buffers(DataClass):
+class Buffers:
     
-    def __init__(self, filename="buffers.csv"):
-        # TODO: data should not be modulo cycle time - need to add some 
-        # logic here to convert
+    def __init__(self, cycle_time, filename="buffers.csv"):
         self.filename = filename
-        self.__dict__ = csv_columns_to_dict_of_lists(self.filename)
+        self.input_dict = csv_columns_to_dict_of_lists(self.filename)
+        self.names = self.input_dict["names"]
+        self.volumes = self.input_dict["volumes"]
+        self.absolute_use_start_times = self.input_dict["use_start_times"]
+        self.use_durations = self.input_dict["use_durations"]
+        self.relative_use_start_times = []
+        self.use_start_times_offset_cycles = []
+        for t in self.absolute_use_start_times:
+            self.relative_use_start_times.append(t % cycle_time)
+            self.use_start_times_offset_cycles.append(t // cycle_time)
+        self.use_start_times = self.relative_use_start_times # shortened name
 
 
 class Constraints:
@@ -72,7 +68,16 @@ class Constraints:
         self.senses = []
         self.names = []
         self.coefficients = []
+        self.counter = 0
 
+    def add(self, rhs, senses, names, coefficients):
+        self.rhs.append(rhs)
+        self.senses.append(senses)
+        self.names.append(names)
+        #self.coefficients.extend(coefficients)
+        for i in coefficients:
+            self.coefficients.append((self.counter, *i))
+        self.counter += 1
 
 class Variables:
     
@@ -86,7 +91,7 @@ class Variables:
         self.dimensions_list = []
         self.offsets = []
         self.short_names = []
-        
+    
     def add(self, name, dimensions, obj, lb, ub, types):
         if name in self.names:
             raise ValueError('name already exists')
@@ -95,7 +100,7 @@ class Variables:
             self.offsets.append(self.offsets[-1] + self.counts[-1])
         else:
             self.offsets.append(0)
-        count = np.prod(dimensions)
+        count = prod(dimensions) 
         self.counts.append(count)
         self.dimensions_list.append(dimensions)
         self.names.extend(generate_names_from_dimensions(name, dimensions))
@@ -115,7 +120,7 @@ class Variables:
             raise
         offset = self.offsets[name_position]
         dimensions = self.dimensions_list[name_position]
-        if np.isscalar(index) and np.isscalar(dimensions):
+        if type(index) == int and type(dimensions) == int:
             return offset + index
         len_index = len(index)
         if len_index != len(dimensions):
@@ -123,7 +128,7 @@ class Variables:
         for i, num in enumerate(index):
             if num not in range(dimensions[i]):
                 raise IndexError('index is out of range')
-        if np.isscalar(index):
+        if type(index) == int:
             return offset + index
         multipliers = [1]
         for n in range(len_index - 1):
@@ -133,7 +138,6 @@ class Variables:
         return offset + rel_pos
 
 
-     
 def csv_columns_to_dict_of_lists(filename):
     with open(filename) as f:
         reader = csv.reader(f, skipinitialspace=True, delimiter=",",
@@ -149,16 +153,22 @@ def csv_columns_to_dict_of_lists(filename):
         return data_dict
 
 
-# TODO: this can probably be simplified - see pos method in variable class.
+def prod(dimensions):
+    try:
+        product = 1
+        for i in dimensions:
+            product *= i
+        return product
+    except:
+        return dimensions
+
+
 def generate_names_from_dimensions(name, dimensions):
+    # TODO: this can probably be simplified - see pos method in Variable
     names = []
-    if np.isscalar(dimensions):
-        count = dimensions
-        for n in range(dimensions):
-            names.append("{}_{}".format(name, n))
-    else:    
-        periods = [1]
+    try:
         ndims = len(dimensions)
+        periods = [1]
         count = 1
         for d in range(ndims):
             count *= dimensions[d]
@@ -171,6 +181,10 @@ def generate_names_from_dimensions(name, dimensions):
             for d in range(ndims):
                 new_name += "{},".format((c // periods[d]) % dimensions[d])
             names.append(new_name[:-1] + ")")
+    except:
+        count = dimensions
+        for n in range(dimensions):
+            names.append("{}_{}".format(name, n))        
     return names
 
 
@@ -204,12 +218,6 @@ def pos(variable, subscript):
 
 
 def build_variables(parameters, buffers, vessels):
-    # TODO: create function for initialising variables which feeds into tracker
-    # of variables - possibly in a problem class, similarly create  a function
-    # for initialising constraints, also in the same class
-    # TODO: data should not be modulo cycle time, this should be handled here
-    # somewhere and it should be possible to revert to original non-modulo data
-        
     variables = Variables()
     
     # initialise booleans x_(n,p): buffer n made in slot p for all n in N for 
@@ -229,7 +237,7 @@ def build_variables(parameters, buffers, vessels):
                   lb = [0] * M * P,
                   ub = [1] * M * P,
                   types = ["B"] * M * P)
-
+    
     # initialise z_n: hold duration for buffer n for all n in N, incl the 
     # following bounds: 
     # parameters.hold_duration_min <= z_n <= parameters.hold_duration_max
@@ -257,9 +265,9 @@ def build_variables(parameters, buffers, vessels):
                   lb = [0] * N * N,
                   ub = [1] * N * N,
                   types = ["B"] * N * N)
-
-    # initialise indicator booleans u_(n,k): buffer n is used after buffer k
-    # for all n in N for all k in N
+    
+    # initialise indicator booleans u_(n,k): buffer n is preparead after 
+    # buffer k for all n in N for all k in N
     variables.add(name = "u",
                   dimensions = (N, N),
                   obj = [0] * N * N,
@@ -269,92 +277,83 @@ def build_variables(parameters, buffers, vessels):
     
     return variables
 
-                       
-def build_constraints(parameters, buffers, vessels):
-    c =  Constraints()    
-    counter = 0 # TODO: counter should live in the class, automatically update
 
-    # TODO: define an add function in the class to tidy up all the items below.
+def build_constraints(parameters, buffers, vessels):
+    c =  Constraints()
+    
     # each buffer can only be made in one slot
     for n in range(N):
-        c.rhs.append(1)
-        c.senses.append("E")
-        c.names.append("one_slot_per_buffer_{}".format(n))
-        for p in range(P):
-            c.coefficients.append((counter, pos("x", (n, p)), 1))
-        counter += 1
+        coeffs = [(pos("x", (n, p)), 1) for p in range(P)]
+        c.add(rhs=1, 
+              senses="E",
+              names="one_slot_per_buffer_{}".format(n),
+              coefficients=coeffs)
     
     # each slot contains a max of one vessel
     for p in range(P):
-        c.rhs.append(1)
-        c.senses.append("L")
-        c.names.append("max_one_vessel_per_slot_{}".format(p))
-        for m in range(M):
-            c.coefficients.append((counter, pos("y", (m, p)), 1))
-        counter += 1
+        coeffs = [(pos("y", (m, p)), 1) for m in range(M)]
+        c.add(rhs=1,
+              senses="L",
+              names="max_one_vessel_per_slot_{}".format(p),
+              coefficients=coeffs)
     
     # vessel must be large enough
     for n in range(N):
         for p in range(P):
-            c.rhs.append(0)
-            c.senses.append("L")
-            c.names.append("slot_{}_vessel_large_enough_for_buffer_{}".format(p, n))
-            c.coefficients.append((counter, pos("x", (n, p)), buffers.volumes[n]))
+            coeffs = [(pos("x", (n, p)), buffers.volumes[n])]
             for m in range(M):
-                c.coefficients.append((counter, pos("y", (m, p)), 0 - vessels.volumes[m]))
-            counter += 1
+                coeffs.append((pos("y", (m, p)), 0 - vessels.volumes[m]))
+            c.add(rhs=0,
+                  senses="L",
+                  names="slot_{}_vessel_big_enough_for_buffer_{}".format(p,n),
+                  coefficients=coeffs)
     
     # vessel must be small enough
     for n in range(N):
         for p in range(P):
-            c.rhs.append(buffers.volumes[n] + max(vessels.volumes))
-            c.senses.append("L")
-            c.names.append("slot_{}_vessel_small_enough_for_buffer_{}".format(p, n))
-            c.coefficients.append((counter, pos("x", (n, p)), max(vessels.volumes)))
+            coeffs = [(pos("x",(n,p)), vessels.max_volume)]
             for m in range(M):
-                c.coefficients.append((
-                        counter, pos("y", (m, p)),
+                coeffs.append((pos("y", (m, p)),
                         vessels.volumes[m] * parameters.minimum_fill_ratio))
-            counter += 1
+            c.add(rhs=buffers.volumes[n] + vessels.max_volume,
+                  senses="L",
+                  names="slot_{}_vessel_small_enough_for_buffer_{}".format(p,n),
+                  coefficients=coeffs)
     
     # total duration in buffer hold must not exceed cycle time
     for n in range(N):
-        c.rhs.append(
-                parameters.cycle_time
-                - parameters.hold_pre_duration
-                - parameters.hold_post_duration
-                - buffers.use_durations[n])
-        c.senses.append("L")
-        c.names.append(
-                "buffer_{}_hold_vessel_duration_less_than_cycle_time".format(n))
-        c.coefficients.append((counter, pos("z", n), 1))
-        counter += 1
+        rhs = (parameters.cycle_time - parameters.hold_pre_duration
+               - parameters.hold_post_duration - buffers.use_durations[n])
+        c.add(rhs=rhs,
+              senses="L",
+              names="buffer_{}_hold_vessel_duration_<=_cycle_time".format(n),
+              coefficients=[(pos("z", n), 1)])
     
     # track if buffers n and k both made in slot p
     for n in range(N):
         for k in range(N):
             if k != n:
                 for p in range(P):
-                    c.rhs.append(1)
-                    c.senses.append("L")
-                    c.names.append(
-                            "buffers_{}_and_{}_share_slot_{}".format(n, k, p))
-                    c.coefficients.append((counter, pos("x", (n, p)), 1))
-                    c.coefficients.append((counter, pos("x", (k, p)), 1))
-                    c.coefficients.append((counter, pos("w", (n, k, p)), -1))
-                    counter += 1
+                    coeffs = [(pos("x", (n, p)), 1), 
+                              (pos("x", (k, p)), 1),
+                              (pos("w", (n, k, p)), -1)]
+                    names="buffers_{}_and_{}_share_slot_{}".format(n, k, p)
+                    c.add(rhs=1,
+                          senses="L",
+                          names=names,
+                          coefficients=coeffs)
     
     # track if buffers n and k both made in same slot
     for n in range(N):
         for k in range(n + 1, N):
-            c.rhs.append(0)
-            c.senses.append("L")
-            c.names.append("buffers_{}_and_{}_share_a_slot".format(n, k))
-            c.coefficients.append((counter, pos("v", (n, k)), -1))
+            coeffs = [(pos("v", (n, k)), -1)]
             for p in range(P):
-                c.coefficients.append((counter, pos("w", (n, k, p)), 1))
-            counter += 1
-        
+                coeffs.append((pos("w", (n, k, p)), 1))
+            c.add(rhs=0,
+                  senses="L",
+                  names="buffers_{}_and_{}_share_a_slot".format(n, k),
+                  coefficients=coeffs)
+    
     # prep scheduling - only one prep can take place in a slot at a given time
     prep_duration = (parameters.prep_pre_duration 
                      + parameters.transfer_duration
@@ -362,20 +361,18 @@ def build_constraints(parameters, buffers, vessels):
     for n in range(N):
         for k in range(n + 1, N):
             for i in (0, 1):
-                c.rhs.append((2 * i - 1) * buffers.use_start_times[n]
+                rhs = ((2 * i - 1) * buffers.use_start_times[n]
                              + (1 - 2 * i) * buffers.use_start_times[k]
                              + 2 * (1 + i) * parameters.cycle_time
                              - prep_duration)
-                c.senses.append("L")
-                c.names.append("scheduling_buffer_{}_after_buffer_{}"
-                             .format((k, n)[i], (n, k)[i]))
-                c.coefficients.append((counter, pos("z", n), 2 * i - 1))
-                c.coefficients.append((counter, pos("z", k), 1 - 2 * i))
-                c.coefficients.append((counter, pos("u", (n, k)),
-                                       2 * (2 * i - 1) * parameters.cycle_time))
-                c.coefficients.append((counter, pos("v", (n, k)), 
-                                       2 * parameters.cycle_time))
-                counter += 1         
+                names = ("scheduling_buffer_{}_after_buffer_{}"
+                         .format((k, n)[i], (n, k)[i]))
+                coeffs = [(pos("z", n), 2 * i - 1),
+                          (pos("z", k), 1 - 2 * i),
+                          (pos("u", (n, k)), 
+                           2 * (2 * i - 1) * parameters.cycle_time),
+                          (pos("v", (n, k)), 2 * parameters.cycle_time)]
+                c.add(rhs=rhs, senses="L", names=names, coefficients=coeffs)
     
     return c
 
@@ -453,9 +450,9 @@ def print_solution():
 
 
 if __name__ == "__main__":
-    parameters = Parameters()
-    buffers = Buffers()
-    vessels = Vessels()
+    parameters = Parameters("parameters.ini")
+    buffers = Buffers(parameters.cycle_time, "buffers.csv")
+    vessels = Vessels("vessels.csv")
     
     # TODO: where should these be???
     M = len(vessels.volumes)  # M = number of available vessel sizes
