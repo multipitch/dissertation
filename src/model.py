@@ -59,11 +59,13 @@ class Vessels(DataClass):
 class Buffers(DataClass):
     
     def __init__(self, filename="buffers.csv"):
+        # TODO: data should not be modulo cycle time - need to add some 
+        # logic here to convert
         self.filename = filename
         self.__dict__ = csv_columns_to_dict_of_lists(self.filename)
 
 
-class LinearConstraints:
+class Constraints:
     
     def __init__(self):
         self.rhs = []
@@ -256,7 +258,7 @@ def build_variables(parameters, buffers, vessels):
                   ub = [1] * N * N,
                   types = ["B"] * N * N)
 
-    # initialise indicator booleans u_(n,k): buffer k is used after buffer n
+    # initialise indicator booleans u_(n,k): buffer n is used after buffer k
     # for all n in N for all k in N
     variables.add(name = "u",
                   dimensions = (N, N),
@@ -268,8 +270,8 @@ def build_variables(parameters, buffers, vessels):
     return variables
 
                        
-def build_linear_constraints(parameters, buffers, vessels):
-    c =  LinearConstraints()    
+def build_constraints(parameters, buffers, vessels):
+    c =  Constraints()    
     counter = 0 # TODO: counter should live in the class, automatically update
 
     # TODO: define an add function in the class to tidy up all the items below.
@@ -303,7 +305,6 @@ def build_linear_constraints(parameters, buffers, vessels):
             counter += 1
     
     # vessel must be small enough
-    # TODO: consider replacing with indicator - this may increase accuracy
     for n in range(N):
         for p in range(P):
             c.rhs.append(buffers.volumes[n] + max(vessels.volumes))
@@ -353,27 +354,27 @@ def build_linear_constraints(parameters, buffers, vessels):
             for p in range(P):
                 c.coefficients.append((counter, pos("w", (n, k, p)), 1))
             counter += 1
-    
-    # scheduling constraints - TODO: debug - doesn't seem to be working!!!
-    prep_total_duration = (parameters.prep_pre_duration 
-                           + parameters.transfer_duration
-                           + parameters.prep_post_duration)
+        
+    # prep scheduling - only one prep can take place in a slot at a given time
+    prep_duration = (parameters.prep_pre_duration 
+                     + parameters.transfer_duration
+                     + parameters.prep_post_duration)
     for n in range(N):
         for k in range(n + 1, N):
             for i in (0, 1):
                 c.rhs.append((2 * i - 1) * buffers.use_start_times[n]
-                           + (1 - 2 * i) * buffers.use_start_times[k]
-                           - prep_total_duration
-                           + (i + 1) * 2 * parameters.cycle_time)
+                             + (1 - 2 * i) * buffers.use_start_times[k]
+                             + 2 * (1 + i) * parameters.cycle_time
+                             - prep_duration)
                 c.senses.append("L")
                 c.names.append("scheduling_buffer_{}_after_buffer_{}"
                              .format((k, n)[i], (n, k)[i]))
                 c.coefficients.append((counter, pos("z", n), 2 * i - 1))
                 c.coefficients.append((counter, pos("z", k), 1 - 2 * i))
                 c.coefficients.append((counter, pos("u", (n, k)),
-                                     2 * (2 * i - 1) * parameters.cycle_time))
+                                       2 * (2 * i - 1) * parameters.cycle_time))
                 c.coefficients.append((counter, pos("v", (n, k)), 
-                                     2 * parameters.cycle_time))
+                                       2 * parameters.cycle_time))
                 counter += 1         
     
     return c
@@ -383,38 +384,12 @@ def add_variables(prob, variables):
     prob.variables.add(variables.obj, variables.lb, variables.ub, 
                        variables.types, variables.names)
 
-def add_linear_constraints(prob, linear_constraints):
+
+def add_constraints(prob, linear_constraints):
     prob.linear_constraints.add(rhs=linear_constraints.rhs,
                                 senses=linear_constraints.senses,
                                 names=linear_constraints.names)
     prob.linear_constraints.set_coefficients(linear_constraints.coefficients)
-
-
-    
-def add_indicator_constraints(prob):
-    prep_total_duration = (parameters.prep_pre_duration 
-                           + parameters.transfer_duration
-                           + parameters.prep_post_duration)
-       
-    for n in range(N):
-        for k in range(n + 1, N):
-            indices = [pos("z", n),
-                       pos("z", k),
-                       pos("v", (n, k))]
-            values = [[1, -1, 2 * parameters.cycle_time], 
-                      [-1, 1, 2 * parameters.cycle_time]]
-            for i in (0, 1):
-                prob.indicator_constraints.add(
-                        indvar=pos("v", (n, k)),
-                        sense="L",
-                        complemented=i,
-                        lin_expr=[indices, values[i]],
-                        name=("scheduling_buffers_{}_and_{}_"
-                              "indicator_{}".format(n, k, i)),
-                        rhs=(buffers.use_start_times[n] * (1 - 2 * i)
-                             - buffers.use_start_times[k] * (1 - 2 * i)
-                             - prep_total_duration 
-                             + 2 * parameters.cycle_time))
 
 
 # check buffer data TODO: this is currently unused!!!
@@ -487,12 +462,11 @@ if __name__ == "__main__":
     N = len(buffers.volumes)  # N = number of buffers
     P = N  # P = number of slots for vessels (equal to number of buffers)
         
-    linear_constraints = build_linear_constraints(parameters, buffers, vessels)
+    constraints = build_constraints(parameters, buffers, vessels)
     variables = build_variables(parameters, buffers, vessels)
     
     prob = cplex.Cplex()
     prob.objective.set_sense(prob.objective.sense.minimize)
     add_variables(prob, variables)
-    add_linear_constraints(prob, linear_constraints)
-    add_indicator_constraints(prob)
+    add_constraints(prob, constraints)
     solve_model(prob)
