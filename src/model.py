@@ -451,7 +451,7 @@ def print_solution(prob,variables):
 
 
 # TODO: reimplement as a Results class
-def unflattened_results(parameters, buffers, vessels, constraints, solutions):
+def unflatten_results(parameters, buffers, vessels, constraints, solutions):
     M = vessels.count
     N = buffers.count
     P = N  # number of slots
@@ -465,6 +465,53 @@ def unflattened_results(parameters, buffers, vessels, constraints, solutions):
             results[variable] = numpy.rint(results[variable]).astype(int)
     return results
 
+
+def simple_plot(parameters, buffers, vessels, constraints, results):
+    import matplotlib.pyplot as plt
+    from matplotlib import cm
+    # TODO - unfinished
+    
+    M = vessels.count
+    N = buffers.count
+    P = N  # number of slots
+    colours = [cm.jet(n) for n in range(N)]
+    
+    vessels, slots = numpy.nonzero(results["y"])
+    
+    fig, ax = plt.subplots()
+    for n in range(N):
+        hold_start_time = (buffers.use_start_times[n] 
+                           - results["z"][n]
+                           - parameters.transfer_duration
+                           - parameters.hold_pre_duration)
+        hold_duration = (parameters.hold_pre_duration
+                         + parameters.transfer_duration
+                         + results["z"][n]
+                         + buffers.use_durations[n]
+                         + parameters.hold_post_duration)
+        if hold_start_time + hold_duration > parameters.cycle_time:
+            split_duration = (hold_duration 
+                              - parameters.cycle_time
+                              + hold_start_time)
+            xranges = [(0, split_duration),
+                       (hold_start_time, parameters_cycle_time)]
+        else:
+            xranges = [(hold_start_time, hold_duration)] 
+        
+        ax.broken_barh(xranges, (10 * (N + 1 - n), 8), facecolors=colours[n])
+        
+    ax.set_ylim(5, 35)
+    ax.set_xlim(0, 200)
+    ax.set_xlabel('seconds since start')
+    ax.set_yticks([15, 25])
+    ax.set_yticklabels(['Bill', 'Jim'])
+    ax.grid(True)
+    ax.annotate('race interrupted', (61, 25),
+                xytext=(0.8, 0.9), textcoords='axes fraction',
+                arrowprops=dict(facecolor='black', shrink=0.05),
+                fontsize=16,
+                horizontalalignment='right', verticalalignment='top')
+    plt.show()
 
 if __name__ == "__main__":
     parameters = Parameters()
@@ -483,7 +530,7 @@ if __name__ == "__main__":
     solve_model(prob)
     
     solutions = prob.solution.get_values()
-    results = unflattened_results(parameters, buffers, vessels, constraints,
+    results = unflatten_results(parameters, buffers, vessels, constraints,
                                   solutions)
     
     
