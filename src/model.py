@@ -9,29 +9,27 @@ import cplex
 import numpy
 
 
-# global parameters
-TOLERANCE = 1E-6
-
 parser = argparse.ArgumentParser(prog="model.py", 
-                            description="Run buffer vessel simulation.")
-parser = argparse.ArgumentParser()
-parser.add_argument("-P", "--path", default="",
-                        help="file path", type=str)
-parser.add_argument("-p", "--parameters", default="parameters.ini",
-                        help="parameters filename", type=str)
-parser.add_argument("-b", "--buffers", default="buffers.csv",
-                        help="buffers filename", type=str)
-parser.add_argument("-v", "--vessels", default="vessels.csv",
-                        help="vessel filename", type=str)
+                                 description="Run buffer vessel simulation.")
+parser.add_argument("-P", "--path", default=".", type=str,
+                    help="file path (default: <current directory>)")
+parser.add_argument("-p", "--parameters", default="parameters.ini", type=str,
+                    help="parameters filename (default: parameters.ini)")
+parser.add_argument("-b", "--buffers", default="buffers.csv", type=str,
+                    help="buffers filename (default: buffers.csv)")
+parser.add_argument("-v", "--vessels", default="vessels.csv", type=str,
+                    help="vessel filename (default: vessels.csv)")
+parser.add_argument("-t", "--tolerance", default="1E-6", type=float,
+                    help="tolerance for boolean values (default: 1e-06)")
 
+# globals
 ARGS = parser.parse_args()
 PATH = os.path.abspath(os.path.expanduser(ARGS.path)) + "/"
-print(PATH)
 PARAMETERS = PATH + ARGS.parameters
 BUFFERS = PATH + ARGS.buffers
 VESSELS = PATH + ARGS.vessels
+TOLERANCE = ARGS.tolerance
 
-print(PARAMETERS)
 
 class Parameters:
     
@@ -68,6 +66,7 @@ class Vessels:
         self.costs = self.input_dict["costs"]
         self.max_volume = max(self.volumes)
         self.count = len(self.names)
+
 
 class Buffers:
     
@@ -462,6 +461,8 @@ def unflattened_results(parameters, buffers, vessels, constraints, solutions):
         end = start + variables.counts[index]
         results[variable] = numpy.reshape(numpy.asarray(solutions[start:end]),
                                           variables.dimensions_list[index])
+        if variables.types[index] =="B":
+            results[variable] = numpy.rint(results[variable]).astype(int)
     return results
 
 
