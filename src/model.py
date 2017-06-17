@@ -1,20 +1,45 @@
+#!/usr/bin/env python
+
+import argparse
+import configparser
 import csv
 import math
-from configparser import SafeConfigParser
+import os
 
 import cplex
+import numpy
 
 
 # global parameters
 TOLERANCE = 1E-6
 
+parser = argparse.ArgumentParser(prog="model.py", 
+                            description="Run buffer vessel simulation.")
+parser = argparse.ArgumentParser()
+parser.add_argument("-P", "--path", default="",
+                        help="file path", type=str)
+parser.add_argument("-p", "--parameters", default="parameters.ini",
+                        help="parameters filename", type=str)
+parser.add_argument("-b", "--buffers", default="buffers.csv",
+                        help="buffers filename", type=str)
+parser.add_argument("-v", "--vessels", default="vessels.csv",
+                        help="vessel filename", type=str)
+
+ARGS = parser.parse_args()
+PATH = os.path.abspath(os.path.expanduser(ARGS.path)) + "/"
+print(PATH)
+PARAMETERS = PATH + ARGS.parameters
+BUFFERS = PATH + ARGS.buffers
+VESSELS = PATH + ARGS.vessels
+
+print(PARAMETERS)
 
 class Parameters:
     
-    def __init__(self, filename="parameters.ini"):
-        parser = SafeConfigParser()
-        parser.read(filename)
-        parameters = parser.items("parameters")
+    def __init__(self, filename=PARAMETERS):
+        file_parser = configparser.SafeConfigParser()
+        file_parser.read(filename)
+        parameters = file_parser.items("parameters")
         self.input_dict = dict([(p[0], float(p[1])) for p in parameters])
         self.cycle_time = self.input_dict["cycle_time"]
         self.prep_pre_duration = self.input_dict["prep_pre_duration"]
@@ -36,17 +61,18 @@ class Parameters:
 
 class Vessels:
     
-    def __init__(self, filename="vessels.csv"):
+    def __init__(self, filename=VESSELS):
         self.filename = filename
         self.input_dict = csv_columns_to_dict_of_lists(self.filename)
         self.names = self.input_dict["names"]
         self.volumes = self.input_dict["volumes"]
         self.costs = self.input_dict["costs"]
         self.max_volume = max(self.volumes)
+        self.count = len(self.names)
 
 class Buffers:
     
-    def __init__(self, cycle_time, filename="buffers.csv"):
+    def __init__(self, cycle_time, filename=BUFFERS):
         self.filename = filename
         self.input_dict = csv_columns_to_dict_of_lists(self.filename)
         self.names = self.input_dict["names"]
@@ -59,7 +85,7 @@ class Buffers:
             self.relative_use_start_times.append(t % cycle_time)
             self.use_start_times_offset_cycles.append(t // cycle_time)
         self.use_start_times = self.relative_use_start_times # shortened name
-
+        self.count = len(self.names)
 
 class Constraints:
     
@@ -74,7 +100,6 @@ class Constraints:
         self.rhs.append(rhs)
         self.senses.append(senses)
         self.names.append(names)
-        #self.coefficients.extend(coefficients)
         for i in coefficients:
             self.coefficients.append((self.counter, *i))
         self.counter += 1
@@ -91,6 +116,7 @@ class Variables:
         self.dimensions_list = []
         self.offsets = []
         self.short_names = []
+        self.count = 0
     
     def add(self, name, dimensions, obj, lb, ub, types):
         if name in self.names:
@@ -111,6 +137,7 @@ class Variables:
         self.lb.extend(lb)
         self.ub.extend(ub)
         self.types.extend(types)
+        self.count += 1
     
     def pos(self, name, index):
         try:
@@ -188,37 +215,11 @@ def generate_names_from_dimensions(name, dimensions):
     return names
 
 
-# TODO: remove and replace with Variables.pos
-def pos(variable, subscript):
-    if variable == "x":
-        if subscript[0] in range(N) and subscript[1] in range(P):
-            return subscript[0] * P + subscript[1]
-    elif variable == "y":
-        if subscript[0] in range(M) and subscript[1] in range(P):
-            return N * P + subscript[0] * P + subscript[1]
-    elif variable == "z":
-        if subscript in range(N):
-            return N * P + M * P + subscript
-    elif variable == "w":
-        if (subscript[0] in range(N) and subscript[1] in range(N) and
-            subscript[2] in range(P)):
-            return (N * P + M * P + N + subscript[0] * P * N + subscript[1] * N
-                    + subscript[2])
-    elif variable == "v":
-        if subscript[0] in range(N) and subscript[1] in range(N):
-            return (N * P + M * P + N + N * N * P + subscript[0] * N 
-                    + subscript[1])
-    elif variable == "u":
-        if subscript[0] in range(N) and subscript[1] in range(N):
-            return (N * P + M * P + N + N * N * P + N * N + subscript[0] * N
-                    + subscript[1])
-    else:
-        raise ValueError ("Invalid variable")
-    raise ValueError ("Invalid subscript(s)")
-
-
 def build_variables(parameters, buffers, vessels):
     variables = Variables()
+    M = vessels.count
+    N = buffers.count
+    P = N # number of slots
     
     # initialise booleans x_(n,p): buffer n made in slot p for all n in N for 
     # all p in P
@@ -278,8 +279,12 @@ def build_variables(parameters, buffers, vessels):
     return variables
 
 
-def build_constraints(parameters, buffers, vessels):
+def build_constraints(parameters, buffers, vessels, variables):
     c =  Constraints()
+    pos = variables.pos    
+    M = vessels.count
+    N = buffers.count
+    P = N  # number of slots
     
     # each buffer can only be made in one slot
     for n in range(N):
@@ -362,9 +367,9 @@ def build_constraints(parameters, buffers, vessels):
         for k in range(n + 1, N):
             for i in (0, 1):
                 rhs = ((2 * i - 1) * buffers.use_start_times[n]
-                             + (1 - 2 * i) * buffers.use_start_times[k]
-                             + 2 * (1 + i) * parameters.cycle_time
-                             - prep_duration)
+                       + (1 - 2 * i) * buffers.use_start_times[k]
+                       + 2 * (1 + i) * parameters.cycle_time
+                       - prep_duration)
                 names = ("scheduling_buffer_{}_after_buffer_{}"
                          .format((k, n)[i], (n, k)[i]))
                 coeffs = [(pos("z", n), 2 * i - 1),
@@ -419,12 +424,13 @@ def print_solution_variables():
 
 
 # TODO: get rid of this ASAP - use numpy or pandas to present results nicely
-def print_solution():
+def print_solution(prob,variables):
+    pos = variables.pos
     values = prob.solution.get_values()
     selected_slots = []
     selected_volumes = []
-    for m in range(M):
-        for p in range(P):
+    for m in range(vessels.count):
+        for p in range(buffers.count):
             position = pos("y", (m,p))
             if abs(values[position] - 1.0) <= TOLERANCE:
                 selected_slots.append(p)
@@ -434,7 +440,7 @@ def print_solution():
     lines.append("|volumes  |")
     for s in selected_volumes: lines[1] += " {}\t|".format(s)
     lines.append("\n|buffers  ")
-    for n in range(N):
+    for n in range(buffers.count):
         line = "| {}\t  |".format(n)
         for p in selected_slots:
             position = pos("x", (n,p)) 
@@ -445,25 +451,44 @@ def print_solution():
         lines.append(line)
     for l in lines: print(l)
 
+# TODO: reimplement as a Results class
+# TODO: check dimensions applied in correct order
+def unflattened_results(parameters, buffers, vessels, constraints, solutions):
+    M = vessels.count
+    N = buffers.count
+    P = N  # number of slots
+    results = {}
+    for index, variable in enumerate(variables.short_names):        
+        start = variables.offsets[index]
+        end = start + variables.counts[index]
+        flat = numpy.asarray(solutions[start:end])
+        results[variable] = numpy.reshape(flat, 
+                                          variables.dimensions_list[index])
+    return results
+        
+        
 
 # TODO: restructure the data using pandas
 
 
 if __name__ == "__main__":
-    parameters = Parameters("parameters.ini")
-    buffers = Buffers(parameters.cycle_time, "buffers.csv")
-    vessels = Vessels("vessels.csv")
-    
-    # TODO: where should these be???
-    M = len(vessels.volumes)  # M = number of available vessel sizes
-    N = len(buffers.volumes)  # N = number of buffers
-    P = N  # P = number of slots for vessels (equal to number of buffers)
-        
-    constraints = build_constraints(parameters, buffers, vessels)
+    parameters = Parameters()
+    buffers = Buffers(parameters.cycle_time)
+    vessels = Vessels()
+
     variables = build_variables(parameters, buffers, vessels)
+    constraints = build_constraints(parameters, buffers, vessels, variables)    
     
     prob = cplex.Cplex()
     prob.objective.set_sense(prob.objective.sense.minimize)
+    
     add_variables(prob, variables)
     add_constraints(prob, constraints)
+    
     solve_model(prob)
+    
+    solutions = prob.solution.get_values()
+    results = unflattened_results(parameters, buffers, vessels, constraints,
+                                  solutions)
+    
+    
