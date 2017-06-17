@@ -3,7 +3,6 @@
 import argparse
 import configparser
 import csv
-import math
 import os
 
 import cplex
@@ -451,24 +450,19 @@ def print_solution(prob,variables):
         lines.append(line)
     for l in lines: print(l)
 
+
 # TODO: reimplement as a Results class
-# TODO: check dimensions applied in correct order
 def unflattened_results(parameters, buffers, vessels, constraints, solutions):
     M = vessels.count
     N = buffers.count
     P = N  # number of slots
     results = {}
-    for index, variable in enumerate(variables.short_names):        
+    for index, variable in enumerate(variables.short_names):
         start = variables.offsets[index]
         end = start + variables.counts[index]
-        flat = numpy.asarray(solutions[start:end])
-        results[variable] = numpy.reshape(flat, 
+        results[variable] = numpy.reshape(numpy.asarray(solutions[start:end]),
                                           variables.dimensions_list[index])
     return results
-        
-        
-
-# TODO: restructure the data using pandas
 
 
 if __name__ == "__main__":
