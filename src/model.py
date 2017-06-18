@@ -470,16 +470,28 @@ def simple_plot(parameters, buffers, vessels, constraints, results):
     import matplotlib.pyplot as plt
     from matplotlib import cm
     
-    # TODO: add prep vessels, label all vessels by volume and type, 
+    # TODO: add prep vessels, label all vessels by volume and =  type, 
     # add legend for buffers, with name and prep volume
     
+    
+    # TODO: logic around wraparound prep / hold operations might be wrong
+    # TODO: want to list all vessels by size, in order of size, with a legend
+    # for colours = buffers, by name/prep volume
+    # TODO: split up bars into pre, tx, hold, post etc., maybe with text
+    # and maybe look at hatching the boxes for prep/hold and hold/use tx
     M = vessels.count
     N = buffers.count
     P = N  # number of slots
     colors=list(cm.Set2(numpy.linspace(0,1,N)))
-    vessels, slots = numpy.nonzero(results["y"])
-    
+    selected_vessels, _ = numpy.nonzero(results["y"])
+    Ns = len(selected_vessels)
+    _, selected_slots = numpy.nonzero(results["x"])
+    prep_y = numpy.searchsorted(numpy.argsort(selected_vessels), selected_slots)
+    bar_height = 0.6   
     fig, ax = plt.subplots()
+    prep_duration = (parameters.prep_pre_duration 
+                     + parameters.transfer_duration
+                     + parameters.prep_post_duration)
     for n in range(N):
         hold_start_time = (buffers.use_start_times[n] 
                            - results["z"][n]
@@ -489,28 +501,44 @@ def simple_plot(parameters, buffers, vessels, constraints, results):
                          + parameters.transfer_duration
                          + results["z"][n]
                          + buffers.use_durations[n]
-                         + parameters.hold_post_duration)
+                         + parameters.hold_post_duration)          
+        # recheck that this logic is solid
         if hold_start_time < 0:
             xranges = [(0, hold_start_time + hold_duration),
                        (hold_start_time + parameters.cycle_time,
                         parameters.cycle_time)]
         else:
             xranges = [(hold_start_time, hold_duration)] 
-        
-        bar_height = 0.6
         ax.broken_barh(xranges, (N - (0.5 + n + 0.5 * bar_height), bar_height),
                        facecolors=colors[n], edgecolors="black", zorder=3)
-    #ax.grid(True, zorder=0)        
+                   
+    for n in range(N):
+        prep_start_time = (buffers.use_start_times[n]
+                           - results["z"][n]
+                           - parameters.transfer_duration
+                           - parameters.prep_pre_duration)
+        if prep_start_time < 0:
+            # something not quite right here ... ditto if/else above
+            #xranges = [(0, prep_start_time + prep_duration),
+            #           (prep_start_time + parameters.cycle_time,
+            #            parameters.cycle_time)]
+            xranges = [(prep_start_time + parameters.cycle_time, prep_duration)]
+        else:
+            xranges = [(prep_start_time, prep_duration)]
+        yrange = (2 * N - (0.5 + selected_slots[n] + 0.5 * bar_height), bar_height)
+        ax.broken_barh(xranges, yrange,
+                       facecolors=colors[n], edgecolors="black", zorder=3)
+                             
     ax.grid(axis="x", linestyle="solid", linewidth=1, zorder=0)
     ax.grid(axis="y", linestyle="dashed", linewidth=1, zorder=0)
-    ax.set_ylim(0, N)
+    ax.set_ylim(0, 2 * N)
     ax.set_xlim(0, parameters.cycle_time)
     ax.set_xlabel('time (h)')
-    ax.set_ylabel('Buffer Hold Vessels')
-    ax.set_yticks([n + 0.5 for n in range(N)])
+    ax.set_ylabel('Vessels')
+    ax.set_yticks([n + 0.5 for n in range(2 * N)])
     ax.set_xticks([6 * (t + 1) for t in range(int(parameters.cycle_time / 6))])
-    hold_names = buffers.names
-    ax.set_yticklabels([name for name in buffers.names][::-1])
+    ax.set_yticklabels(["{} Hold".format(n) for n in buffers.names][::-1] + 
+                       ["Prep Slot {}".format(p) for p in range(P)][::-1])
     plt.show()
 
 if __name__ == "__main__":
