@@ -469,13 +469,14 @@ def unflatten_results(parameters, buffers, vessels, constraints, solutions):
 def simple_plot(parameters, buffers, vessels, constraints, results):
     import matplotlib.pyplot as plt
     from matplotlib import cm
-    # TODO - unfinished
+    
+    # TODO: add prep vessels, label all vessels by volume and type, 
+    # add legend for buffers, with name and prep volume
     
     M = vessels.count
     N = buffers.count
     P = N  # number of slots
-    colours = [cm.jet(n) for n in range(N)]
-    
+    colors=list(cm.Set2(numpy.linspace(0,1,N)))
     vessels, slots = numpy.nonzero(results["y"])
     
     fig, ax = plt.subplots()
@@ -489,28 +490,27 @@ def simple_plot(parameters, buffers, vessels, constraints, results):
                          + results["z"][n]
                          + buffers.use_durations[n]
                          + parameters.hold_post_duration)
-        if hold_start_time + hold_duration > parameters.cycle_time:
-            split_duration = (hold_duration 
-                              - parameters.cycle_time
-                              + hold_start_time)
-            xranges = [(0, split_duration),
-                       (hold_start_time, parameters_cycle_time)]
+        if hold_start_time < 0:
+            xranges = [(0, hold_start_time + hold_duration),
+                       (hold_start_time + parameters.cycle_time,
+                        parameters.cycle_time)]
         else:
             xranges = [(hold_start_time, hold_duration)] 
         
-        ax.broken_barh(xranges, (10 * (N + 1 - n), 8), facecolors=colours[n])
-        
-    ax.set_ylim(5, 35)
-    ax.set_xlim(0, 200)
-    ax.set_xlabel('seconds since start')
-    ax.set_yticks([15, 25])
-    ax.set_yticklabels(['Bill', 'Jim'])
-    ax.grid(True)
-    ax.annotate('race interrupted', (61, 25),
-                xytext=(0.8, 0.9), textcoords='axes fraction',
-                arrowprops=dict(facecolor='black', shrink=0.05),
-                fontsize=16,
-                horizontalalignment='right', verticalalignment='top')
+        bar_height = 0.6
+        ax.broken_barh(xranges, (N - (0.5 + n + 0.5 * bar_height), bar_height),
+                       facecolors=colors[n], edgecolors="black", zorder=3)
+    #ax.grid(True, zorder=0)        
+    ax.grid(axis="x", linestyle="solid", linewidth=1, zorder=0)
+    ax.grid(axis="y", linestyle="dashed", linewidth=1, zorder=0)
+    ax.set_ylim(0, N)
+    ax.set_xlim(0, parameters.cycle_time)
+    ax.set_xlabel('time (h)')
+    ax.set_ylabel('Buffer Hold Vessels')
+    ax.set_yticks([n + 0.5 for n in range(N)])
+    ax.set_xticks([6 * (t + 1) for t in range(int(parameters.cycle_time / 6))])
+    hold_names = buffers.names
+    ax.set_yticklabels([name for name in buffers.names][::-1])
     plt.show()
 
 if __name__ == "__main__":
@@ -532,5 +532,5 @@ if __name__ == "__main__":
     solutions = prob.solution.get_values()
     results = unflatten_results(parameters, buffers, vessels, constraints,
                                   solutions)
-    
+    simple_plot(parameters, buffers, vessels, constraints, results)
     
