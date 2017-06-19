@@ -22,6 +22,7 @@ parser.add_argument("-v", "--vessels", default="vessels.csv", type=str,
 parser.add_argument("-t", "--tolerance", default="1E-6", type=float,
                     help="tolerance for boolean values (default: 1e-06)")
 
+
 # globals
 ARGS = parser.parse_args()
 PATH = os.path.abspath(os.path.expanduser(ARGS.path)) + "/"
@@ -85,6 +86,7 @@ class Buffers:
         self.use_start_times = self.relative_use_start_times # shortened name
         self.count = len(self.names)
 
+
 class Constraints:
     
     def __init__(self):
@@ -101,6 +103,7 @@ class Constraints:
         for i in coefficients:
             self.coefficients.append((self.counter, *i))
         self.counter += 1
+
 
 class Variables:
     
@@ -209,7 +212,7 @@ def generate_names_from_dimensions(name, dimensions):
     except:
         count = dimensions
         for n in range(dimensions):
-            names.append("{}_{}".format(name, n))        
+            names.append("{}_{}".format(name, n))
     return names
 
 
@@ -219,7 +222,7 @@ def build_variables(parameters, buffers, vessels):
     N = buffers.count
     P = N # number of slots
     
-    # initialise booleans x_(n,p): buffer n made in slot p for all n in N for 
+    # initialise booleans x_(n,p): buffer n made in slot p for all n in N for
     # all p in P
     variables.add(name = "x",
                   dimensions = (N, P),
@@ -237,7 +240,7 @@ def build_variables(parameters, buffers, vessels):
                   ub = [1] * M * P,
                   types = ["B"] * M * P)
     
-    # initialise z_n: hold duration for buffer n for all n in N, incl the 
+    # initialise z_n: hold duration for buffer n for all n in N, incl the
     # following bounds: 
     # parameters.hold_duration_min <= z_n <= parameters.hold_duration_max
     variables.add(name = "z",
@@ -247,7 +250,7 @@ def build_variables(parameters, buffers, vessels):
                   ub = [parameters.hold_duration_max] * N,
                   types = ["C"] * N)
     
-    # initialise indicator booleans w_(n,k,p): buffers n and k both made in 
+    # initialise indicator booleans w_(n,k,p): buffers n and k both made in
     # slot p for all n in N for all k in N for all p in P
     variables.add(name = "w",
                   dimensions = (N, N, P),
@@ -265,7 +268,7 @@ def build_variables(parameters, buffers, vessels):
                   ub = [1] * N * N,
                   types = ["B"] * N * N)
     
-    # initialise indicator booleans u_(n,k): buffer n is preparead after 
+    # initialise indicator booleans u_(n,k): buffer n is preparead after
     # buffer k for all n in N for all k in N
     variables.add(name = "u",
                   dimensions = (N, N),
@@ -318,9 +321,10 @@ def build_constraints(parameters, buffers, vessels, variables):
             for m in range(M):
                 coeffs.append((pos("y", (m, p)),
                         vessels.volumes[m] * parameters.minimum_fill_ratio))
+            names="slot_{}_vessel_small_enough_for_buffer_{}".format(p,n)
             c.add(rhs=buffers.volumes[n] + vessels.max_volume,
                   senses="L",
-                  names="slot_{}_vessel_small_enough_for_buffer_{}".format(p,n),
+                  names=names,
                   coefficients=coeffs)
     
     # total duration in buffer hold must not exceed cycle time
@@ -381,7 +385,7 @@ def build_constraints(parameters, buffers, vessels, variables):
 
 
 def add_variables(prob, variables):
-    prob.variables.add(variables.obj, variables.lb, variables.ub, 
+    prob.variables.add(variables.obj, variables.lb, variables.ub,
                        variables.types, variables.names)
 
 
@@ -466,81 +470,6 @@ def unflatten_results(parameters, buffers, vessels, constraints, solutions):
     return results
 
 
-def simple_plot(parameters, buffers, vessels, constraints, results):
-    import matplotlib.pyplot as plt
-    from matplotlib import cm
-    
-    # TODO: add prep vessels, label all vessels by volume and =  type, 
-    # add legend for buffers, with name and prep volume
-    
-    
-    # TODO: logic around wraparound prep / hold operations might be wrong
-    # TODO: want to list all vessels by size, in order of size, with a legend
-    # for colours = buffers, by name/prep volume
-    # TODO: split up bars into pre, tx, hold, post etc., maybe with text
-    # and maybe look at hatching the boxes for prep/hold and hold/use tx
-    M = vessels.count
-    N = buffers.count
-    P = N  # number of slots
-    colors=list(cm.Set2(numpy.linspace(0,1,N)))
-    selected_vessels, _ = numpy.nonzero(results["y"])
-    Ns = len(selected_vessels)
-    _, selected_slots = numpy.nonzero(results["x"])
-    prep_y = numpy.searchsorted(numpy.argsort(selected_vessels), selected_slots)
-    bar_height = 0.6   
-    fig, ax = plt.subplots()
-    prep_duration = (parameters.prep_pre_duration 
-                     + parameters.transfer_duration
-                     + parameters.prep_post_duration)
-    for n in range(N):
-        hold_start_time = (buffers.use_start_times[n] 
-                           - results["z"][n]
-                           - parameters.transfer_duration
-                           - parameters.hold_pre_duration)
-        hold_duration = (parameters.hold_pre_duration
-                         + parameters.transfer_duration
-                         + results["z"][n]
-                         + buffers.use_durations[n]
-                         + parameters.hold_post_duration)          
-        # recheck that this logic is solid
-        if hold_start_time < 0:
-            xranges = [(0, hold_start_time + hold_duration),
-                       (hold_start_time + parameters.cycle_time,
-                        parameters.cycle_time)]
-        else:
-            xranges = [(hold_start_time, hold_duration)] 
-        ax.broken_barh(xranges, (N - (0.5 + n + 0.5 * bar_height), bar_height),
-                       facecolors=colors[n], edgecolors="black", zorder=3)
-                   
-    for n in range(N):
-        prep_start_time = (buffers.use_start_times[n]
-                           - results["z"][n]
-                           - parameters.transfer_duration
-                           - parameters.prep_pre_duration)
-        if prep_start_time < 0:
-            # something not quite right here ... ditto if/else above
-            #xranges = [(0, prep_start_time + prep_duration),
-            #           (prep_start_time + parameters.cycle_time,
-            #            parameters.cycle_time)]
-            xranges = [(prep_start_time + parameters.cycle_time, prep_duration)]
-        else:
-            xranges = [(prep_start_time, prep_duration)]
-        yrange = (2 * N - (0.5 + selected_slots[n] + 0.5 * bar_height), bar_height)
-        ax.broken_barh(xranges, yrange,
-                       facecolors=colors[n], edgecolors="black", zorder=3)
-                             
-    ax.grid(axis="x", linestyle="solid", linewidth=1, zorder=0)
-    ax.grid(axis="y", linestyle="dashed", linewidth=1, zorder=0)
-    ax.set_ylim(0, 2 * N)
-    ax.set_xlim(0, parameters.cycle_time)
-    ax.set_xlabel('time (h)')
-    ax.set_ylabel('Vessels')
-    ax.set_yticks([n + 0.5 for n in range(2 * N)])
-    ax.set_xticks([6 * (t + 1) for t in range(int(parameters.cycle_time / 6))])
-    ax.set_yticklabels(["{} Hold".format(n) for n in buffers.names][::-1] + 
-                       ["Prep Slot {}".format(p) for p in range(P)][::-1])
-    plt.show()
-
 if __name__ == "__main__":
     parameters = Parameters()
     buffers = Buffers(parameters.cycle_time)
@@ -557,8 +486,14 @@ if __name__ == "__main__":
     
     solve_model(prob)
     
+    # TODO: Priority goal programming: fix cost, then optimise for maximising
+    # hold times, fix hold times, then optimise for minimising used volume
     solutions = prob.solution.get_values()
     results = unflatten_results(parameters, buffers, vessels, constraints,
                                   solutions)
-    simple_plot(parameters, buffers, vessels, constraints, results)
+    
+    from plots import single_cycle_plot
+    single_cycle_plot(parameters, buffers, vessels, constraints, results,
+                      filename="plot.pdf")
+
     
