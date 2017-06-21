@@ -61,23 +61,27 @@ def single_cycle_plot(parameters, buffers, vessels, constraints, results,
                           + buffers.use_durations[n]
                           + parameters.hold_post_duration)
         hold_xranges.append((cyclic_xranges(hold_start_times, 
-                                           hold_durations, ct)))
-        hold_yranges.append((N - (0.5 + n + 0.5 * bar_height), bar_height))               
+                                            hold_durations, ct)))
+        hold_yranges.append((N - (0.5 + n + 0.5 * bar_height),
+                            bar_height))               
     for n in range(N):
         ax.broken_barh(hold_xranges[n], hold_yranges[n], facecolors=colors[n], 
-                       edgecolors="black", linewidth=1, zorder=3)
+                       zorder=3)
     
     # Buffer Prep Vessel Bars
+    prep_xranges = []
+    prep_yranges = []
     for n in range(N):
         prep_start_time = (buffers.use_start_times[n]
                            - results["z"][n]
                            - parameters.transfer_duration
                            - parameters.prep_pre_duration)
-        xranges = cyclic_xranges(prep_start_time, prep_duration, ct)
+        prep_xranges.append(cyclic_xranges(prep_start_time, prep_duration, ct))
         ystart =  N + used_slots - (0.5 + prep_index[n] + 0.5 * bar_height)
-        yrange = (ystart, bar_height)
-        ax.broken_barh(xranges, yrange, facecolors=colors[n], 
-                       edgecolors="black", linewidth=1, zorder=3)
+        prep_yranges.append((ystart, bar_height))
+    for n in range(N):
+        ax.broken_barh(prep_xranges[n], prep_yranges[n], facecolors=colors[n], 
+                       zorder=3)
     
     # Tx Bars
     for n in range(N):
@@ -89,24 +93,25 @@ def single_cycle_plot(parameters, buffers, vessels, constraints, results,
                    (N - (0.5 + n + 0.5 * bar_height), bar_height)]
         for yrange in yranges:
             ax.broken_barh(xranges, yrange, facecolors=colors[n], hatch="////",
-                           edgecolors="black", linewidth=0.75, zorder=3)
+                           edgecolors="black", linewidth=1, zorder=3)
     
     # Use Bars
     for n in range(N):
         xranges = cyclic_xranges(buffers.use_start_times[n],
                                  buffers.use_durations[n], ct)
-        print("{}\t{}".format(n, xranges))
         ystart =  N + used_slots - (0.5 + prep_index[n] + 0.5 * bar_height)
         yrange = (N - (0.5 + n + 0.5 * bar_height), bar_height)
         ax.broken_barh(xranges, yrange, facecolors=colors[n], hatch="\\\\\\",
-                       edgecolors="black", linewidth=0.75, zorder=3)
+                       edgecolors="black", linewidth=1, zorder=3)
     
-    # Re-plot buffer Hold Vessel Bars
+    # All Bars outlines
     for n in range(N):
         ax.broken_barh(hold_xranges[n], hold_yranges[n], facecolors='none',
                        edgecolors="black", linewidth=1.5, zorder=4)
-    
-    
+        ax.broken_barh(prep_xranges[n], prep_yranges[n], facecolors='none',
+                       edgecolors="black", linewidth=1.5, zorder=4)
+
+
     
     ax.grid(axis="x", linestyle="solid", linewidth=1, zorder=0)
     ax.grid(axis="y", linestyle="dashed", linewidth=1, zorder=0)
