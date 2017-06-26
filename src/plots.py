@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy
+import scipy.stats
 from matplotlib import cm
 
 
@@ -29,8 +30,7 @@ def single_cycle_plot(parameters, buffers, vessels, constraints, results,
     for i in range(used_slots):
         slots_to_vessels[selected_slots[i]] = selected_vessels[i]
     buffer_vessels = [slots_to_vessels[j] for j in buffer_slots]
-    s = sorted(buffer_vessels)    
-    prep_index = [s.index(k) for k in buffer_vessels]
+    prep_index = scipy.stats.rankdata(buffer_vessels, method="dense")
     
     bar_height = 0.6
     fig, ax = plt.subplots(figsize=(14, 4))
@@ -77,7 +77,7 @@ def single_cycle_plot(parameters, buffers, vessels, constraints, results,
                            - parameters.transfer_duration
                            - parameters.prep_pre_duration)
         prep_xranges.append(cyclic_xranges(prep_start_time, prep_duration, ct))
-        ystart =  N + used_slots + 1 - (0.5 + prep_index[n] + 0.5 * bar_height)
+        ystart =  N + used_slots + 1 - (prep_index[n] - 0.5 + 0.5 * bar_height)
         prep_yranges.append((ystart, bar_height))
     for n in range(N):
         ax.broken_barh(prep_xranges[n], prep_yranges[n], facecolors=colors[n], 
@@ -88,7 +88,7 @@ def single_cycle_plot(parameters, buffers, vessels, constraints, results,
         dt = parameters.transfer_duration
         tx_start_time = (buffers.use_start_times[n] - z[n] - dt)
         xranges = cyclic_xranges(tx_start_time, dt, ct)
-        ystart =  N + used_slots + 1 - (0.5 + prep_index[n] + 0.5 * bar_height)
+        ystart =  N + used_slots + 1 - (prep_index[n] - 0.5 + 0.5 * bar_height)
         yranges = [(ystart, bar_height), 
                    (N - (0.5 + n + 0.5 * bar_height), bar_height)]
         for yrange in yranges:
@@ -99,7 +99,7 @@ def single_cycle_plot(parameters, buffers, vessels, constraints, results,
     for n in range(N):
         xranges = cyclic_xranges(buffers.use_start_times[n],
                                  buffers.use_durations[n], ct)
-        ystart =  N +  used_slots - (0.5 + prep_index[n] + 0.5 * bar_height)
+        ystart =  N +  used_slots - (prep_index[n] - 0.5 + 0.5 * bar_height)
         yrange = (N - (0.5 + n + 0.5 * bar_height), bar_height)
         ax.broken_barh(xranges, yrange, facecolors=colors[n], hatch="\\\\\\",
                        edgecolors="black", linewidth=1, zorder=3)
@@ -115,7 +115,6 @@ def single_cycle_plot(parameters, buffers, vessels, constraints, results,
     
     ax.grid(axis="x", linestyle="solid", linewidth=1, zorder=0)
     ax.grid(axis="y", linestyle="dashed", linewidth=1, zorder=0)
-    #ax.set_ylim(0, N + used_slots)
     ax.set_xlim(0, parameters.cycle_time)
     ax.set_xlabel('time (h)')
     ax.set_ylabel('Vessels')
@@ -128,7 +127,6 @@ def single_cycle_plot(parameters, buffers, vessels, constraints, results,
     plt.title("Equipment Time Utilisation for One Cycle")
     
     if filename:
-        plt.savefig("plot.svg")
-        #plt.savefig(filename)
+        plt.savefig(filename)
     else:
         plt.show()
