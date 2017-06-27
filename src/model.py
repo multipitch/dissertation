@@ -5,8 +5,9 @@ import configparser
 import csv
 import os
 
-import cplex
+#import cplex
 import numpy
+import pulp
 
 
 parser = argparse.ArgumentParser(prog="model.py", 
@@ -470,6 +471,95 @@ def unflatten_results(parameters, buffers, vessels, constraints, solutions):
     return results
 
 
+def write_pulp(parameters, buffers, vessels):
+    M = vessels.count
+    N = buffers.count
+    P = N  # number of slots
+ 
+    ms = [m for m in range(M)]
+    ns = [n for n in range(N)]
+    ps = [p for p in range(P)]
+    
+    # Problem
+    problem = pulp.LpProblem("Buffer Preparation Vessel Selection", 
+                             pulp.LpMinimize)
+    
+    # Variables
+    u = pulp.LpVariable.dicts("u", (ns, ns), 0, 1, "Integer")
+    v = pulp.LpVariable.dicts("v", (ns, ns), 0, 1, "Integer")
+    w = pulp.LpVariable.dicts("w", (ns, ns, ps), 0, 1, "Integer")
+    x = pulp.LpVariable.dicts("x", (ns, ps), 0, 1, "Integer")
+    y = pulp.LpVariable.dicts("y", (ms, ps), 0, 1, "Integer")
+    z = pulp.LpVariable.dicts("z", (ns), parameters.hold_duration_min,
+                              parameters.hold_duration_max, "Continuous")
+
+    # Objective Function
+    problem += sum([vessels.costs[m] * y[m][p] for m in ms for p in ps])
+
+    # Constraint 1: A buffer may only be prepared in one slot
+    for n in ns:
+        problem += sum([x[n][p] for p in ps]) == 1
+
+    # Constraint 2: Each slot can contain at most one vessel
+    for p in ps:
+        problem += sum([y[m][p] for m in ms]) <= 1
+
+    # Constraint 3: Vessels must be big enough for buffers
+    for n in ns:
+        for p in ps:
+            problem += (buffers.volumes[n] * x[n][p]
+                        <= sum([vessels.volumes[m] * y[m][p] for m in ms]))
+
+    # Constraint 4: Vessels must be small emough for buffers
+    mfr = parameters.minimum_fill_ratio
+    for n in ns:
+        for p in ps:
+            problem += (vessels.max_volume * x[n][p]
+                        + mfr * sum([vessels.volumes[m] * y[m][p] for m in ms])
+                        <= buffers.volumes[n]
+                        + vessels.max_volume)
+
+    # Constraint 5: Total hold proceudre durations must be less than cycle time
+    for n in ns:
+        rhs = (parameters.cycle_time 
+               - parameters.hold_pre_duration
+               - parameters.hold_post_duration
+               - buffers.use_durations[n])
+        problem += z[n] <= rhs
+
+    # Constraint 6: For each pair of buffers, indicate if made in same slot
+    for n in ns:
+        for k in ns: # can this range be reduced???
+            if k != n:
+                for p in ps:
+                    problem += x[n][p] + x[k][p] - w[k][n][p] <= 1
+
+    # Constraint 7: For each pair of buffers, indicate which prepared first
+    for n in ns:
+        for k in range(n + 1, N):
+            problem += sum([w[n][k][p] for p in ps]) - v[n][k] <= 0
+
+    # Constraint 8: Each prep vessel can only do one thing at a time
+    prep_duration = (parameters.prep_pre_duration 
+                     + parameters.transfer_duration
+                     + parameters.prep_post_duration)
+    for i in (0, 1):
+        for n in ns:
+            for k in range(n + 1, N):
+                problem += ((2 * i - 1) * z[n]
+                            - (2 * i - 1) * z[k]
+                            + (2 * i - 1) * 2 * parameters.cycle_time * u[n][k]
+                            + 2 * parameters.cycle_time * v[n][k]
+                            - (2 * i - 1) * buffers.use_start_times[n]
+                            + (2 * i - 1) * buffers.use_start_times[k]
+                            - 4 * i * parameters.cycle_time
+                            + parameters.prep_pre_duration
+                            + parameters.transfer_duration
+                            + parameters.prep_post_duration 
+                            <= 0)
+    return problem
+
+
 if __name__ == "__main__":
     parameters = Parameters()
     buffers = Buffers(parameters.cycle_time)
@@ -478,6 +568,7 @@ if __name__ == "__main__":
     variables = build_variables(parameters, buffers, vessels)
     constraints = build_constraints(parameters, buffers, vessels, variables)    
     
+    """
     prob = cplex.Cplex()
     prob.objective.set_sense(prob.objective.sense.minimize)
     
@@ -490,10 +581,14 @@ if __name__ == "__main__":
     # hold times, fix hold times, then optimise for minimising used volume
     solutions = prob.solution.get_values()
     results = unflatten_results(parameters, buffers, vessels, constraints,
-                                  solutions)
+                                solutions)
     
     from plots import single_cycle_plot
     single_cycle_plot(parameters, buffers, vessels, constraints, results,
                       filename="plot.pdf")
-
-    
+    """
+    problem = write_pulp(parameters, buffers, vessels)
+    problem.solve()
+    print("Status:", pulp.LpStatus[problem.status])
+    for variable in problem.variables():
+        print(variable.name, "=", variable.varValue)
