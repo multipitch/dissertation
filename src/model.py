@@ -7,6 +7,7 @@ import os
 
 #import cplex
 import numpy
+import pandas
 import pulp
 
 
@@ -190,6 +191,47 @@ def prod(dimensions):
         return product
     except:
         return dimensions
+
+
+# Generator for accessing components of a variable
+def variable_iterator(variable, dimensions):
+    if len(dimensions) > 1:
+        for i in range(dimensions[0]):
+            yield from variable_iterator(variable[i], dimensions[1:])
+    else:
+        for i in range(dimensions[0]):
+            yield variable[i]
+
+
+# Generator for accessing components of a variable, retunring the component and
+# its position
+def variable_iterator_loc(variable, dimensions):
+    index = [0]* len(dimensions)
+    depth = 0
+    yield from _variable_iterator_loc(variable, dimensions, index, depth)
+
+
+# Recursive function called by variable_iter_loc
+def _variable_iterator_loc(variable, dimensions, index, depth):
+    depth += 1
+    if len(dimensions) == 1:
+        for i in range(dimensions[0]):
+            index[depth - 1] = i
+            yield variable[i], tuple(index)
+    else:
+        for i in range(dimensions[0]):
+            index[depth - 1] = i
+            yield from _variable_iterator_loc(variable[i], dimensions[1:], 
+                                              index, depth)
+
+
+def unflatten_variable(variable, dimensions):
+    unflattened = numpy.empty(dimensions)
+    variter = variable_iterator_loc(variable, dimensions)
+    for i in range(prod(dimensions)):
+        varobject, position = next(variter)
+        unflattened[position] = pulp.value(varobject)
+    return unflattened
 
 
 def generate_names_from_dimensions(name, dimensions):
@@ -469,16 +511,16 @@ def unflatten_results(parameters, buffers, vessels, constraints, solutions):
         if variables.types[index] =="B":
             results[variable] = numpy.rint(results[variable]).astype(int)
     return results
-
+    
 
 def write_pulp(parameters, buffers, vessels):
     M = vessels.count
     N = buffers.count
     P = N  # number of slots
  
-    ms = [m for m in range(M)]
-    ns = [n for n in range(N)]
-    ps = [p for p in range(P)]
+    ms = list(range(M))
+    ns = list(range(N))
+    ps = list(range(P))
     
     # Problem
     problem = pulp.LpProblem("Buffer Preparation Vessel Selection", 
@@ -557,7 +599,8 @@ def write_pulp(parameters, buffers, vessels):
                             + parameters.transfer_duration
                             + parameters.prep_post_duration 
                             <= 0)
-    return problem
+    varnames = {"u": u, "v": v, "w": w, "x": x, "y": y, "z": z}
+    return problem, varnames
 
 
 if __name__ == "__main__":
@@ -587,8 +630,15 @@ if __name__ == "__main__":
     single_cycle_plot(parameters, buffers, vessels, constraints, results,
                       filename="plot.pdf")
     """
-    problem = write_pulp(parameters, buffers, vessels)
+
+    problem, varnames = write_pulp(parameters, buffers, vessels)
+
     problem.solve()
+    # TODO: results class, populated using generators
+    # TODO: PULP/CLP results differ from CPLEX and appear to be incorrect
     print("Status:", pulp.LpStatus[problem.status])
-    for variable in problem.variables():
-        print(variable.name, "=", variable.varValue)
+    #for variable in problem.variables():
+    #    print(variable.name, "=", variable.varValue)
+
+
+
