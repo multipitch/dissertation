@@ -5,7 +5,7 @@ import configparser
 import csv
 import os
 
-#import cplex
+import cplex
 import numpy
 import pandas
 import pulp
@@ -141,6 +141,7 @@ class Variables:
         self.ub.extend(ub)
         self.types.extend(types)
         self.count += 1
+
     
     def pos(self, name, index):
         try:
@@ -183,6 +184,7 @@ def csv_columns_to_dict_of_lists(filename):
         return data_dict
 
 
+# Return the product of the elements of a list, tuple or set
 def prod(dimensions):
     try:
         product = 1
@@ -226,11 +228,14 @@ def _variable_iterator_loc(variable, dimensions, index, depth):
 
 
 def unflatten_variable(variable, dimensions):
-    unflattened = numpy.empty(dimensions)
+    #unflattened = numpy.empty(dimensions)
+    #unflattened = numpy.empty(dimensions, pulp.pulp.LpVariable)
+    unflattened = numpy.empty(dimensions, object)
     variter = variable_iterator_loc(variable, dimensions)
     for i in range(prod(dimensions)):
         varobject, position = next(variter)
-        unflattened[position] = pulp.value(varobject)
+        #unflattened[position] = pulp.value(varobject)
+        unflattened[position] = varobject
     return unflattened
 
 
@@ -381,17 +386,16 @@ def build_constraints(parameters, buffers, vessels, variables):
     
     # track if buffers n and k both made in slot p
     for n in range(N):
-        for k in range(N):
-            if k != n:
-                for p in range(P):
-                    coeffs = [(pos("x", (n, p)), 1), 
-                              (pos("x", (k, p)), 1),
-                              (pos("w", (n, k, p)), -1)]
-                    names="buffers_{}_and_{}_share_slot_{}".format(n, k, p)
-                    c.add(rhs=1,
-                          senses="L",
-                          names=names,
-                          coefficients=coeffs)
+        for k in range(n + 1, N):
+            for p in range(P):
+                coeffs = [(pos("x", (n, p)), 1), 
+                          (pos("x", (k, p)), 1),
+                          (pos("w", (n, k, p)), -1)]
+                names="buffers_{}_and_{}_share_slot_{}".format(n, k, p)
+                c.add(rhs=1,
+                      senses="L",
+                      names=names,
+                      coefficients=coeffs)
     
     # track if buffers n and k both made in same slot
     for n in range(N):
@@ -571,10 +575,9 @@ def write_pulp(parameters, buffers, vessels):
 
     # Constraint 6: For each pair of buffers, indicate if made in same slot
     for n in ns:
-        for k in ns: # can this range be reduced???
-            if k != n:
-                for p in ps:
-                    problem += x[n][p] + x[k][p] - w[k][n][p] <= 1
+        for k in range(n + 1, N):
+            for p in ps:
+                problem += x[n][p] + x[k][p] - w[k][n][p] <= 1
 
     # Constraint 7: For each pair of buffers, indicate which prepared first
     for n in ns:
@@ -594,7 +597,7 @@ def write_pulp(parameters, buffers, vessels):
                             + 2 * parameters.cycle_time * v[n][k]
                             - (2 * i - 1) * buffers.use_start_times[n]
                             + (2 * i - 1) * buffers.use_start_times[k]
-                            - 4 * i * parameters.cycle_time
+                            - (i + 1) * 2 * parameters.cycle_time
                             + parameters.prep_pre_duration
                             + parameters.transfer_duration
                             + parameters.prep_post_duration 
@@ -626,19 +629,40 @@ if __name__ == "__main__":
     results = unflatten_results(parameters, buffers, vessels, constraints,
                                 solutions)
     
-    from plots import single_cycle_plot
-    single_cycle_plot(parameters, buffers, vessels, constraints, results,
-                      filename="plot.pdf")
+
     """
 
     problem, varnames = write_pulp(parameters, buffers, vessels)
 
-    problem.solve()
+    problem.solve(pulp.solvers.CPLEX())
+    #problem.solve()
     # TODO: results class, populated using generators
     # TODO: PULP/CLP results differ from CPLEX and appear to be incorrect
     print("Status:", pulp.LpStatus[problem.status])
     #for variable in problem.variables():
     #    print(variable.name, "=", variable.varValue)
 
+    M = vessels.count
+    N = buffers.count
+    P = N  # number of slots
+
+    xnames = varnames["x"]
+    ynames = varnames["y"]
+    znames = varnames["z"]
+    xdims = (N, N)
+    ydims = (M, P)
+    zdims = (N,)
+    xobj = unflatten_variable(xnames, xdims)
+    yobj = unflatten_variable(ynames, ydims)
+    zobj = unflatten_variable(znames, zdims)
+    evaluate_array = numpy.vectorize(lambda i: pulp.value(i))
+    results = {}
+    results["x"] = evaluate_array(xobj)
+    results["y"] = evaluate_array(yobj)
+    results["z"] = evaluate_array(zobj)
+    
+    from plots import single_cycle_plot
+    single_cycle_plot(parameters, buffers, vessels, constraints, results,
+                      filename="plot.pdf")
 
 
