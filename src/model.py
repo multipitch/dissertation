@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+# TODO: more extensive use of numpy
+# TODO: some duplication of data across classes - rationalise???
+
 import argparse
 import configparser
 import csv
@@ -107,11 +110,13 @@ class Buffers:
         self.prep_total_durations = None
         self.hold_total_durations = None
         self.transfer_durations = None
+        self.p_to_m = None
     
     def get_results(self, parameters, results):
         ct = parameters.cycle_time
         n_to_p = dict(numpy.argwhere(results.x))
-        p_to_m = dict(numpy.fliplr(numpy.argwhere(results.y)))
+        self.p_to_m = dict(numpy.fliplr(numpy.argwhere(results.y)))
+        p_to_m = self.p_to_m
         self.prep_slots = numpy.array([n_to_p[i] for i in range(self.count)])
         self.prep_vessels = numpy.array([p_to_m[i] for i in self.prep_slots])
         self.prep_start_times = (numpy.asarray(self.use_start_times)
@@ -122,8 +127,8 @@ class Buffers:
                                  - results.z
                                  - parameters.transfer_duration
                                  - parameters.hold_pre_duration) % ct
-        self.transfer_start_times = (self.hold_start_times
-                                     - parameters.transfer_duration)
+        self.transfer_start_times = (self.prep_start_times
+                                     + parameters.prep_pre_duration) % ct
         self.prep_total_durations = numpy.full(self.count,
                                                parameters.prep_total_duration)
         self.hold_total_durations = (parameters.hold_pre_duration
@@ -361,5 +366,4 @@ if __name__ == "__main__":
     results = Results(variables)
     buffers.get_results(parameters, results)
     
-    single_cycle_plot(parameters, buffers, vessels, results,
-                      filename=(PATH + "plot.pdf"))
+    single_cycle_plot(parameters, buffers, vessels, (PATH + "plot.pdf"))
