@@ -12,7 +12,7 @@ import pulp
 parser = argparse.ArgumentParser(prog="model.py",
                                  description="Run buffer vessel simulation.")
 parser.add_argument("-P", "--path", default=".", type=str,
-                    help="file path (default: <current directory>)")
+                    help="file path (default: <working directory>)")
 parser.add_argument("-p", "--parameters", default="parameters.ini", type=str,
                     help="parameters filename (default: parameters.ini)")
 parser.add_argument("-b", "--buffers", default="buffers.csv", type=str,
@@ -20,7 +20,7 @@ parser.add_argument("-b", "--buffers", default="buffers.csv", type=str,
 parser.add_argument("-v", "--vessels", default="vessels.csv", type=str,
                     help="vessel filename (default: vessels.csv)")
 parser.add_argument("-s", "--solver", default="", type=str,
-                    help="solver to be used (default: <pulp default solver>")
+                    help="solver to be used (default: COIN)")
 
 
 # globals
@@ -29,7 +29,20 @@ PATH = os.path.abspath(os.path.expanduser(ARGS.path)) + "/"
 PARAMETERS = PATH + ARGS.parameters
 BUFFERS = PATH + ARGS.buffers
 VESSELS = PATH + ARGS.vessels
-SOLVER = ARGS.solver
+# the following solvers are installed on the test machine; solvers currently
+# causing issues have been commented out
+if ARGS.solver.upper() in ["", "PULP_CBC_CMD"]:
+    SOLVER = pulp.solvers.PULP_CBC_CMD()
+elif ARGS.solver.upper() == "CPLEX":
+    SOLVER = pulp.solvers.CPLEX()
+elif ARGS.solver.upper() == "GLPK":
+    SOLVER = pulp.solvers.GLPK()
+#elif ARGS.solver.upper() == "XPRESS": # not working currently
+#    SOLVER = pulp.solvers.XPRESS()
+#elif ARGS.solver.upper() in ["COIN", "COIN_CMD"]:
+#    SOLVER = pulp.solvers.COIN_CMD()
+else:
+    raise ValueError("{} is an unsupported solver.".format(ARGS.solver))
 
 
 class Parameters:
@@ -48,6 +61,9 @@ class Parameters:
         self.hold_duration_min = self.input_dict["hold_duration_min"]
         self.hold_duration_max = self.input_dict["hold_duration_max"]
         self.minimum_fill_ratio = self.input_dict["minimum_fill_ratio"]
+        self.prep_total_duration = (self.prep_pre_duration
+                                    + self.transfer_duration
+                                    + self.prep_post_duration)
     
     def __repr__(self):
         lines = ""
@@ -79,12 +95,44 @@ class Buffers:
         self.absolute_use_start_times = self.input_dict["use_start_times"]
         self.use_durations = self.input_dict["use_durations"]
         self.relative_use_start_times = []
-        self.use_start_times_offset_cycles = []
         for t in self.absolute_use_start_times:
             self.relative_use_start_times.append(t % cycle_time)
-            self.use_start_times_offset_cycles.append(t // cycle_time)
         self.use_start_times = self.relative_use_start_times # shortened name
         self.count = len(self.names)
+        self.prep_slots = None
+        self.prep_vessels = None
+        self.prep_start_times = None
+        self.hold_start_times = None
+        self.transfer_start_times = None
+        self.prep_total_durations = None
+        self.hold_total_durations = None
+        self.transfer_durations = None
+    
+    def get_results(self, parameters, results):
+        ct = parameters.cycle_time
+        n_to_p = dict(numpy.argwhere(results.x))
+        p_to_m = dict(numpy.fliplr(numpy.argwhere(results.y)))
+        self.prep_slots = numpy.array([n_to_p[i] for i in range(self.count)])
+        self.prep_vessels = numpy.array([p_to_m[i] for i in self.prep_slots])
+        self.prep_start_times = (numpy.asarray(self.use_start_times)
+                                 - results.z
+                                 - parameters.transfer_duration
+                                 - parameters.prep_pre_duration) % ct
+        self.hold_start_times = (numpy.asarray(self.use_start_times)
+                                 - results.z
+                                 - parameters.transfer_duration
+                                 - parameters.hold_pre_duration) % ct
+        self.transfer_start_times = (self.hold_start_times
+                                     - parameters.transfer_duration)
+        self.prep_total_durations = numpy.full(self.count,
+                                               parameters.prep_total_duration)
+        self.hold_total_durations = (parameters.hold_pre_duration
+                                     + parameters.transfer_duration
+                                     + results.z
+                                     + numpy.asarray(self.use_durations)
+                                     + parameters.hold_post_duration)
+        self.transfer_durations = numpy.full(self.count,
+                                             parameters.transfer_duration)
 
 
 class Variable:
@@ -210,6 +258,9 @@ def define_problem(parameters, buffers, vessels):
     ns = list(range(N))
     ps = list(range(P))
     
+    ct = parameters.cycle_time
+    t_use = buffers.use_start_times
+    
     # Problem
     problem = pulp.LpProblem("Buffer Preparation Vessel Selection",
                              pulp.LpMinimize)
@@ -254,59 +305,61 @@ def define_problem(parameters, buffers, vessels):
     
     # Constraint 5: Total hold proceudre durations must be less than cycle time
     for n in ns:
-        rhs = (parameters.cycle_time
-               - parameters.hold_pre_duration
-               - parameters.hold_post_duration
-               - buffers.use_durations[n])
+        rhs = (ct - parameters.hold_pre_duration - parameters.transfer_duration
+               - parameters.hold_post_duration - buffers.use_durations[n])
         problem += z.o[n] <= rhs
     
-    # Constraint 6: For each pair of buffers, indicate if made in same slot
+    # Constraint 6: For each pair of distinct buffers, for each slot, 
+    # indicate if both buffers are prepared in the given slot
     for n in ns:
         for k in range(n + 1, N):
             for p in ps:
-                problem += x.o[n][p] + x.o[k][p] - w.o[k][n][p] <= 1
+                problem += x.o[n][p] + x.o[k][p] - w.o[n][k][p] <= 1
+                problem += 0.5 * x.o[n][p] + 0.5 * x.o[k][p] >= w.o[n][k][p]
     
-    # Constraint 7: For each pair of buffers, indicate which prepared first
+    # Constraint 7: For each pair of distinct buffers, indicate if they are 
+    # prepared in the same slot
     for n in ns:
         for k in range(n + 1, N):
             problem += sum([w.o[n][k][p] for p in ps]) - v.o[n][k] <= 0
     
-    # Constraint 8: Each prep vessel can only do one thing at a time
-    for i in (0, 1):
-        for n in ns:
-            for k in range(n + 1, N):
-                problem += ((2 * i - 1) * z.o[n]
-                            - (2 * i - 1) * z.o[k]
-                            + (2 * i - 1) * 2*parameters.cycle_time * u.o[n][k]
-                            + 2 * parameters.cycle_time * v.o[n][k]
-                            - (2 * i - 1) * buffers.use_start_times[n]
-                            + (2 * i - 1) * buffers.use_start_times[k]
-                            - (i + 1) * 2 * parameters.cycle_time
-                            + parameters.prep_pre_duration
-                            + parameters.transfer_duration
-                            + parameters.prep_post_duration
-                            <= 0)
+    # Constraint 8: For each pair of distinct buffers, indicate if the first
+    # buffer is prepared after the second (unconstrained if simultaneous)
+    for n in ns:
+        for k in range(n + 1, N):
+            problem += (z.o[n] - z.o[k] + ct * u.o[n][k]
+                        >= t_use[n] - t_use[k])
+            problem += (z.o[n] - z.o[k] + ct * u.o[n][k]
+                        <= t_use[n] - t_use[k] + ct)
+    
+    # Constraint 9: Each prep vessel can only do one thing at a time
+    big_M = 2 * ct
+    for n in ns:
+        for k in range(n + 1, N):
+            problem += (z.o[n] - z.o[k] + big_M * u.o[n][k] - big_M * v.o[n][k]
+                        >= t_use[n] - t_use[k] + parameters.prep_total_duration
+                        - big_M)
+            problem += (z.o[k] - z.o[n] - big_M * u.o[n][k] - big_M * v.o[n][k]
+                        >= t_use[k] - t_use[n] + parameters.prep_total_duration
+                        - 2 * big_M)
     
     return problem, variables
 
 
 if __name__ == "__main__":
+    from plots import single_cycle_plot
+    
     parameters = Parameters()
     buffers = Buffers(parameters.cycle_time)
     vessels = Vessels()
     problem, variables = define_problem(parameters, buffers, vessels)
     
     problem.writeLP(PATH + "model.lp")
-    
-    if SOLVER == "CPLEX":
-        problem.solve(pulp.solvers.CPLEX())
-    else:
-        problem.solve()
-    
+    problem.solve(SOLVER)
     print("Status:", pulp.LpStatus[problem.status])
     
     results = Results(variables)
+    buffers.get_results(parameters, results)
     
-    from plots import single_cycle_plot
     single_cycle_plot(parameters, buffers, vessels, results,
                       filename=(PATH + "plot.pdf"))

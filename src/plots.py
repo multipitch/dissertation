@@ -21,17 +21,26 @@ def single_cycle_plot(parameters, buffers, vessels, results, filename=None):
     
     colors=list(cm.Set2(numpy.linspace(0,1,N)))
     
-    _, buffer_slots = numpy.nonzero(x)
+    #_, buffer_slots = numpy.nonzero(x)
+    buffer_slots = buffers.prep_slots
     selected_vessels, selected_slots = numpy.nonzero(y)
     used_slots = len(selected_slots)
     slots_to_vessels = {}
     for i in range(used_slots):
         slots_to_vessels[selected_slots[i]] = selected_vessels[i]
-    buffer_vessels = [slots_to_vessels[j] for j in buffer_slots]
+    #buffer_vessels = [slots_to_vessels[j] for j in buffer_slots]
+    buffer_vessels = buffers.prep_vessels
     prep_index = scipy.stats.rankdata(buffer_vessels, method="dense")
     
+    print(buffer_slots) # buffers.prep_slots
+    print(selected_vessels) # get rid
+    print(used_slots) # get rid
+    print(slots_to_vessels) # get rid
+    print(buffer_vessels) # buffers.prep_vessels
+    print(prep_index) # redo
+    
     bar_height = 0.6
-    fig, ax = plt.subplots(figsize=(14, 4))
+    fig, ax = plt.subplots(figsize=(16, 4))
     prep_duration = (parameters.prep_pre_duration
                      + parameters.transfer_duration
                      + parameters.prep_post_duration)
