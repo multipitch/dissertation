@@ -64,7 +64,8 @@ class Parameters:
         self.hold_duration_min = self.input_dict["hold_duration_min"]
         self.hold_duration_max = self.input_dict["hold_duration_max"]
         self.minimum_fill_ratio = self.input_dict["minimum_fill_ratio"]
-        self.maximum_prep_utilisation = 0.7
+        self.maximum_prep_utilisation = (
+                self.input_dict["maximum_prep_utilisation"])
         self.prep_total_duration = (self.prep_pre_duration
                                     + self.transfer_duration
                                     + self.prep_post_duration)
@@ -333,17 +334,17 @@ def define_problem(parameters, buffers, vessels):
     # Constraint 8: For each buffer, indicate if relative use start time minus
     # hold time is negative
     for n in ns:
-        problem += z.o[n] - ct * q.o[n] <= buffers.use_durations[n]
-        problem += z.o[n] - ct * q.o[n] >= buffers.use_durations[n] - ct    
+        problem += z.o[n] - ct * q.o[n] <= buffers.use_start_times[n]
+        problem += z.o[n] - ct * q.o[n] >= buffers.use_start_times[n] - ct    
     
     # Constraint 9: For each pair of distinct buffers, indicate if the first
     # buffer is prepared after the second (unconstrained if simultaneous)
     for n in ns:
         for k in range(n + 1, N):
-            problem += (z.o[n] - z.o[k] + ct * u.o[n][k] - ct * q.o[n] 
-                        + ct * q.o[k] >= t_use[n] - t_use[k])
-            problem += (z.o[n] - z.o[k] + ct * u.o[n][k] - ct * q.o[n]
-                        + ct * q.o[k] <= t_use[n] - t_use[k] + ct)
+            problem += (z.o[n] - z.o[k] + ct * u.o[n][k] - ct * q.o[n] + ct * q.o[k]
+                        >= t_use[n] - t_use[k])
+            problem += (z.o[n] - z.o[k] + ct * u.o[n][k] - ct * q.o[n] + ct * q.o[k]
+                        <= t_use[n] - t_use[k] + ct)
     
     # Constraint 10: Each prep vessel can only do one thing at a time
     # TODO: Bug exists which erroneously permits two buffers to be prepared
@@ -379,7 +380,7 @@ def secondary_objective(problem, variables, buffers, vessels, objective1):
     y = variables.y
     problem += sum([variables.z.o[n] for n in ns])
     problem += (sum([vessels.costs[m] * y.o[m][p] for m in ms for p in ps])
-                == objective1)
+                <= objective1)
 
 
 if __name__ == "__main__":
@@ -391,23 +392,23 @@ if __name__ == "__main__":
     
     problem, variables = define_problem(parameters, buffers, vessels)
     initial_objective(problem, variables, buffers, vessels)    
-    #problem.writeLP(PATH + "model.lp")
+    #problem.writeLP(PATH + "initial.lp")
     problem.solve(SOLVER)
     print("Status:", pulp.LpStatus[problem.status])
     objective1 = pulp.value(problem.objective)
     results = Results(variables)
     buffers.get_results(parameters, results)
     
-    parameters2 = Parameters()
-    buffers2 = Buffers(parameters.cycle_time)
-    vessels2 = Vessels()
-    problem2, variables2 = define_problem(parameters2, buffers2, vessels2)
-    secondary_objective(problem2, variables2, buffers2, vessels2, objective1)    
+    parameters = Parameters()
+    buffers = Buffers(parameters.cycle_time)
+    vessels = Vessels()
+    problem, variables = define_problem(parameters, buffers, vessels)
+    secondary_objective(problem, variables, buffers, vessels, objective1) 
+    #problem.writeLP(PATH + "secondary.lp")   
     problem.solve(SOLVER)
     print("Status:", pulp.LpStatus[problem.status])
     
     
-    results2 = Results(variables2)
-    buffers2.get_results(parameters2, results)
-    single_cycle_plot(parameters, buffers, vessels, (PATH + "plot1.pdf"))
-    single_cycle_plot(parameters2, buffers2, vessels2, (PATH + "plot2.pdf"))
+    results = Results(variables)
+    buffers.get_results(parameters, results)
+    single_cycle_plot(parameters, buffers, vessels, (PATH + "plot.pdf"))
