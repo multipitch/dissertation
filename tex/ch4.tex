@@ -28,4 +28,265 @@ assimilate our own knowledge and get it into our power.
 
 \section{Introduction}\label{S.intro4}
 
-The methodology used is \ldots
+The vessel selection problem may be described as a series of linear constraints.
+These constraints are applied to find the optimium value of an objective
+function, which we seek to \emph{minimise}.
+The objective function is the total cost of vessels, which is given by:
+
+\begin{equation}
+    Z = \sum_{m \in M} \sum_{p \in P} c_m \boldsymbol{y}_{mp}
+\end{equation}
+
+A small number of constraints need to be applied to arrive at the simplest 
+variant of the problem.
+Additional constraints may then be added to make the model more detailed or
+realistic.
+
+The first constraint to be added is the limitation that a buffer must be 
+prepared in exactly one slot. 
+\textbf{TODO: Explanation of slots, schematic etc. before this point.}
+This constraint means that we must indeed preprare each buffer once per cycle
+and also that the buffer is always prepared in the same vessel -- i.e. vessel
+selection for every cycle is identical.
+
+\begin{equation}
+    \sum_{p \in P} \boldsymbol{x}_{np} = 1 \quad \forall n \in N
+\end{equation}
+
+The second constraint to be added is the requirement that at most one vessel
+may inhabit a given slot.
+This is not directly analagous to the first constraint -- it is possible to 
+use the same \emph{sized} vessel in many slots, but a maximum of one vessel 
+\emph{instance} may inabit any given slot.
+Note that this inequality allows for the possibility of unused slots, i.e. the
+number of occupied slots (and hence the number of preparation vessels) may be
+less than the number of available slots (and hence the number of buffers).
+
+\begin{equation}
+    \sum_{m \in M} \boldsymbol{y}_{mp} \le 1 \quad \forall p \in P
+\end{equation}
+
+The third constraint is the requirement that, if a vessel is in a given slot,
+it has sufficient volume to prepare all buffers assigned to the slot.   
+        
+\begin{equation}
+    \sum_{m \in M} U_{n} \boldsymbol{x}_{np} - V_{m} \boldsymbol{y}_{mp} \le 0
+    \quad \forall n \in N, \quad \forall p \in P
+\end{equation}
+
+The fourth constraint required for a basic model is the limitation that the
+total duration of each hold prcedure must not be greater than the cycle time.
+If this constraint is not observed, a hold procedure in a given batch may not
+have finished before the hold procedure for the next batch is due to start.
+
+\begin{equation}
+    \boldsymbol{z}_{n} \le \lambda - \left( \Delta t_{HOLD,PRE} +
+    \Delta t_{TRANSFER} + \Delta t_{USE,n} + \Delta t_{HOLD,POST} \right)
+    \quad \forall n \in N
+\end{equation}
+
+
+The final constraint required for a basic model is similar to the above.
+We wish to ensure that, in a given slot, the sum of the total durations of each
+preparation procedure in that slot is not greater than the cycle time.
+If this were not the case, for a given slot, there would be insufficient
+time to carry out all the preparations assigned to that slot.
+Note that at this point, we have not concerned ourselves with \emph{when}
+the buffers are required by the process -- indeed, perhaps this information is
+not available early in a design project.
+To make the model more realistic, we can modify this constraint so that sum of
+the total durations mentioned above is not greater than some fraction of the
+cycle time, the \emph{maximum utilisation ratio}.
+By applying this constraint, we are saying that, in the absence of any detailed
+scheduling data, we want to ensure that out preparation vessels
+are used less than, e.g. 60\% of the time.
+
+\begin{equation}
+    \Delta t_{PREP,TOTAL} \sum_{n \in N} \boldsymbol{x}_{np} \le r_{UTIL} 
+    \lambda \quad \forall p \in P
+\end{equation}
+
+where
+
+\begin{equation}
+    \Delta t_{PREP,TOTAL} = \Delta t_{PREP,PRE} + \Delta t_{TRANSFER} +
+    \Delta t_{PREP,POST}  
+\end{equation}
+
+The above model may be solved to produce a vessel selection.
+The resultant selection would be a rough guide, in the absence of production
+scheduling information, of the number and size of vessels required for a 
+facility, using the maximum utilisation ratio as a proxy for a schedule.
+
+For a more accurate appraisal of vessel requirements, more data is required
+on scheduling.
+Specifically, data are required on the duration of use of each buffer, along
+with data on the time of first use of each buffer, relative to some fixed point
+in a batch (e.g. batch start).
+Given this information, it is possible to constrain the problem so that the
+individual preparations are scheduled correctly.
+The scheduling constraint may be descibed quite simply:
+Ensure that no two preparation operations overlap in time in a given slot.
+
+Since we have a constant preparation duration, $ \Delta t_{PREP,TOTAL} $, this
+constraint may be expressed, \emph{for any two distinct buffers that are made
+in the same slot}, by the following:
+
+\begin{equation}
+    \lvert \left( t_{USE,k} - \boldsymbol{z}_{k} \right) - \left( t_{USE,n} - 
+    \boldsymbol{z}_{n} \right) \rvert \le \Delta t_{USE,TOTAL} \quad \forall n 
+    \in N, \quad \forall k \in N, k > n
+\end{equation}
+
+Note that the range of $ k $ is limited to $ k > n $ to prevent duplication
+of constraints.
+The above formula is not yet in a format that can be applied in a MILP.
+Firstly, it was noted that the constraints only apply to two buffers which
+happen to be made in the same slot.
+Secondly, absolute value expressions are not valid in linear programming
+constraints.
+To overcome these issues, several additional constraints and variables must be
+introduced.
+
+Firstly, we want to specify a binary variable which indicates if two distinct
+buffers are made in the same slot.  
+This, in turn requres an additional binary variable which indicates if two
+distinct buffers are made in a \emph{particular} slot.
+The latter binary variable, $ \boldsymbol{w}_{nkp} $ is defined through a pair
+of constraints:
+
+\begin{equation}
+    \begin{split}
+        \begin{alignedat}{3}
+            \boldsymbol{x}_{np} & {}+{} & \boldsymbol{x}_{kp} & {}-{} & 2 
+            \boldsymbol{w}_{nkp} & \ge 0\\
+            \boldsymbol{x}_{np} & {}+{} & \boldsymbol{x}_{kp} & {}-{} &
+            \boldsymbol{w}_{nkp} & \le 1\\
+        \end{alignedat}
+    \end{split}
+    \quad\quad
+    \begin{split}
+        \forall n \in N, \quad \forall k \in N, k > n
+    \end{split}
+\end{equation}
+
+Given the above constraint, we can now define a variable, 
+$ \boldsymbol{v}_{nk} $ which indicates if two distinct buffers are made in the
+same slot.
+This new varaible is introduced via the following constraint:
+
+\begin{equation}
+    \sum_{p \in P} \boldsymbol{w}_{nkp} \boldsymbol{v}_{nk} \le 0 \quad
+    \forall n \in N, \quad \forall k \in N, k > n
+\end{equation}
+
+Recall that we still cannot apply our scheduling constraint due to the presence
+of an absolute value expression in the equation.
+The absolute value expression may be though of as representing a pair of 
+constraints, e.g.
+$ \lvert \alpha - \beta \rvert \ge \gamma $
+is essentially shorthand for
+$ \alpha - \beta \ge \gamma \quad \lor \quad \beta - \alpha \ge \gamma $. 
+We now need to remove the logical-or ($\lor$) from the above pair of
+inequalities.
+This can be done by using the \emph{big-M} method, whereby a large constant,
+$ \mathbb{M} $, is used to force selection of one or other of the constraints
+based on the value of an additional binary.
+In our case, the absolute value function represents two cases.
+In one case, buffer $n$ is prepared before another buffer $k$, and in the
+alternate case, buffer $k$ is prepared after buffer $n$.
+We thus define a binary, $\boldsymbol{u}_{nk}$, such that
+$ \boldsymbol{u}_{nk} = 0 $ iff $n$ is prepared before $k$ and
+$ \boldsymbol{u}_{nk} = 1 $ iff $k$ is prepared before $n$.
+In the edge case where the buffers are prepared at precisely the same time,
+the binary may take either value.
+
+We are not yet ready to define the constraint which governs the value of
+$\boldsymbol{u}_{nk}$.
+The reason for this is that it is difficult to define if one event happens
+before or after another when they occur repeatedly in a cyclic process.
+Recall that for each buffer, the scheduling data consist of a use start time
+and a use duration.
+From the point of view of the model, we are only concerned with the 
+steady-state cyclic case, so we use a modified use start time:
+
+\begin{equation}
+    t_{USE,n}^{\prime} = t_{USE,n} \mod \lambda \quad \forall n \in N
+\end{equation}
+
+We want to now rigorously define whether an event, $\alpha$, occurs after
+another event, $\beta$, iff $ \alpha \mod \lambda > \beta \mod \lambda $.
+We are concerned with the timing of our preparation procedures.
+Recall that all preparation procedures have the same durations.
+Thus, when deciding which of two such procedures occurs first, we can use 
+$ t_{USE,n}^{\prime} - \boldsymbol{z}_{n} $ to mark the timing of the
+preparation procedure of a given buffer $n$.
+Note that this may take a negative value, which must be corrected by adding a
+factor of $\lambda$ to bring the vaue back into the single-cycle range, as we
+can't use a modulo expression in an MILP constraint.
+Another binary variable, $ \boldsymbol{q}_{n} $ is introduced to indicate if
+$ t_{USE,n}^{\prime} - \boldsymbol{z}_{n} < 0 $, i.e. 
+
+\begin{equation}
+    \boldsymbol{q}_{n} =
+    \begin{cases}
+        1 \implies t_{USE,n}^{\prime} - \boldsymbol{z}_{n} \le 0\\
+        0 \implies t_{USE,n}^{\prime} - \boldsymbol{z}_{n} \ge 0
+    \end{cases}
+    \quad \forall n \in N
+\end{equation}
+
+Note that the value of $ \boldsymbol{q}_{n} $ is undefined if 
+$ t_{USE,n}^{\prime} - \boldsymbol{z}_{n} = 0 $.
+The above definition of $ \boldsymbol{q}_{n} $ is captured in the following
+pair of constraints:
+
+\begin{equation}
+    \begin{split}
+        \begin{alignedat}{2}
+            \boldsymbol{z}_{n} & {}-{} & \lambda \boldsymbol{q}_{n} & \le 
+            t_{USE,n}^{\prime}\\
+            \boldsymbol{z}_{n} & {}-{} & \lambda \boldsymbol{q}_{n} & \ge 
+            t_{USE,n}^{\prime} - \lambda
+        \end{alignedat}
+    \end{split}
+    \quad\quad
+    \begin{split}
+        \forall n \in N
+    \end{split}
+\end{equation}
+
+Having incorporated $ \boldsymbol{q}_{n} $, we can now implement the pair of 
+constraints which, given two distinct buffers, indicate which is prepared
+first.
+
+\begin{equation}
+    \begin{split}
+        \boldsymbol{z}_{n} - \boldsymbol{z}_{k} + \lambda \boldsymbol{u}_{nk}
+        - \lambda \boldsymbol{q}_{n} + \lambda \boldsymbol{q}_{k} &\ge 
+        t_{USE,n}^{\prime} - t_{USE,k}^{\prime}\\
+        \boldsymbol{z}_{n} - \boldsymbol{z}_{k} + \lambda \boldsymbol{u}_{nk}
+        - \lambda \boldsymbol{q}_{n} + \lambda \boldsymbol{q}_{k} &\le 
+        t_{USE,n}^{\prime} - t_{USE,k}^{\prime} + \lambda
+    \end{split}
+    \quad \quad \forall n \in N, \quad \forall k \in N, k > n
+\end{equation}
+
+With the above constraint, we can finally implement the scheduling constraint:
+
+\begin{equation}
+    \begin{split}
+        \begin{alignedat}{9}
+        &\boldsymbol{z}_{n} {}-{} &\boldsymbol{z}_{k} {}+{} &\mathbb{M}
+        \boldsymbol{u}_{nk} {}-{} &\mathbb{M} \boldsymbol{v}_{nk} &\ge
+        &t_{USE,n}^{\prime} {}-{} &t_{USE,k}^{\prime} {}+{}
+        &\Delta t_{PREP,TOTAL} {}-{} &\mathbb{M}\\
+        - &\boldsymbol{z}_{n} {}+{} &\boldsymbol{z}_{k} {}-{} &\mathbb{M}
+        \boldsymbol{u}_{nk} {}-{} &\mathbb{M} \boldsymbol{v}_{nk} &\ge
+        - &t_{USE,n}^{\prime} {}+{} &t_{USE,k}^{\prime} {}+{}
+        &\Delta t_{PREP,TOTAL} {}-{} 2 &\mathbb{M}
+        \end{alignedat}
+        \\\forall n \in N, \quad \forall k \in N, k > n
+    \end{split}
+\end{equation}
+

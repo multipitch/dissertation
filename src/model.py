@@ -2,6 +2,8 @@
 
 # TODO: more extensive use of numpy
 # TODO: some duplication of data across classes - rationalise???
+# TODO: more data preprocessing to rule out infeasible problems
+
 
 import argparse
 import configparser
@@ -288,21 +290,21 @@ def define_problem(parameters, buffers, vessels):
     # Objective Function
     #problem += sum([vessels.costs[m] * y.o[m][p] for m in ms for p in ps])
     
-    # Constraint 1: A buffer may only be prepared in one slot
+    # A buffer may only be prepared in one slot
     for n in ns:
         problem += sum([x.o[n][p] for p in ps]) == 1
     
-    # Constraint 2: Each slot can contain at most one vessel
+    # Each slot can contain at most one vessel
     for p in ps:
         problem += sum([y.o[m][p] for m in ms]) <= 1
     
-    # Constraint 3: Vessels must be big enough for buffers
+    # Vessels must be big enough for buffers
     for n in ns:
         for p in ps:
             problem += (buffers.volumes[n] * x.o[n][p]
                         <= sum([vessels.volumes[m] * y.o[m][p] for m in ms]))
     
-    # Constraint 4: Vessels must be small emough for buffers
+    # Vessels must be small emough for buffers
     mfr = parameters.minimum_fill_ratio
     for n in ns:
         for p in ps:
@@ -311,44 +313,42 @@ def define_problem(parameters, buffers, vessels):
                         <= buffers.volumes[n]
                         + vessels.max_volume)
     
-    # Constraint 5: Total hold proceudre durations must be less than cycle time
+    # Total hold proceudre durations must be less than cycle time
     for n in ns:
         rhs = (ct - parameters.hold_pre_duration - parameters.transfer_duration
                - parameters.hold_post_duration - buffers.use_durations[n])
         problem += z.o[n] <= rhs
     
-    # Constraint 6: For each pair of distinct buffers, for each slot, 
-    # indicate if both buffers are prepared in the given slot
+    # For each pair of distinct buffers, for each slot, indicate if both
+    # buffers are prepared in the given slot
     for n in ns:
         for k in range(n + 1, N):
             for p in ps:
                 problem += x.o[n][p] + x.o[k][p] - w.o[n][k][p] <= 1
                 problem += 0.5 * x.o[n][p] + 0.5 * x.o[k][p] >= w.o[n][k][p]
     
-    # Constraint 7: For each pair of distinct buffers, indicate if they are 
-    # prepared in the same slot
+    # For each pair of distinct buffers, indicate if they are  prepared in the
+    # same slot
     for n in ns:
         for k in range(n + 1, N):
             problem += sum([w.o[n][k][p] for p in ps]) - v.o[n][k] <= 0
     
-    # Constraint 8: For each buffer, indicate if relative use start time minus
-    # hold time is negative
+    # For each buffer, indicate if relative use start time minus hold time is
+    # negative
     for n in ns:
         problem += z.o[n] - ct * q.o[n] <= buffers.use_start_times[n]
-        problem += z.o[n] - ct * q.o[n] >= buffers.use_start_times[n] - ct    
+        problem += z.o[n] - ct * q.o[n] >= buffers.use_start_times[n] - ct
     
-    # Constraint 9: For each pair of distinct buffers, indicate if the first
-    # buffer is prepared after the second (unconstrained if simultaneous)
+    # For each pair of distinct buffers, indicate if the first buffer is
+    # prepared after the second (unconstrained if simultaneous)
     for n in ns:
         for k in range(n + 1, N):
-            problem += (z.o[n] - z.o[k] + ct * u.o[n][k] - ct * q.o[n] + ct * q.o[k]
-                        >= t_use[n] - t_use[k])
-            problem += (z.o[n] - z.o[k] + ct * u.o[n][k] - ct * q.o[n] + ct * q.o[k]
-                        <= t_use[n] - t_use[k] + ct)
+            problem += (z.o[n] - z.o[k] + ct * u.o[n][k] - ct * q.o[n] 
+                        + ct * q.o[k] >= t_use[n] - t_use[k])
+            problem += (z.o[n] - z.o[k] + ct * u.o[n][k] - ct * q.o[n]
+                        + ct * q.o[k] <= t_use[n] - t_use[k] + ct)
     
-    # Constraint 10: Each prep vessel can only do one thing at a time
-    # TODO: Bug exists which erroneously permits two buffers to be prepared
-    # exactly concurrently in a slot under certain conditions - fix this!!!
+    # Each prep vessel can only do one thing at a time
     big_M = 2 * ct
     for n in ns:
         for k in range(n + 1, N):
@@ -359,7 +359,7 @@ def define_problem(parameters, buffers, vessels):
                         >= t_use[k] - t_use[n] + parameters.prep_total_duration
                         - 2 * big_M)
     
-    # Constraint 11: In each slot, utilisation must be below a maximum value
+    # In each slot, utilisation ratio must be below a maximum value
     mpu = parameters.maximum_prep_utilisation
     ptd = parameters.prep_total_duration
     for p in ps:
@@ -371,43 +371,49 @@ def initial_objective(problem, variables, buffers, vessels):
     ms = range(vessels.count)
     ps = range(buffers.count)
     y = variables.y
+    
+    # Minimise total vessel cost
     problem += sum([vessels.costs[m] * y.o[m][p] for m in ms for p in ps])
 
-def secondary_objective(problem, variables, buffers, vessels, objective1):
+
+def secondary_objective(problem, variables, buffers, vessels,
+                        initial_objective_value):
     ns = range(buffers.count)
     ms = range(vessels.count)
     ps = ns
     y = variables.y
-    problem += sum([variables.z.o[n] for n in ns])
+    
+    # Constrain total vessel cost to be equal to initial objective
     problem += (sum([vessels.costs[m] * y.o[m][p] for m in ms for p in ps])
-                <= objective1)
+                == initial_objective_value)
+    
+    # Minimise sum of hold times
+    problem += sum([variables.z.o[n] for n in ns])
 
 
 if __name__ == "__main__":
     from plots import single_cycle_plot
     
+    # TODO: error handling for failed optimisations
+    
     parameters = Parameters()
     buffers = Buffers(parameters.cycle_time)
-    vessels = Vessels()
-    
+    vessels = Vessels() 
     problem, variables = define_problem(parameters, buffers, vessels)
-    initial_objective(problem, variables, buffers, vessels)    
-    #problem.writeLP(PATH + "initial.lp")
+    
+    # Optimise for initial objective: minimise cost
+    initial_objective(problem, variables, buffers, vessels)
     problem.solve(SOLVER)
     print("Status:", pulp.LpStatus[problem.status])
-    objective1 = pulp.value(problem.objective)
+    initial_objective_value = pulp.value(problem.objective)
     results = Results(variables)
     buffers.get_results(parameters, results)
     
-    parameters = Parameters()
-    buffers = Buffers(parameters.cycle_time)
-    vessels = Vessels()
-    problem, variables = define_problem(parameters, buffers, vessels)
-    secondary_objective(problem, variables, buffers, vessels, objective1) 
-    #problem.writeLP(PATH + "secondary.lp")   
+    # Optimise for secondary objective: minimise hold times
+    secondary_objective(problem, variables, buffers, vessels,
+                        initial_objective_value)
     problem.solve(SOLVER)
     print("Status:", pulp.LpStatus[problem.status])
-    
     
     results = Results(variables)
     buffers.get_results(parameters, results)

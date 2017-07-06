@@ -26,5 +26,52 @@ other people as useful.
 \section{Introduction}\label{S.intro3}
 
 This section will outline what the input data might look like, including data
-sources.  It will outline what form the output data and metrics should take.
+sources.
+It will outline what form the output data and metrics should take.
 
+For modeling a single process, a typical dataset consists of three files.
+The first file is a table of data relating to the available selection of
+vessels.
+The second file is a table of data relating to parameters specific
+to each buffer.
+The third file comprises a collection of global parameters
+that apply to all vessels and/or buffers.
+
+\section{Vessel Data}\label{S.data1}
+
+Typically, when designing a production facility, buffer preparation vessel 
+volumes range from 1,000 l to 30,000 l.
+It is usual to round the volume to the nearest 1,000 l.
+When ordering such a vessel, the stated size of the vessel is usually a nominal
+volume, which will differ from the liquid fill volume and may also differ from
+the maximum working volume.
+For the purposes of this study, it is assumed that the vessel volume is the
+maximum permissible buffer preparation volume in a given vessel, e.g. a 
+preparation vessel with vessel volume of 2,000 l cannot be used to prepare
+buffers greater than 2,000 l.
+
+Vessels will also have a minimum working volume. 
+It is usal to assume a minimum fill ratio of about thirty percent of the vessel
+volume. This limitation
+arises due to the minimum agitation volume of the impeller in the vessel. 
+For the purposes of this simulation, the minimum fill ratio is a global
+parameter. It would be possible to specify a value of minimum fill ratio for
+every vessel size, but this level of detail is typically neither required nor
+available.
+
+For each vessel, a (relative) cost must be defined.
+Vessel cost does not scale linearly with volume.
+For the purposes of this study, cost data for each vessel size has been
+estimated by raising the vessel volume to a power of 0.6 and rounding to two
+decimal places.
+Note that absolute costs are not required to find the vessel selection that
+minimises costs.
+
+\section{Buffer Data}\label{S.data2}
+
+At a minimum, the volume of each buffer is required.
+If nothing was known about the scheduling of the prodcution process, a simple
+simulation could be carried out with scheduliung unconstrained, save for a
+maximum buffer preparation vessel utilisation factor.
+This factor is a limit on the fraction of a cycle for which a given vessel is
+utilised.  A 
