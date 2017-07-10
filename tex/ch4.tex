@@ -28,6 +28,53 @@ assimilate our own knowledge and get it into our power.
 
 \section{Introduction}\label{S.intro4}
 
+At first glance, the pathway to solving the vessel selection problem was
+unclear.
+There are two aspects to the problem; scheduling and selection.  
+The selection problem appears to be a close relative of a number of classic 
+$\mathcal{NP}$-hard problems in the ``bin-packing'' genre.  
+For the scheduling aspect of the problem, initial concepts involved finding an
+API to one of the commercial scheduling packages.
+One intial concept included developing an algorithm to intelligently guess
+possible vessel selections, and pass these into a scheduling model which 
+could be repeatedly be solved using a commercial scheduling package
+to find an optimium selection.
+
+On completion of the module on linear programming, it became apparent that
+many bin-packing type problems are most efficiently solved using linear
+programming techniques.
+Additionally, linear programming could be used to model scheduling constraints.
+
+The vessel selection problem was thus formulated as a MILP problem.
+Firstly, the problem was described mathematically.
+Next, attention was focussed on the method of solution.  
+There are many available linear programming solvers, both proprietary and open
+source.
+Many proprietary solvers have free academic licenses.
+The XPRESS solver from FICO was familiar to the author from the course module
+in linear programming, but the documentation is poor and the licensing system
+required connection to university servers which proved unreliable remotely.
+The version avaialable through the university also had no python API (one is
+avaialble in more recent versions), which was a strong preference for output
+data analysis and plotting.
+
+The CPLEX solver from IBM was investigated.  
+The quality of the documentation is excellent, and there is a full python API
+which also has excellent documentation.
+
+The MILP problem was thus constructed in python and then solved via the CPLEX
+python API.
+It was apparent that comparitively few lines of the code involved interface
+with the API.
+With a view to making this research as useful as possible, open-source
+alternatives were also investigated.
+In the end, the PuLP python library was used as a bridge between problem
+generation and problem solution.
+PuLP is an open-source python library which acts as an API to several
+(MI)LP solvers, both commercial and open source.
+
+\section{Objective Function}\label{S.objfn}
+
 The vessel selection problem may be described as a series of linear constraints.
 These constraints are applied to find the optimium value of an objective
 function, which we seek to \emph{minimise}.
@@ -37,10 +84,37 @@ The objective function is the total cost of vessels, which is given by:
     Z = \sum_{m \in M} \sum_{p \in P} c_m \boldsymbol{y}_{mp}
 \end{equation}
 
+\section{Slots}\label{S.slots}
+
+To model the probem as an MILP problem, we must introduce the concept of
+\emph{slots}.
+Noting that there is a buffer hold vessel for each buffer, it is evident that 
+a feasible, but inefficient, solution could involve installing a dedicated,
+suitably sized, preparation vessel for each hold vessel.  
+Any solution involving more than this number of preparation vessels would not
+be optimal.
+As a result, we have an upper limit of $N$ on the number of required
+preparation vessels.
+The model is thus constructed with $P$ \emph{slots}, where
+
+\begin{equation}
+    P = N
+\end{equation}
+
+and a slot is a notional space which may be occupied by a vessel, or may be
+empty.
+Note that slots do not have any physical significance, i.e. there is no floor
+space assigned to notional slots, only to actual vessels.
+
+
+\section{Basic Problem}\label{S.basicprob}
+
 A small number of constraints need to be applied to arrive at the simplest 
 variant of the problem.
 Additional constraints may then be added to make the model more detailed or
 realistic.
+
+\subsection{Buffers Dedicated to Slots}\label{SS.constr1}
 
 The first constraint to be added is the limitation that a buffer must be 
 prepared in exactly one slot. 
@@ -52,6 +126,8 @@ selection for every cycle is identical.
 \begin{equation}
     \sum_{p \in P} \boldsymbol{x}_{np} = 1 \quad \forall n \in N
 \end{equation}
+
+\subsection{Vessel Instances Dedicated to Slots}\label{SS.constr2}
 
 The second constraint to be added is the requirement that at most one vessel
 may inhabit a given slot.
@@ -66,6 +142,8 @@ less than the number of available slots (and hence the number of buffers).
     \sum_{m \in M} \boldsymbol{y}_{mp} \le 1 \quad \forall p \in P
 \end{equation}
 
+\subsection{Vessel Capacity}\label{SS.constr3}
+
 The third constraint is the requirement that, if a vessel is in a given slot,
 it has sufficient volume to prepare all buffers assigned to the slot.   
         
@@ -73,6 +151,8 @@ it has sufficient volume to prepare all buffers assigned to the slot.
     \sum_{m \in M} U_{n} \boldsymbol{x}_{np} - V_{m} \boldsymbol{y}_{mp} \le 0
     \quad \forall n \in N, \quad \forall p \in P
 \end{equation}
+
+\subsection{Hold Procedure Duration}\label{SS.constr4}
 
 The fourth constraint required for a basic model is the limitation that the
 total duration of each hold prcedure must not be greater than the cycle time.
@@ -85,6 +165,7 @@ have finished before the hold procedure for the next batch is due to start.
     \quad \forall n \in N
 \end{equation}
 
+\subsection{Preparation Vessel Utilisation}\label{SS.constr5}
 
 The final constraint required for a basic model is similar to the above.
 We wish to ensure that, in a given slot, the sum of the total durations of each
@@ -118,6 +199,8 @@ The resultant selection would be a rough guide, in the absence of production
 scheduling information, of the number and size of vessels required for a 
 facility, using the maximum utilisation ratio as a proxy for a schedule.
 
+\section{Preparation Scheduling Constraints}\label{S.prepsched}
+
 For a more accurate appraisal of vessel requirements, more data is required
 on scheduling.
 Specifically, data are required on the duration of use of each buffer, along
@@ -148,6 +231,8 @@ constraints.
 To overcome these issues, several additional constraints and variables must be
 introduced.
 
+\subsection{Pairs of Distict Buffers Prepared in a Particular Slot}\label{SS.constr6}
+
 Firstly, we want to specify a binary variable which indicates if two distinct
 buffers are made in the same slot.  
 This, in turn requres an additional binary variable which indicates if two
@@ -170,15 +255,57 @@ of constraints:
     \end{split}
 \end{equation}
 
-Given the above constraint, we can now define a variable, 
+A truth table for the above constraints is given below.
+In the table below, $\boldsymbol{w}_{nkp}^{\left( 1 \right)}$ refers to the 
+first inequality above and $\boldsymbol{w}_{nkp}^{\left( 2 \right)}$ refers to
+the second.  Applying both inequalities is equivalent to performing a
+logical-and, i.e. 
+$\boldsymbol{w}_{nkp} = \boldsymbol{w}_{nkp}^{\left( 1 \right)} \land
+\boldsymbol{w}_{nkp}^{\left( 2 \right)}$.
+
+\begin{center}
+    \begin{tabular}{c c | c c | c}
+        $\boldsymbol{x}_{np}$ & $\boldsymbol{x}_{kp}$ & 
+        $\boldsymbol{w}_{nkp}^{\left( 1 \right)}$ &
+        $\boldsymbol{w}_{nkp}^{\left( 2 \right)}$ & 
+        $\boldsymbol{w}_{nkp} = \boldsymbol{w}_{nkp}^{\left( 1 \right)}
+            \land \boldsymbol{w}_{nkp}^{\left( 2 \right)}
+        $\\ \hline
+        0 & 0 & 0 & $\left\{ 0,1 \right\}$ & 0\\
+        0 & 1 & 0 & $\left\{ 0,1 \right\}$ & 0\\
+        1 & 0 & 0 & $\left\{ 0,1 \right\}$ & 0\\
+        1 & 1 & $\left\{ 0,1 \right\}$ & 1 & 1\\
+    \end{tabular}
+\end{center}
+
+\subsection{Pairs of Distict Buffers Prepared in the Same Slot}\label{SS.constr7}
+
+Given the above constraint, we can now define a binary variable, 
 $ \boldsymbol{v}_{nk} $ which indicates if two distinct buffers are made in the
 same slot.
 This new varaible is introduced via the following constraint:
 
 \begin{equation}
-    \sum_{p \in P} \boldsymbol{w}_{nkp} \boldsymbol{v}_{nk} \le 0 \quad
+    \sum_{p \in P} \boldsymbol{w}_{nkp} - \boldsymbol{v}_{nk} \le 0 \quad
     \forall n \in N, \quad \forall k \in N, k > n
 \end{equation}
+
+The truth table for the above constraint, for a given $n$ and $k$ is detailed
+ below.
+
+\begin{center}
+    \begin{tabular}{c c c c | c}
+        $\boldsymbol{w}_{nk0}$ & $\boldsymbol{w}_{nk1}$ & $\cdots$
+        & $\boldsymbol{w}_{nkP}$ & $\boldsymbol{v}_{nk}$ \\ \hline
+        0 & 0 & $\cdots$ & 0 & 0\\
+        0 & 0 & $\cdots$ & 1 & 0\\
+        $\vdots$ & $\vdots$ & $\ddots$ & $\vdots$ & $\vdots$\\
+        1 & 1 & $\cdots$ & 0 & 0\\
+        1 & 1 & $\cdots$ & 1 & 1\\
+    \end{tabular}
+\end{center}
+
+\subsection{Order of Preparation of a Pair of Distinct Buffers}\label{SS.constr8}
 
 Recall that we still cannot apply our scheduling constraint due to the presence
 of an absolute value expression in the equation.
@@ -196,8 +323,8 @@ In our case, the absolute value function represents two cases.
 In one case, buffer $n$ is prepared before another buffer $k$, and in the
 alternate case, buffer $k$ is prepared after buffer $n$.
 We thus define a binary, $\boldsymbol{u}_{nk}$, such that
-$ \boldsymbol{u}_{nk} = 0 $ iff $n$ is prepared before $k$ and
-$ \boldsymbol{u}_{nk} = 1 $ iff $k$ is prepared before $n$.
+$ \boldsymbol{u}_{nk} = 0 $ if $n$ is prepared before $k$ and
+$ \boldsymbol{u}_{nk} = 1 $ if $k$ is prepared before $n$.
 In the edge case where the buffers are prepared at precisely the same time,
 the binary may take either value.
 
@@ -272,21 +399,25 @@ first.
     \quad \quad \forall n \in N, \quad \forall k \in N, k > n
 \end{equation}
 
+\subsection{Preparation Scheduling}\label{SS.constr9}
+
 With the above constraint, we can finally implement the scheduling constraint:
 
 \begin{equation}
     \begin{split}
-        \begin{alignedat}{9}
+        \begin{alignedat}{10}
         &\boldsymbol{z}_{n} {}-{} &\boldsymbol{z}_{k} {}+{} &\mathbb{M}
         \boldsymbol{u}_{nk} {}-{} &\mathbb{M} \boldsymbol{v}_{nk} &\ge
         &t_{USE,n}^{\prime} {}-{} &t_{USE,k}^{\prime} {}+{}
-        &\Delta t_{PREP,TOTAL} {}-{} &\mathbb{M}\\
+        &\Delta &t_{PREP,TOTAL} {}-{} &\mathbb{M}\\
         - &\boldsymbol{z}_{n} {}+{} &\boldsymbol{z}_{k} {}-{} &\mathbb{M}
         \boldsymbol{u}_{nk} {}-{} &\mathbb{M} \boldsymbol{v}_{nk} &\ge
         - &t_{USE,n}^{\prime} {}+{} &t_{USE,k}^{\prime} {}+{}
-        &\Delta t_{PREP,TOTAL} {}-{} 2 &\mathbb{M}
+        &\Delta &t_{PREP,TOTAL} {}-{} 2 &\mathbb{M}
         \end{alignedat}
         \\\forall n \in N, \quad \forall k \in N, k > n
     \end{split}
 \end{equation}
 
+
+% TODO: Truth Tables

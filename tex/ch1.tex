@@ -201,25 +201,31 @@ design of a facility and the start of the first saleable production batch.
 
 \subsection{Problem Definition}\label{SS.probdef}
 
-The task of designing a buffer preparation area is complex.  Current workflows
-are largely based on trial-and-error methods using process engineering
-scheduling software.  Typically, a conservatively large array of vessels is
-chosen and the schedule is run.  If there is an individual vessel for each task,
-the shedule will resolve easily, but the capital and space requirements will be
-onerous.  Via trial-and-error, individual vessels may be removed or resized and
-the schedule re-run to see if it can be resolved.  After some iteration, it
-becomes difficult or impossible to remove or reduce the vessels any further and 
-resolve the schedule.  At this point, iteration stops.  In the early feasibility
-or concept stages of a project, this process is cumbersome, the end points are 
-poorly defined and any development of the underlying process which varies the 
-volumes required may necessitate starting the optimisation again from scratch.
+The task of designing a buffer preparation area is complex.
+Current workflows are largely based on trial-and-error methods using process
+engineering scheduling software.  
+Typically, a conservatively large array of vessels is chosen and the schedule
+is run.  
+If there is an individual vessel for each task, the schedule will resolve
+easily, but the capital and space requirements will be onerous.
+Via trial-and-error, individual vessels may be removed or resized and
+the schedule re-run to see if it can be resolved.  
+After some iteration, it becomes difficult or impossible to remove or reduce
+the vessels any further and resolve the schedule.
+At this point, iteration stops.
+% TODO: Pseudocode for this methodology 
+In the early feasibility or concept stages of a project, this process is
+cumbersome, the end points are poorly defined and any development of the
+underlying process which varies the volumes required may necessitate starting
+the optimisation again from scratch.
 An additional factor is that a working solution may exist for a given
 configuration, but the scheduling software is unable to resolve the problem,
-giving a false negative. The scheduling tools used for the process tend to be
-deterministic, rather than stochastic (although some senitivity analysis is
-usually built in as an add-on); this makes it difficult to have confidence that
-a working schedule can handle the real-world batch-to-batch variability inherent
-in a process that has living cells as its engine.
+giving a false negative. 
+The scheduling tools used for the process tend to be deterministic, rather than
+stochastic (although some senitivity analysis is usually built in as an 
+add-on); this makes it difficult to have confidence that a working schedule can
+handle the real-world batch-to-batch variability inherent in a process that has
+living cells as its engine.
 
 A more streamlined methodology for solving this optimisation problem is
 required and this dissertation is concerned with developing such a methodology
@@ -236,9 +242,11 @@ Success will be defined both in terms of the ability for the software tool to
 provide an optimum solution and the speed at which it can be implemented
 relative to other methods or benchmarks.
 
-The business imperatives are twofold.  For an engineering consultancy, the
-ability to rapidly, accurately and repeatably solve such problems gives a
-competitive edge, which can be used to win more business and to deliver designs
-more cheaply.  For a biopharmaceutical client, optimising this problem results
-in cost savings and having a well defined methodology for doing so gives
-confidence that an in-progress design is indeed optimal and robust.
+The business imperatives are twofold.
+For an engineering consultancy, the ability to rapidly, accurately and
+repeatably solve such problems gives a competitive edge, which can be used to
+win more business and to deliver designs more cheaply.  For a biopharmaceutical
+client, optimising this problem results in cost savings and having a well
+defined methodology for doing so gives confidence that an in-progress design is
+indeed optimal and robust.
+
