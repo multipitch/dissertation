@@ -99,5 +99,5 @@ ENV/
 .mypy_cache/
 
 # outputs from running examples
-.lp
-.pdf
+*.lp
+*.pdf
