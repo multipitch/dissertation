@@ -10,77 +10,82 @@
 %   Change Control:
 %   When     Who   Ver  What
 %   -------  ----  ---  --------------------------------------------------------
-%   06Jun16  ST    0.1  Begun 
+%   06Jun16  ST    0.1  Begun
 %
 
 \chapter*{List of Notation}\label{C.notation}
-
-Entries are listed in the order of appearance.  The ``Ref'' is the number of the
-section, definition, etc., in which the notation is explained.
 
 \vspace{0.5cm}
 
 {\renewcommand{\arraystretch}{0.9}
 
-%TODO: Multiline descriptions - respect margins / general formatting
+\begin{longtabu} to \textwidth {X[-1,l] X[1,l]<{\strut} X[-1,r]}
+    \tb{Symbol} & \tb{Description} & \tb{Ref}\\\hline
+    \endhead
+    $c_{m}$ & (Relative) cost of vessel $m$ & \ref{S.vesseldata}\\
+    $k$ & Secondary buffer index $\left( k \in N, k \ne n \right)$
+        & \ref{SS.constr6}\\
+    $m$ & Vessel size index $\left( m \in M \right)$ & \ref{S.vesseldata}\\
+    $n$ & Buffer index $\left( n \in N \right)$ & \ref{S.bufferdata}\\
+    $p$ & Slot index $\left( p \in P \right)$ & \ref{S.slots}\\
+    $\boldsymbol{q}_{n}$ & Buffer $n$ hold operation starts in cycle prior to
+        the one in which it finishes & \ref{SS.constr8}\\
+    $r_{MINFILL}$ & Vessel minimum fill ratio & \ref{S.parameters}\\
+    $r_{UTIL}$ & Preparation slot maximum utilisation ratio
+        & \ref{S.parameters}\\
+    $t_{USE,n}$ & Buffer $n$ time of first use, relative to batch start
+        & \ref{S.bufferdata}\\
+    $t_{USE,n}^{*}$ & Buffer $n$ time of first use, relative to batch
+        start, modulo cycle time & \ref{SS.constr8}\\
+    $\Delta t_{HOLD,MAX}$ & Maximum allowable buffer hold duration
+        & \ref{S.parameters}\\
+    $\Delta t_{HOLD,MIN}$ & Minimum allowable buffer hold duration
+        & \ref{S.parameters}\\
+    $\Delta t_{HOLD,POST}$ & Duration of post-use operations in buffer hold
+        procedures & \ref{S.parameters}\\
+    $\Delta t_{HOLD,PRE}$ & Duration of operations prior to receiving buffer in
+        buffer hold procedures & \ref{S.parameters}\\
+    $\Delta t_{PREP,PRE}$ & Duration of operations prior to transferring out
+        buffer in buffer preparation procedures & \ref{S.parameters}\\
+    $\Delta t_{PREP,POST}$ & Duration of operations post transferring out
+        buffer in buffer preparation procedures & \ref{S.parameters}\\
+    $\Delta t_{PREP,TOTAL}$ & Total duration of buffer preparation procedure
+        & \ref{SS.constr4}\\
+    $\Delta t_{USE,n}$ & Duration of use of buffer $n$ & \ref{S.bufferdata}\\
+    $\Delta t_{TRANSFER}$ & Duration of transfer from buffer preparation vessel
+        to buffer hold vessel & \ref{S.parameters}\\
+    $\boldsymbol{u}_{nk}$ & Boolean: Buffer $k$ is prepared before buffer $n$
+        & \ref{SS.constr8}\\
+    $\boldsymbol{v}_{nk}$ & Boolean: Distinct buffers $n$ and $k$ are both made
+        in the same slot& \ref{SS.constr7}\\
+    $\boldsymbol{w}_{nkp}$ & Boolean: Distinct buffers $n$ and $k$ are both
+        made in slot $p$ & \ref{SS.constr6}\\
+    $\boldsymbol{x}_{np}$ & Boolean: Buffer $n$ is in slot $p$
+        & \ref{SS.constr1}\\
+    $\boldsymbol{y}_{mp}$ & Boolean: Vessel size $m$ is in slot $p$
+        & \ref{S.objfn}\\
+    $\boldsymbol{z}_{n}$ & Buffer $n$ hold duration & \ref{SS.constr5}\\
+    $M$ & Number of vessel sizes & \ref{S.vesseldata}\\
+    $N$ & Number of buffers & \ref{S.bufferdata}\\
+    $P$ & Number of slots & \ref{S.slots}\\
+    $U_{n}$ & Volume of buffer $n$ to be preapred & \ref{S.bufferdata}\\
+    $V_{m}$ & Maximum working volume of vessel size $m$ & \ref{S.vesseldata}\\
+    $V_{MAX}$ & Largest maximum working volume of available vessel sizes
+        & \ref{SS.constr3}\\
+    $\boldsymbol{Z}$ & Primary objective function value (minimal total vessel
+        cost) & \ref{S.objfn}\\
+    $\lambda$ & Process cycle time (start--to--start duration)
+        & \ref{S.parameters}\\
+\end{longtabu}
 
-\begin{tabular}{l p{9.5cm} r}
-\tb{Symbol}  & \tb{Description} & \tb{Ref}   \\\hline
-$c_{m}$ & (Relative) cost of vessel $m$ & \ref{???}\\
-$k$ & Secondary buffer index $\left( k \in N, k \ne n \right)$ & \ref{???}\\
-$m$ & Vessel size index $\left( m \in M \right)$ & \ref{???}\\
-$n$ & Buffer index $\left( n \in N \right)$ & \ref{???}\\
-$p$ & Slot index $\left( p \in P \right)$ & \ref{???}\\
-$\boldsymbol{q}_{n}$ & Buffer $n$ hold operation starts in cycle prior to the
-    one in which it finishes & \ref{???}\\
-$r_{MINFILL}$ & Vessel minimum fill ratio & \ref{???}\\
-$r_{UTIL}$ & Preparation slot maximum utilisation ratio & \ref{???}\\
-$t_{USE,n}$ & Buffer $n$ time of first use, relative to batch start 
-    & \ref{???}\\
-$t_{USE,n}^{\prime}$ & Buffer $n$ time of first use, relative to batch start, 
-    modulo cycle time & \ref{???}\\
-$\Delta t_{HOLD,MAX}$ & Maximum allowable buffer hold duration & \ref{???}\\
-$\Delta t_{HOLD,MIN}$ & Minimum allowable buffer hold duration & \ref{???}\\
-$\Delta t_{HOLD,POST}$ & Duration of post-use operations in buffer hold
-    procedures & \ref{???}\\
-$\Delta t_{HOLD,PRE}$ & Duration of operations prior to receiving buffer in
-    buffer hold procedures & \ref{???}\\
-$\Delta t_{PREP,PRE}$ & Duration of operations prior to transferring out buffer
-    in buffer preparation procedures & \ref{???}\\
-$\Delta t_{PREP,POST}$ & Duration of operations post transferring out buffer
-    in buffer preparation procedures & \ref{???}\\
-$\Delta t_{PREP,TOTAL}$ & Total duration of buffer preparation procedure
-    & \ref{???}\\
-$\Delta t_{USE,n}$ & Duration of use of buffer $n$ & \ref{???}\\
-$\Delta t_{TRANSFER}$ & Duration of transfer from buffer preparation vessel to 
-    buffer hold vessel & \ref{???}\\
-$\boldsymbol{u}_{nk}$ & Boolean: Buffer $k$ is prepared before buffer $n$
-    & \ref{???}\\
-$\boldsymbol{v}_{nk}$ & Boolean: Distinct buffers $n$ and $k$ are both made in
-    the same slot& \ref{???}\\
-$\boldsymbol{w}_{nkp}$ & Boolean: Distinct buffers $n$ and $k$ are both made in
-    slot $p$ & \ref{???}\\
-$\boldsymbol{x}_{np}$ & Boolean: Buffer $n$ is in slot $p$ & \ref{???}\\
-$\boldsymbol{y}_{mp}$ & Boolean: Vessel size $m$ is in slot $p$ & \ref{???}\\
-$\boldsymbol{z}_{n}$ & Buffer $n$ hold duration & \ref{???}\\
-$M$ & Number of vessel sizes & \ref{???}\\
-$N$ & Number of buffers & \ref{???}\\
-$P$ & Number of slots & \ref{???}\\
-$U_{n}$ & Volume of buffer $n$ to be preapred & \ref{???}\\
-$V_{m}$ & Maximum working volume of vessel size $m$ & \ref{???}\\
-$V_{MAX}$ & Largest maximum working volume of available vessel sizes
-    & \ref{???}\\
-$\boldsymbol{Z}$ & Primary objective function value (minimal total vessel cost) 
-    & \ref{???}\\
-$\lambda$ & Process cycle time (start--to--start duration) & \ref{???}\\
-\end{tabular}
+}
 
-Note:
+Notes:
 
 Decision variables and objective function values are in $\boldsymbol{bold}$
 text.
 
-Lower case subscripts are indices; upper case subscripts are descriptive.
-
-}
-
+Subscripts in lower-case represent indices.
+Subscripts in upper-case are descriptive.
+Both subscript types may be used simultaneously, e.g. in the case of
+$t_{USE,n}$.

@@ -25,7 +25,7 @@ def single_cycle_plot(parameters, buffers, vessels, filename=None):
     sorted_prep_names = [buffers.p_to_m[i] for i in sorted_slots]
     prep_index = [slot_ranks[i] for i in buffers.prep_slots] 
     bar_height = 0.6
-    fig, ax = matplotlib.pyplot.subplots(figsize=(10, (N + nslots + 1) / 4))
+    fig, ax = matplotlib.pyplot.subplots(figsize=(10, (N + nslots + 1) / 2.5))
     
     # Buffer Hold Vessel Bars
     hold_xranges = []

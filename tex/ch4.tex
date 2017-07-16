@@ -10,33 +10,30 @@
 %   Change Control:
 %   When     Who   Ver  What
 %   -------  ----  ---  --------------------------------------------------------
-%   06Jun16  ST    0.1  Begun 
+%   06Jun16  ST    0.1  Begun
 %
 
 \chapter{Methodology}\label{C.methodology}
 
 \begin{quote}
-Just as the largest library, badly arranged, is not so useful as a very moderate
-one that is well arranged, so the greatest amount of knowledge, if not
-elaborated by our own thoughts, is worth much less than a far smaller volume
-that has been abundantly and repeatedly though over.  For only by universally
-combining what we know, by comparing every truth with every other, do we fully
-assimilate our own knowledge and get it into our power.
+We have some freedom in setting up our personal standards of beauty, but it is
+especially nice when the things we regard as beautiful are also regarded by
+other people as useful.
 
-\hspace{2cm}--- Arthur Schopenhauer, \emph{On Thinking for Oneself}
+\hspace{2cm}--- Donald Knuth, \emph{Computer Programming as an Art}
 \end{quote}
 
 \section{Introduction}\label{S.intro4}
 
 At first glance, the pathway to solving the vessel selection problem was
 unclear.
-There are two aspects to the problem; scheduling and selection.  
-The selection problem appears to be a close relative of a number of classic 
-$\mathcal{NP}$-hard problems in the ``bin-packing'' genre.  
+There are two aspects to the problem; scheduling and selection.
+The selection problem appears to be a close relative of a number of classic
+\textbf{NP}-hard problems in the ``bin-packing'' genre.
 For the scheduling aspect of the problem, initial concepts involved finding an
 API to one of the commercial scheduling packages.
 One intial concept included developing an algorithm to intelligently guess
-possible vessel selections, and pass these into a scheduling model which 
+possible vessel selections, and pass these into a scheduling model which
 could be repeatedly be solved using a commercial scheduling package
 to find an optimium selection.
 
@@ -47,7 +44,7 @@ Additionally, linear programming could be used to model scheduling constraints.
 
 The vessel selection problem was thus formulated as a MILP problem.
 Firstly, the problem was described mathematically.
-Next, attention was focussed on the method of solution.  
+Next, attention was focussed on the method of solution.
 There are many available linear programming solvers, both proprietary and open
 source.
 Many proprietary solvers have free academic licenses.
@@ -58,7 +55,7 @@ The version avaialable through the university also had no python API (one is
 avaialble in more recent versions), which was a strong preference for output
 data analysis and plotting.
 
-The CPLEX solver from IBM was investigated.  
+The CPLEX solver from IBM was investigated.
 The quality of the documentation is excellent, and there is a full python API
 which also has excellent documentation.
 
@@ -71,25 +68,24 @@ alternatives were also investigated.
 In the end, the PuLP python library was used as a bridge between problem
 generation and problem solution.
 PuLP is an open-source python library which acts as an API to several
-(MI)LP solvers, both commercial and open source.
+(MI)LP solvers, both commercial and open source, allowing the possibility of a
+fully open-source toolchain for solving the problem.
 
 \section{Slots}\label{S.slots}
 
 To model the probem as an MILP problem, we must introduce the concept of
 \emph{slots}.
-Noting that there is a buffer hold vessel for each buffer, it is evident that 
+Noting that there is a buffer hold vessel for each buffer, it is evident that
 a feasible but inefficient solution could involve installing a dedicated,
-suitably sized, preparation vessel for each hold vessel.  
+suitably sized, preparation vessel for each hold vessel.
 Any solution involving more than this number of preparation vessels would not
 be optimal.
 As a result, we have an upper limit of $N$ on the number of required
 preparation vessels.
 The model is thus constructed with $P$ \emph{slots}, where
-
 \begin{equation}
     P = N
 \end{equation}
-
 and a \emph{slot} is a notional space which may be occupied by a vessel, or may
 be empty.
 Note that slots do not have any physical significance, i.e. in a physical
@@ -106,16 +102,14 @@ Recall that the vessel data set contains entries for $M$ vessel sizes, each
 of which has an associated cost, $c_{m}$.
 
 We now introduce the first decision variable, $\boldsymbol{y}_{mp}$.
-This a binary decision variable (matrix) with dimensions $M \times P$.
+This a binary decision variable with dimensions $M \times P$.
 Note that binary decision variables may only take the values 0 and 1, i.e.
 \begin{equation}
     \boldsymbol{y}_{mp} \in \left\{ 0, 1 \right\} \quad \forall m \in M \quad
     \forall p \in P
     \label{eq.y}
 \end{equation}
-
 The possible states of $\boldsymbol{y}_{mp}$ may be described thus:
-
 \begin{equation}
     \boldsymbol{y}_{mp} =
     \begin{cases}
@@ -123,43 +117,38 @@ The possible states of $\boldsymbol{y}_{mp}$ may be described thus:
         0 \implies \text{otherwise}
     \end{cases}
 \end{equation}
-
 We can now describe the objective function, which gives the objective function
 value, $\boldsymbol{Z}$.  The objective is to minimise $\boldsymbol{Z}$.
-
 \begin{equation}
     \boldsymbol{Z} = \sum_{m \in M} \sum_{p \in P} c_m \boldsymbol{y}_{mp}
     \label{eq.objfn}
-\end{equation} 
+\end{equation}
 
 \section{Basic Model}\label{S.basicprob}
 
-A small number of constraints need to be applied to arrive at the simplest 
+A small number of constraints need to be applied to arrive at the simplest
 variant of the problem.
 Additional constraints may then be added to make the model more detailed or
 realistic.
 
 \subsection{Buffers Dedicated to Slots}\label{SS.constr1}
 
-The first constraint to be added is the limitation that a buffer must be 
+The first constraint to be added is the limitation that a buffer must be
 prepared in exactly one slot.
 This constraint means that we must preprare each buffer once per cycle
-and also that the buffer is always prepared in the same slot -- i.e. slot
+and also that the buffer is always prepared in the same slot, i.e. slot
 selection for every cycle is identical.
 
 We introduce a new binary decision variable, $\boldsymbol{x}_{np}$, which takes
-a value of 1 if buffer n is prepared in slot p, and takes a value of 0 
+a value of 1 if buffer n is prepared in slot p, and takes a value of 0
 otherwise, i.e.
-
 \begin{equation}
     \boldsymbol{x}_{np} \in \left\{ 0, 1 \right\} \quad \forall n \in N \quad
     \forall p \in P
     \label{eq.x}
 \end{equation}
-
 Note that $\boldsymbol{x}_{np}$ has dimensions of $N \times P$.
 The possible states of $\boldsymbol{x}_{np}$ may be described thus:
-
 \begin{equation}
     \boldsymbol{x}_{np} =
     \begin{cases}
@@ -167,9 +156,7 @@ The possible states of $\boldsymbol{x}_{np}$ may be described thus:
         0 \implies \text{otherwise}
     \end{cases}
 \end{equation}
-
 The following constraint can now be defined:
-
 \begin{equation}
     \sum_{p \in P} \boldsymbol{x}_{np} = 1 \quad \forall n \in N
     \label{eq.constr1}
@@ -179,13 +166,12 @@ The following constraint can now be defined:
 
 The second constraint to be added is the requirement that at most one vessel
 may inhabit a given slot.
-This is not directly analagous to the first constraint -- it is possible to 
-use the same \emph{sized} vessel in many slots, but a maximum of one vessel 
+This is not directly analagous to the first constraint; it is possible to
+use the same \emph{sized} vessel in many slots, but a maximum of one vessel
 \emph{instance} may inhabit any given slot.
 Note that this inequality allows for the possibility of unused slots, i.e. the
 number of occupied slots (and hence the number of preparation vessels) may be
 less than the number of available slots (and hence the number of buffers).
-
 \begin{equation}
     \sum_{m \in M} \boldsymbol{y}_{mp} \le 1 \quad \forall p \in P
     \label{eq.constr2}
@@ -195,11 +181,11 @@ less than the number of available slots (and hence the number of buffers).
 
 The third constraint is the requirement that, if a vessel is in a given slot,
 it has an appropriate volume to prepare all buffers assigned to the slot.
-There are two facets to the above statement.  
+There are two facets to the above statement.
 Firstly, we cannot produce buffer volumes greater than the preparation vessel
-maximum working volume.  
-Additionally, vessels have a minimum fill ratio, $r_{MINFILL}$, ususally in the range 
-10 - 30 \%.
+maximum working volume.
+Additionally, vessels have a minimum fill ratio, $r_{MINFILL}$, ususally in the
+range 10 - 30 \%.
 The minimum fill ratio is generally a function of the minimum stir volume of a
 vessel's impeller.
 
@@ -209,28 +195,23 @@ approaches are beyond the scope of this basic model.
 
 Recall that for each vessel size, $m \in M$, we have defined a (maximum) vessel
 volume, $V_{m}$. Also, for each buffer, $n \in N$, we have defined the required
-volume, $U_{n}$. 
+volume, $U_{n}$.
 
 The maximum vessel capacity constraint is:
-        
 \begin{equation}
     U_{n} \boldsymbol{x}_{np} - \sum_{m \in M} V_{m} \boldsymbol{y}_{mp} \le 0
     \quad \forall n \in N, \quad \forall p \in P
     \label{eq.constr3a}
 \end{equation}
-
 The minimum vessel capacity constraint is slightly more complex, in that the
 \emph{big-M} method must be utilised. The value used for \emph{big-M} is
 $V_{MAX}$, where:
-
 \begin{equation}
     V_{MAX} = \text{max} \left( V_{m} \quad \forall m \in M \right)
 \end{equation}
-
 The minimum vessel capacity constraint is defined as:
-
 \begin{equation}
-    V_{MAX} \boldsymbol{x}_{np} + r_{MINFILL} \sum_{m \in M} V_{m} 
+    V_{MAX} \boldsymbol{x}_{np} + r_{MINFILL} \sum_{m \in M} V_{m}
     \boldsymbol{y}_{mp} \le U_{n} + V_{MAX} \quad \forall n \in N, \quad
     \forall p \in P
     \label{eq.constr3b}
@@ -241,7 +222,7 @@ The minimum vessel capacity constraint is defined as:
 In the absence of detailed scheduling data (i.e. knowledge of when the buffers
 are used by the process and their durations of use), an allowance can be made
 for unknown scheduling constraints by limiting the maximum allowed utilisation
-of the preparation vessels.  
+of the preparation vessels.
 Note that this will result in a crude approximation but it is often the case
 that detailed timing information is not available or cannot be predicted with
 sufficient accuracy.
@@ -251,20 +232,17 @@ be above $r_{UTIL} \lambda$, where $\lambda$ is the cycle time of the process.
 
 The total duration of a single preparation procedure, $\Delta t_{PREP,TOTAL}$,
 is given by:
-
 \begin{equation}
     \Delta t_{PREP,TOTAL} = \Delta t_{PREP,PRE} + \Delta t_{TRANSFER} +
-    \Delta t_{PREP,POST}  
+    \Delta t_{PREP,POST}
 \end{equation}
-
 Note that, for the basic case, it is only strictly necessary to know
 $\Delta t_{PREP,TOTAL}$; the constituent durations do not need to be known
 individually.
 
 The following constraint is now defined:
-
 \begin{equation}
-    \Delta t_{PREP,TOTAL} \sum_{n \in N} \boldsymbol{x}_{np} \le r_{UTIL} 
+    \Delta t_{PREP,TOTAL} \sum_{n \in N} \boldsymbol{x}_{np} \le r_{UTIL}
     \lambda \quad \forall p \in P
     \label{eq.constr4}
 \end{equation}
@@ -274,57 +252,47 @@ The following constraint is now defined:
 The basic model is summarised below.
 
 Minimise:
-
 \begin{equation}
     \boldsymbol{Z} = \sum_{m \in M} \sum_{p \in P} c_m \boldsymbol{y}_{mp}
     \tag{\ref{eq.objfn}}
 \end{equation}
 
 Subject to:
-
 \begin{equation}
     \sum_{p \in P} \boldsymbol{x}_{np} = 1 \quad \forall n \in N
     \tag{\ref{eq.constr1}}
 \end{equation}
-
 \begin{equation}
     \sum_{m \in M} \boldsymbol{y}_{mp} \le 1 \quad \forall p \in P
     \tag{\ref{eq.constr2}}
 \end{equation}
-
 \begin{equation}
     U_{n} \boldsymbol{x}_{np} - \sum_{m \in M} V_{m} \boldsymbol{y}_{mp} \le 0
     \quad \forall n \in N, \quad \forall p \in P
     \tag{\ref{eq.constr3a}}
 \end{equation}
-
 \begin{equation}
-    V_{MAX} \boldsymbol{x}_{np} + r_{MINFILL} \sum_{m \in M} V_{m} 
+    V_{MAX} \boldsymbol{x}_{np} + r_{MINFILL} \sum_{m \in M} V_{m}
     \boldsymbol{y}_{mp} \le U_{n} + V_{MAX} \quad \forall n \in N, \quad
     \forall p \in P
     \tag{\ref{eq.constr3b}}
 \end{equation}
-
 \begin{equation}
-    \Delta t_{PREP,TOTAL} \sum_{n \in N} \boldsymbol{x}_{np} \le r_{UTIL} 
+    \Delta t_{PREP,TOTAL} \sum_{n \in N} \boldsymbol{x}_{np} \le r_{UTIL}
     \lambda \quad \forall p \in P
     \tag{\ref{eq.constr4}}
 \end{equation}
-
 Where:
-
 \begin{equation}
     \boldsymbol{x}_{np} \in \left\{ 0, 1 \right\} \quad \forall n \in N \quad
     \forall p \in P
     \tag{\ref{eq.x}}
 \end{equation}
-
 \begin{equation}
     \boldsymbol{y}_{mp} \in \left\{ 0, 1 \right\} \quad \forall m \in M \quad
     \forall p \in P
     \tag{\ref{eq.y}}
 \end{equation}
-
 
 \section{Complete Model}\label{S.prepsched}
 
@@ -336,7 +304,8 @@ in a batch (e.g. batch start).
 Given this information, it is possible to constrain the problem so that the
 individual preparations are scheduled correctly.
 
-For each buffer, constraints covering both the scheduling of the preparation procedures and the scheduling of the hold procedures must be added.
+For each buffer, constraints covering both the scheduling of the preparation
+procedures and the scheduling of the hold procedures must be added.
 The scheduling of the hold procedures is quite straightforward; since the hold
 vessels are dedicated, we simple need to ensure that the total duration of each
 hold procedure is not greater than the cycle time.
@@ -347,20 +316,17 @@ procedures being of fixed duration.
 
 We now intoduce the buffer hold time decision variable, $\boldsymbol{z}_{n}$,
 which has dimensions of $N$:
-
 \begin{equation}
     \Delta t_{HOLD,MIN} \le \boldsymbol{z}_{n} \le \Delta t_{HOLD,MAX}; \quad
     \boldsymbol{z}_{n} \in \mathbb{R} \quad \forall n \in N
     \label{eq.z}
 \end{equation}
-
 This is the only real-valued variable in the model.
 
 The first constraint required for the complete model is the limitation that the
 total duration of each hold procedure must not be greater than the cycle time.
 If this constraint is not observed, a hold procedure in a given batch may not
 have finished before the hold procedure for the next batch is due to start.
-
 \begin{equation}
     \boldsymbol{z}_{n} \le \lambda - \left( \Delta t_{HOLD,PRE} +
     \Delta t_{TRANSFER} + \Delta t_{USE,n} + \Delta t_{HOLD,POST} \right)
@@ -376,13 +342,11 @@ Ensure that no two preparation operations overlap in time in a given slot.
 Since we have a constant preparation duration, $ \Delta t_{PREP,TOTAL} $, this
 constraint may be expressed, \emph{for any two distinct buffers that are made
 in the same slot}, by the following:
-
 \begin{equation}
-    \lvert \left( t_{USE,k} - \boldsymbol{z}_{k} \right) - \left( t_{USE,n} - 
-    \boldsymbol{z}_{n} \right) \rvert \le \Delta t_{PREP,TOTAL} \quad \forall n 
+    \lvert \left( t_{USE,k} - \boldsymbol{z}_{k} \right) - \left( t_{USE,n} -
+    \boldsymbol{z}_{n} \right) \rvert \le \Delta t_{PREP,TOTAL} \quad \forall n
     \in N, \quad \forall k \in N, k > n
 \end{equation}
-
 Note that the range of $ k $ is limited to $ k > n $ to prevent duplication
 of constraints.
 The above formula is not yet in a format that can be applied in a MILP.
@@ -396,26 +360,23 @@ introduced.
 \subsection{Pairs of Distinct Buffers Prepared in a Particular Slot}\label{SS.constr6}
 
 Firstly, we want to specify a binary variable which indicates if two distinct
-buffers are made in the same slot.  
+buffers are made in the same slot.
 This, in turn requires an additional binary variable which indicates if two
 distinct buffers are made in a \emph{particular} slot.
 The latter binary variable, $ \boldsymbol{w}_{nkp} $ is defined below.
-
 \begin{equation}
     \boldsymbol{w}_{nkp} \in \left\{ 0, 1 \right\} \quad \forall n \in N \quad
     \forall k \in N \quad \forall p \in P
     \label{eq.w}
 \end{equation}
-
 Note that the above variable has dimensions $N \times N \times P$, but we don't
 need each constituent binary variable to describe the problem.
-Since $w_{nnp}$ is not required and $w_{nkp} = w_{knp}$, we only need to 
+Since $w_{nnp}$ is not required and $w_{nkp} = w_{knp}$, we only need to
 describe constraints where $k > n$.
-
 \begin{equation}
     \begin{split}
         \begin{alignedat}{3}
-            \boldsymbol{x}_{np} & {}+{} & \boldsymbol{x}_{kp} & {}-{} & 2 
+            \boldsymbol{x}_{np} & {}+{} & \boldsymbol{x}_{kp} & {}-{} & 2
             \boldsymbol{w}_{nkp} & \ge 0\\
             \boldsymbol{x}_{np} & {}+{} & \boldsymbol{x}_{kp} & {}-{} &
             \boldsymbol{w}_{nkp} & \le 1\\
@@ -427,20 +388,21 @@ describe constraints where $k > n$.
     \end{split}
     \label{eq.constr6}
 \end{equation}
-
 A truth table for the above constraints is given below.
-In the table below, $\boldsymbol{w}_{nkp}^{\left( 1 \right)}$ refers to the 
+In the table below, $\boldsymbol{w}_{nkp}^{\left( 1 \right)}$ refers to the
 first inequality above and $\boldsymbol{w}_{nkp}^{\left( 2 \right)}$ refers to
 the second.  Applying both inequalities is equivalent to performing a
-logical-and, i.e. 
+logical-and, i.e.
 $\boldsymbol{w}_{nkp} = \boldsymbol{w}_{nkp}^{\left( 1 \right)} \land
 \boldsymbol{w}_{nkp}^{\left( 2 \right)}$.
-
-\begin{center}
+\begin{table}[h!]
+    \centering
+    \caption{Truth table for $\boldsymbol{w}_{nkp}$}
+    \label{tbl.truthw}
     \begin{tabular}{c c | c c | c}
-        $\boldsymbol{x}_{np}$ & $\boldsymbol{x}_{kp}$ & 
+        $\boldsymbol{x}_{np}$ & $\boldsymbol{x}_{kp}$ &
         $\boldsymbol{w}_{nkp}^{\left( 1 \right)}$ &
-        $\boldsymbol{w}_{nkp}^{\left( 2 \right)}$ & 
+        $\boldsymbol{w}_{nkp}^{\left( 2 \right)}$ &
         $\boldsymbol{w}_{nkp} = \boldsymbol{w}_{nkp}^{\left( 1 \right)}
             \land \boldsymbol{w}_{nkp}^{\left( 2 \right)}
         $\\ \hline
@@ -449,32 +411,31 @@ $\boldsymbol{w}_{nkp} = \boldsymbol{w}_{nkp}^{\left( 1 \right)} \land
         1 & 0 & 0 & $\left\{ 0,1 \right\}$ & 0\\
         1 & 1 & $\left\{ 0,1 \right\}$ & 1 & 1\\
     \end{tabular}
-\end{center}
+\end{table}
+
 
 \subsection{Pairs of Distinct Buffers Prepared in the Same Slot}\label{SS.constr7}
 
-Given the above constraint, we can now define a binary variable, 
+Given the above constraint, we can now define a binary variable,
 $ \boldsymbol{v}_{nk} $ which indicates if two distinct buffers are made in the
 same slot.
-
 \begin{equation}
     \boldsymbol{v}_{nk} \in \left\{ 0, 1 \right\} \quad \forall n \in N \quad
     \forall k \in N
     \label{eq.v}
 \end{equation}
-
 This new variable is introduced via the following constraint:
-
 \begin{equation}
     \sum_{p \in P} \boldsymbol{w}_{nkp} - \boldsymbol{v}_{nk} \le 0 \quad
     \forall n \in N, \quad \forall k \in N, k > n
     \label{eq.constr7}
 \end{equation}
-
 The truth table for the above constraint, for a given $n$ and $k$ is detailed
  below.
-
-\begin{center}
+\begin{table}[h!]
+    \centering
+    \caption{Truth table for $\boldsymbol{v}_{nk}$}
+    \label{tbl.truthv}
     \begin{tabular}{c c c c | c}
         $\boldsymbol{w}_{nk0}$ & $\boldsymbol{w}_{nk1}$ & $\cdots$
         & $\boldsymbol{w}_{nkP}$ & $\boldsymbol{v}_{nk}$ \\ \hline
@@ -484,20 +445,20 @@ The truth table for the above constraint, for a given $n$ and $k$ is detailed
         1 & 1 & $\cdots$ & 0 & 0\\
         1 & 1 & $\cdots$ & 1 & 1\\
     \end{tabular}
-\end{center}
+\end{table}
 
 \subsection{Order of Preparation of a Pair of Distinct Buffers}\label{SS.constr8}
 
 Recall that we still cannot apply our scheduling constraint due to the presence
 of an absolute value expression in the equation.
-The absolute value expression may be though of as representing a pair of 
+The absolute value expression may be though of as representing a pair of
 constraints, e.g.
 $ \lvert \alpha - \beta \rvert \ge \gamma $
 is essentially shorthand for
-$ \alpha - \beta \ge \gamma \quad \lor \quad \beta - \alpha \ge \gamma $. 
+$ \alpha - \beta \ge \gamma \quad \lor \quad \beta - \alpha \ge \gamma $.
 %TODO:
-\textbf{Not strictly true... if statement ... implement case equation without
-a reference number}
+\textbf{TODO: Not strictly true... if statement ... implement case equation 
+    without a reference number}
 We now need to remove the logical-or ($\lor$) from the above pair of
 inequalities.
 This can be done by using the \emph{big-M} method, whereby a large constant,
@@ -507,19 +468,17 @@ In our case, the absolute value function represents two cases.
 In one case, buffer $n$ is prepared before another buffer $k$, and in the
 alternate case, buffer $k$ is prepared after buffer $n$.
 We therefore define a binary decision variable, $\boldsymbol{u}_{nk}$:
-
 \begin{equation}
     \boldsymbol{u}_{nk} \in \left\{ 0, 1 \right\} \quad \forall n \in N \quad
     \forall k \in N
     \label{eq.u}
 \end{equation}
-
 $ \boldsymbol{u}_{nk} = 0 $ if $n$ is prepared before $k$ and
 $ \boldsymbol{u}_{nk} = 1 $ if $k$ is prepared before $n$.
 In the edge case where the buffers are prepared at precisely the same time,
 the binary may take either value.
 %TODO:
-\textbf{Implement case eqution here, similar to those for x and y}
+\textbf{TODO: Implement case eqution here, similar to those for x and y}
 
 We are not yet ready to define the constraint which governs the value of
 $\boldsymbol{u}_{nk}$.
@@ -527,45 +486,40 @@ The reason for this is that it is difficult to define if one event happens
 before or after another when they occur repeatedly in a cyclic process.
 Recall that for each buffer, the scheduling data consist of a use start time
 and a use duration.
-From the point of view of the model, we are only concerned with the 
+From the point of view of the model, we are only concerned with the
 steady-state cyclic case, so we use a modified use start time:
-
 \begin{equation}
-    t_{USE,n}^{\prime} = t_{USE,n} \mod \lambda \quad \forall n \in N
+    t_{USE,n}^{*} = t_{USE,n} \mod \lambda \quad \forall n \in N
 \end{equation}
-
 We want to now rigorously define whether an event, $\alpha$, occurs after
 another event, $\beta$, iff $ \alpha \mod \lambda > \beta \mod \lambda $.
 %TODO
-\textbf{double-check this logic}
+\textbf{TODO: double-check this logic}
 We are concerned with the timing of our preparation procedures.
 Recall that all preparation procedures have the same durations.
-Thus, when deciding which of two such procedures occurs first, we can use 
-$ t_{USE,n}^{\prime} - \boldsymbol{z}_{n} $ to mark the timing of the
+Thus, when deciding which of two such procedures occurs first, we can use
+$ t_{USE,n}^{*} - \boldsymbol{z}_{n} $ to mark the timing of the
 preparation procedure of a given buffer $n$.
 Note that this may take a negative value, which must be corrected by adding a
 factor of $\lambda$ to bring the vaue back into the single-cycle range, as we
 can't use a modulo expression in an MILP constraint.
 Another binary variable, $ \boldsymbol{q}_{n} $ is introduced to indicate if
-$ t_{USE,n}^{\prime} - \boldsymbol{z}_{n} < 0 $:
- 
+$ t_{USE,n}^{*} - \boldsymbol{z}_{n} < 0 $:
 \begin{equation}
     \boldsymbol{q}_{n} \in \left\{ 0, 1 \right\} \quad \forall n \in N
     \label{eq.q}
 \end{equation}
-
-Note that the value of $ \boldsymbol{q}_{n} $ is undefined if 
-$ t_{USE,n}^{\prime} - \boldsymbol{z}_{n} = 0 $.
+Note that the value of $ \boldsymbol{q}_{n} $ is undefined if
+$ t_{USE,n}^{*} - \boldsymbol{z}_{n} = 0 $.
 The above definition of $ \boldsymbol{q}_{n} $ is captured in the following
 pair of constraints:
-
 \begin{equation}
     \begin{split}
         \begin{alignedat}{2}
-            \boldsymbol{z}_{n} & {}-{} & \lambda \boldsymbol{q}_{n} & \le 
-            t_{USE,n}^{\prime}\\
-            \boldsymbol{z}_{n} & {}-{} & \lambda \boldsymbol{q}_{n} & \ge 
-            t_{USE,n}^{\prime} - \lambda
+            \boldsymbol{z}_{n} & {}-{} & \lambda \boldsymbol{q}_{n} & \le
+            t_{USE,n}^{*}\\
+            \boldsymbol{z}_{n} & {}-{} & \lambda \boldsymbol{q}_{n} & \ge
+            t_{USE,n}^{*} - \lambda
         \end{alignedat}
     \end{split}
     \quad\quad
@@ -574,148 +528,141 @@ pair of constraints:
     \end{split}
     \label{eq.constr8a}
 \end{equation}
-
 %TODO:
-\textbf{Explain that $q_{n}$ is used to ensure () remains between 0 and
+\textbf{TODO: Explain that $q_{n}$ is used to ensure () remains between 0 and
     $\lambda$}
-    
-The truth table for $ \boldsymbol{q}_{n} $ is given below.
 
-\begin{center}
+The truth table for $ \boldsymbol{q}_{n} $ is given below.
+\begin{table}[h!]
+    \centering
+    \caption{Truth table for $\boldsymbol{q}_{n}$}
+    \label{tbl.truthq}
     \begin{tabular}{c | c}
-        $t_{USE,n}^{\prime} - \boldsymbol{z}_{n}$ 
+        $t_{USE,n}^{*} - \boldsymbol{z}_{n}$
         & $\boldsymbol{q}_{n}$\\ \hline
         <0 & 0\\
         0 & $\left\{ 0, 1 \right\}$\\
         >0 & 1\\
     \end{tabular}
-\end{center}
+\end{table}
 
-Having incorporated $ \boldsymbol{q}_{n} $, we can now implement the pair of 
+Having incorporated $ \boldsymbol{q}_{n} $, we can now implement the pair of
 constraints which, given two distinct buffers, indicate which is prepared
 first.
-
 \begin{equation}
     \begin{split}
         \boldsymbol{z}_{n} - \boldsymbol{z}_{k} - \lambda \boldsymbol{q}_{n}
-        + \lambda \boldsymbol{q}_{k} + \lambda \boldsymbol{u}_{nk} &\ge 
-        t_{USE,n}^{\prime} - t_{USE,k}^{\prime}\\
+        + \lambda \boldsymbol{q}_{k} + \lambda \boldsymbol{u}_{nk} &\ge
+        t_{USE,n}^{*} - t_{USE,k}^{*}\\
         \boldsymbol{z}_{n} - \boldsymbol{z}_{k} - \lambda \boldsymbol{q}_{n}
-        + \lambda \boldsymbol{q}_{k} + \lambda \boldsymbol{u}_{nk} &\le 
-        t_{USE,n}^{\prime} - t_{USE,k}^{\prime} + \lambda
+        + \lambda \boldsymbol{q}_{k} + \lambda \boldsymbol{u}_{nk} &\le
+        t_{USE,n}^{*} - t_{USE,k}^{*} + \lambda\\
+        \forall n \in N, \quad \forall k \in N, k > n
     \end{split}
-    \quad \quad \forall n \in N, \quad \forall k \in N, k > n
     \label{eq.constr8b}
 \end{equation}
-
-\begin{center}
+\begin{table}[h!]
+    \centering
+    \caption{Truth table for $\boldsymbol{u}_{nk}$}
+    \label{tbl.truthu}
     \begin{tabular}{c | c c | c}
-        $\left( t_{USE,k}^{\prime} + \lambda \boldsymbol{q}_{k} 
-            - \boldsymbol{z}_{k} \right) - \left( t_{USE,n}^{\prime} 
-            + \lambda \boldsymbol{q}_{n}- \boldsymbol{z}_{n} \right)$ 
-        & $\boldsymbol{u}_{nk}^{\left( 1 \right)}$ 
+        $\left( t_{USE,k}^{*} + \lambda \boldsymbol{q}_{k}
+            - \boldsymbol{z}_{k} \right) - \left( t_{USE,n}^{*}
+            + \lambda \boldsymbol{q}_{n}- \boldsymbol{z}_{n} \right)$
+        & $\boldsymbol{u}_{nk}^{\left( 1 \right)}$
         & $\boldsymbol{u}_{nk}^{\left( 2 \right)}$
-        & $\boldsymbol{u}_{nk} = \boldsymbol{u}_{nk}^{\left( 1 \right)}
-            \land \boldsymbol{u}_{nk}^{\left( 2 \right)}$\\ \hline
+        & $\boldsymbol{u}_{nk}$\\ \hline
         <0 & $\left\{ 0,1 \right\}$ & 0 & 0\\
-        0 & $\left\{ 0,1 \right\}$ & $\left\{ 0,1 \right\}$ 
+        0 & $\left\{ 0,1 \right\}$ & $\left\{ 0,1 \right\}$
             & $\left\{ 0,1 \right\}$\\
         >0 & 1 & $\left\{ 0,1 \right\}$& 1\\
     \end{tabular}
-\end{center}
+\end{table}
 
 \subsection{Preparation Scheduling}\label{SS.constr9}
 
 With the above constraint, we can finally implement the scheduling constraint.
-THis makes use of the \emph{big-M} method, with $\mathbb{M} = 2 \lambda$.
-
+This makes use of the \emph{big-M} method, with $\mathbb{M} = 2 \lambda$.
 \begin{equation}
     \begin{split}
         \begin{alignedat}{10}
-        &\boldsymbol{z}_{n} {}-{} &\boldsymbol{z}_{k} {}+{} &2 \lambda
-        \boldsymbol{u}_{nk} {}-{} &2 \lambda \boldsymbol{v}_{nk} &\ge
-        &t_{USE,n}^{\prime} {}-{} &t_{USE,k}^{\prime} {}+{}
-        &\Delta &t_{PREP,TOTAL} {}-{} 2 &\lambda\\
-        - &\boldsymbol{z}_{n} {}+{} &\boldsymbol{z}_{k} {}-{} &2 \lambda
-        \boldsymbol{u}_{nk} {}-{} &2 \lambda \boldsymbol{v}_{nk} &\ge
-        - &t_{USE,n}^{\prime} {}+{} &t_{USE,k}^{\prime} {}+{}
-        &\Delta &t_{PREP,TOTAL} {}-{} 4 &\lambda
+            &\boldsymbol{z}_{n} {}-{} &\boldsymbol{z}_{k} {}+{} &2 \lambda
+            \boldsymbol{u}_{nk} {}-{} &2 \lambda \boldsymbol{v}_{nk} &\ge
+            &t_{USE,n}^{*} {}-{} &t_{USE,k}^{*} {}+{}
+            &\Delta &t_{PREP,TOTAL} {}-{} 2 &\lambda\\
+            - &\boldsymbol{z}_{n} {}+{} &\boldsymbol{z}_{k} {}-{} &2 \lambda
+            \boldsymbol{u}_{nk} {}-{} &2 \lambda \boldsymbol{v}_{nk} &\ge
+            - &t_{USE,n}^{*} {}+{} &t_{USE,k}^{*} {}+{}
+            &\Delta &t_{PREP,TOTAL} {}-{} 4 &\lambda
         \end{alignedat}
         \\\forall n \in N, \quad \forall k \in N, k > n
     \end{split}
     \label{eq.constr9}
 \end{equation}
-
 Truth table:
-
-\begin{center}
+\begin{table}[h!]
+    \centering
+    \caption{Active scheduling constraints based on values of 
+             $\boldsymbol{u}_{nk}$ and $\boldsymbol{v}_{nk}$}
+    \label{tbl.truthw}
     \begin{tabular}{c c | c}
-        $\boldsymbol{u}_{nk}$ & $\boldsymbol{v}_{nk}$ 
+        $\boldsymbol{u}_{nk}$ & $\boldsymbol{v}_{nk}$
         & applicable scheduling constraint\\ \hline
-        0 & 0 & none (buffers prepared in different slots)\\
-        0 & 1 & $\left( t_{USE,k}^{\prime} - \boldsymbol{z}_{k} \right)
-            - \left( t_{USE,n}^{\prime} - \boldsymbol{z}_{n} \right)
+        0 & 0 & none (buffers are not prepared in same slot)\\
+        0 & 1 & $\left( t_{USE,k}^{*} - \boldsymbol{z}_{k} \right)
+            - \left( t_{USE,n}^{*} - \boldsymbol{z}_{n} \right)
             \ge \Delta t_{PREP,TOTAL}$\\
-        1 & 0 & none (buffers prepared in different slots)  \\
-        1 & 1 & $\left( t_{USE,n}^{\prime} - \boldsymbol{z}_{n} \right)
-            - \left( t_{USE,k}^{\prime} - \boldsymbol{z}_{k} \right)
+        1 & 0 & none (buffers are not prepared in same slot)  \\
+        1 & 1 & $\left( t_{USE,n}^{*} - \boldsymbol{z}_{n} \right)
+            - \left( t_{USE,k}^{*} - \boldsymbol{z}_{k} \right)
             \ge \Delta t_{PREP,TOTAL}$\\
     \end{tabular}
-\end{center}
+\end{table}
 
 \subsection{Complete Model Summary}\label{SS.completesummary}
 
 The complete model is summarised below.
 
 Minimise:
-
 \begin{equation}
     \boldsymbol{Z} = \sum_{m \in M} \sum_{p \in P} c_m \boldsymbol{y}_{mp}
     \tag{\ref{eq.objfn}}
 \end{equation}
-
 Subject to:
-
 \begin{equation}
     \sum_{p \in P} \boldsymbol{x}_{np} = 1 \quad \forall n \in N
     \tag{\ref{eq.constr1}}
 \end{equation}
-
 \begin{equation}
     \sum_{m \in M} \boldsymbol{y}_{mp} \le 1 \quad \forall p \in P
     \tag{\ref{eq.constr2}}
 \end{equation}
-
 \begin{equation}
     U_{n} \boldsymbol{x}_{np} - \sum_{m \in M} V_{m} \boldsymbol{y}_{mp} \le 0
     \quad \forall n \in N, \quad \forall p \in P
     \tag{\ref{eq.constr3a}}
 \end{equation}
-
 \begin{equation}
-    V_{MAX} \boldsymbol{x}_{np} + r_{MINFILL} \sum_{m \in M} V_{m} 
+    V_{MAX} \boldsymbol{x}_{np} + r_{MINFILL} \sum_{m \in M} V_{m}
     \boldsymbol{y}_{mp} \le U_{n} + V_{MAX} \quad \forall n \in N, \quad
     \forall p \in P
     \tag{\ref{eq.constr3b}}
 \end{equation}
-
 \begin{equation}
-    \Delta t_{PREP,TOTAL} \sum_{n \in N} \boldsymbol{x}_{np} \le r_{UTIL} 
+    \Delta t_{PREP,TOTAL} \sum_{n \in N} \boldsymbol{x}_{np} \le r_{UTIL}
     \lambda \quad \forall p \in P
     \tag{\ref{eq.constr4}}
 \end{equation}
-
 \begin{equation}
     \boldsymbol{z}_{n} \le \lambda - \left( \Delta t_{HOLD,PRE} +
     \Delta t_{TRANSFER} + \Delta t_{USE,n} + \Delta t_{HOLD,POST} \right)
     \quad \forall n \in N
     \tag{\ref{eq.constr5}}
 \end{equation}
-
 \begin{equation}
     \begin{split}
         \begin{alignedat}{3}
-            \boldsymbol{x}_{np} & {}+{} & \boldsymbol{x}_{kp} & {}-{} & 2 
+            \boldsymbol{x}_{np} & {}+{} & \boldsymbol{x}_{kp} & {}-{} & 2
             \boldsymbol{w}_{nkp} & \ge 0\\
             \boldsymbol{x}_{np} & {}+{} & \boldsymbol{x}_{kp} & {}-{} &
             \boldsymbol{w}_{nkp} & \le 1\\
@@ -727,20 +674,18 @@ Subject to:
     \end{split}
     \tag{\ref{eq.constr6}}
 \end{equation}
-
 \begin{equation}
     \sum_{p \in P} \boldsymbol{w}_{nkp} - \boldsymbol{v}_{nk} \le 0 \quad
     \forall n \in N, \quad \forall k \in N, k > n
     \tag{\ref{eq.constr7}}
 \end{equation}
-
 \begin{equation}
     \begin{split}
         \begin{alignedat}{2}
-            \boldsymbol{z}_{n} & {}-{} & \lambda \boldsymbol{q}_{n} & \le 
-            t_{USE,n}^{\prime}\\
-            \boldsymbol{z}_{n} & {}-{} & \lambda \boldsymbol{q}_{n} & \ge 
-            t_{USE,n}^{\prime} - \lambda
+            \boldsymbol{z}_{n} & {}-{} & \lambda \boldsymbol{q}_{n} & \le
+            t_{USE,n}^{*}\\
+            \boldsymbol{z}_{n} & {}-{} & \lambda \boldsymbol{q}_{n} & \ge
+            t_{USE,n}^{*} - \lambda
         \end{alignedat}
     \end{split}
     \quad\quad
@@ -749,74 +694,64 @@ Subject to:
     \end{split}
     \tag{\ref{eq.constr8a}}
 \end{equation}
-
 \begin{equation}
     \begin{split}
-        \boldsymbol{z}_{n} - \boldsymbol{z}_{k} + \lambda \boldsymbol{u}_{nk}
-        - \lambda \boldsymbol{q}_{n} + \lambda \boldsymbol{q}_{k} &\ge 
-        t_{USE,n}^{\prime} - t_{USE,k}^{\prime}\\
-        \boldsymbol{z}_{n} - \boldsymbol{z}_{k} + \lambda \boldsymbol{u}_{nk}
-        - \lambda \boldsymbol{q}_{n} + \lambda \boldsymbol{q}_{k} &\le 
-        t_{USE,n}^{\prime} - t_{USE,k}^{\prime} + \lambda
+        \boldsymbol{z}_{n} - \boldsymbol{z}_{k} - \lambda \boldsymbol{q}_{n}
+        + \lambda \boldsymbol{q}_{k} + \lambda \boldsymbol{u}_{nk} &\ge
+        t_{USE,n}^{*} - t_{USE,k}^{*}\\
+        \boldsymbol{z}_{n} - \boldsymbol{z}_{k} - \lambda \boldsymbol{q}_{n}
+        + \lambda \boldsymbol{q}_{k} + \lambda \boldsymbol{u}_{nk} &\le
+        t_{USE,n}^{*} - t_{USE,k}^{*} + \lambda\\
+        \forall n \in N, \quad \forall k \in N, k > n
     \end{split}
-    \quad \quad \forall n \in N, \quad \forall k \in N, k > n
     \tag{\ref{eq.constr8b}}
 \end{equation}
-
 \begin{equation}
     \begin{split}
         \begin{alignedat}{10}
-        &\boldsymbol{z}_{n} {}-{} &\boldsymbol{z}_{k} {}+{} &2 \lambda
-        \boldsymbol{u}_{nk} {}-{} &2 \lambda \boldsymbol{v}_{nk} &\ge
-        &t_{USE,n}^{\prime} {}-{} &t_{USE,k}^{\prime} {}+{}
-        &\Delta &t_{PREP,TOTAL} {}-{} 2 &\lambda\\
-        - &\boldsymbol{z}_{n} {}+{} &\boldsymbol{z}_{k} {}-{} &2 \lambda
-        \boldsymbol{u}_{nk} {}-{} &2 \lambda \boldsymbol{v}_{nk} &\ge
-        - &t_{USE,n}^{\prime} {}+{} &t_{USE,k}^{\prime} {}+{}
-        &\Delta &t_{PREP,TOTAL} {}-{} 4 &\lambda
+            &\boldsymbol{z}_{n} {}-{} &\boldsymbol{z}_{k} {}+{} &2 \lambda
+            \boldsymbol{u}_{nk} {}-{} &2 \lambda \boldsymbol{v}_{nk} &\ge
+            &t_{USE,n}^{*} {}-{} &t_{USE,k}^{*} {}+{}
+            &\Delta &t_{PREP,TOTAL} {}-{} 2 &\lambda\\
+            - &\boldsymbol{z}_{n} {}+{} &\boldsymbol{z}_{k} {}-{} &2 \lambda
+            \boldsymbol{u}_{nk} {}-{} &2 \lambda \boldsymbol{v}_{nk} &\ge
+            - &t_{USE,n}^{*} {}+{} &t_{USE,k}^{*} {}+{}
+            &\Delta &t_{PREP,TOTAL} {}-{} 4 &\lambda
         \end{alignedat}
         \\\forall n \in N, \quad \forall k \in N, k > n
     \end{split}
     \tag{\ref{eq.constr9}}
 \end{equation}
-
 Where:
-
 \begin{equation}
     \boldsymbol{q}_{n} \in \left\{ 0, 1 \right\} \quad \forall n \in N
     \tag{\ref{eq.q}}
 \end{equation}
-
 \begin{equation}
     \boldsymbol{u}_{nk} \in \left\{ 0, 1 \right\} \quad \forall n \in N \quad
     \forall k \in N
     \label{eq.u}
 \end{equation}
-
 \begin{equation}
     \boldsymbol{v}_{nk} \in \left\{ 0, 1 \right\} \quad \forall n \in N \quad
     \forall k \in N
     \tag{\ref{eq.v}}
 \end{equation}
-
 \begin{equation}
     \boldsymbol{w}_{nkp} \in \left\{ 0, 1 \right\} \quad \forall n \in N \quad
     \forall k \in N \quad \forall p \in P
     \tag{\ref{eq.w}}
 \end{equation}
-
 \begin{equation}
     \boldsymbol{x}_{np} \in \left\{ 0, 1 \right\} \quad \forall n \in N \quad
     \forall p \in P
     \tag{\ref{eq.x}}
 \end{equation}
-
 \begin{equation}
     \boldsymbol{y}_{mp} \in \left\{ 0, 1 \right\} \quad \forall m \in M \quad
     \forall p \in P
     \tag{\ref{eq.y}}
 \end{equation}
-
 \begin{equation}
     \Delta t_{HOLD,MIN} \le \boldsymbol{z}_{n} \le \Delta t_{HOLD,MAX}; \quad
     \boldsymbol{z}_{n} \in \mathbb{R} \quad \forall n \in N
@@ -830,8 +765,3 @@ Where:
 \subsection{Goal programming}\label{SS.completesummary}
 
 \subsection{Plotting}\label{SS.completesummary}
-
-
-
-
-
