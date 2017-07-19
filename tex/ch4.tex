@@ -452,17 +452,20 @@ The truth table for the above constraint, for a given $n$ and $k$ is detailed
 Recall that we still cannot apply our scheduling constraint due to the presence
 of an absolute value expression in the equation.
 The absolute value expression may be though of as representing a pair of
-constraints, e.g.
-$ \lvert \alpha - \beta \rvert \ge \gamma $
-is essentially shorthand for
-$ \alpha - \beta \ge \gamma \quad \lor \quad \beta - \alpha \ge \gamma $.
-%TODO:
-\textbf{TODO: Not strictly true... if statement ... implement case equation 
-    without a reference number}
-We now need to remove the logical-or ($\lor$) from the above pair of
-inequalities.
-This can be done by using the \emph{big-M} method, whereby a large constant,
-$ \mathbb{M} $, is used to force selection of one or other of the constraints
+constraints, e.g. $ \lvert \alpha - \beta \rvert \ge \gamma $ is essentially 
+shorthand for the expression below:
+\begin{equation}
+    \alpha - \beta = 
+    \begin{cases}
+        \begin{alignedat}{2}
+            \ge 0: &\implies \alpha - \beta \ge \gamma\\
+            \le 0: &\implies \beta - \alpha \ge \gamma\\
+        \end{alignedat}
+    \end{cases}
+\end{equation}
+Selection bwtween the two constraints above can be performed by using the 
+\emph{big-M} method, whereby a large constant, $ \mathbb{M} $, is used to force
+selection of one or other of the constraints
 based on the value of an additional binary.
 In our case, the absolute value function represents two cases.
 In one case, buffer $n$ is prepared before another buffer $k$, and in the
@@ -473,13 +476,18 @@ We therefore define a binary decision variable, $\boldsymbol{u}_{nk}$:
     \forall k \in N
     \label{eq.u}
 \end{equation}
-$ \boldsymbol{u}_{nk} = 0 $ if $n$ is prepared before $k$ and
-$ \boldsymbol{u}_{nk} = 1 $ if $k$ is prepared before $n$.
+We define $\boldsymbol{u}_{nk}$ such that $ \boldsymbol{u}_{nk} = 0 $ if $n$ is
+prepared before $k$ and $ \boldsymbol{u}_{nk} = 1 $ if $k$ is prepared before
+$n$.
 In the edge case where the buffers are prepared at precisely the same time,
-the binary may take either value.
-%TODO:
-\textbf{TODO: Implement case eqution here, similar to those for x and y}
-
+the binary may take either value:
+\begin{equation}
+    \boldsymbol{u}_{nk} =
+    \begin{cases}
+        1 \implies k \text{ prepared before } n\\
+        0 \implies n \text{ prepared before } k
+    \end{cases}
+\end{equation}
 We are not yet ready to define the constraint which governs the value of
 $\boldsymbol{u}_{nk}$.
 The reason for this is that it is difficult to define if one event happens
@@ -493,8 +501,6 @@ steady-state cyclic case, so we use a modified use start time:
 \end{equation}
 We want to now rigorously define whether an event, $\alpha$, occurs after
 another event, $\beta$, iff $ \alpha \mod \lambda > \beta \mod \lambda $.
-%TODO
-\textbf{TODO: double-check this logic}
 We are concerned with the timing of our preparation procedures.
 Recall that all preparation procedures have the same durations.
 Thus, when deciding which of two such procedures occurs first, we can use
@@ -504,7 +510,8 @@ Note that this may take a negative value, which must be corrected by adding a
 factor of $\lambda$ to bring the vaue back into the single-cycle range, as we
 can't use a modulo expression in an MILP constraint.
 Another binary variable, $ \boldsymbol{q}_{n} $ is introduced to indicate if
-$ t_{USE,n}^{*} - \boldsymbol{z}_{n} < 0 $:
+$ t_{USE,n}^{*} - \boldsymbol{z}_{n} < 0 $, i.e. to indicate if 
+$ t_{USE,n}^{*} - \boldsymbol{z}_{n}$ occurs in the previous cycle.
 \begin{equation}
     \boldsymbol{q}_{n} \in \left\{ 0, 1 \right\} \quad \forall n \in N
     \label{eq.q}
@@ -529,8 +536,24 @@ pair of constraints:
     \label{eq.constr8a}
 \end{equation}
 %TODO:
-\textbf{TODO: Explain that $q_{n}$ is used to ensure () remains between 0 and
-    $\lambda$}
+The variable $q_{n}$ is used to indicate if
+$ t_{USE,n}^{*} - \boldsymbol{z}_{n} < 0 $.
+Note that $t_{USE,n}^{*} - \boldsymbol{z}_{n} > -\lambda$, so in the case that
+$ t_{USE,n}^{*} - \boldsymbol{z}_{n} < 0 $, we want to add a factor of
+$\lambda$ to $t_{USE,n}^{*} - \boldsymbol{z}_{n}$, which is equivalent to
+moving from an event in a batch which occurs in the previous cycle to the same
+event in a subsequent batch, which will occur in the current cycle.
+The switch that adds this factor $\lambda$ is the variable $q_{n}$.
+The expression 
+$t_{USE,n}^{*} - \boldsymbol{z}_{n} + \boldsymbol{q}_{n} \lambda$ is thus an
+appropriate replacement for the expression
+$\left( t_{USE,n}^{*} - \boldsymbol{z}_{n} \right) \mod \lambda$.
+The above expression, which represents when preparation procedure $n$ occurs,
+could be replaced by a new variable, for brevity, but since the expression
+contains decision variables, doing so would require the specification of an
+addtional decision variable and an additional set of constraints to define it.
+This would add unneccesary complexity to the model.
+
 
 The truth table for $ \boldsymbol{q}_{n} $ is given below.
 \begin{table}[h!]
@@ -561,6 +584,10 @@ first.
     \end{split}
     \label{eq.constr8b}
 \end{equation}
+A truth tale for $\boldsymbol{u}_{nk}$ is given below. As was explained earlier
+in this Section, the long expression in the first column is maintained because
+replacing the terms in (round) brackets by new parameters would increase the
+complexity of the model.
 \begin{table}[h!]
     \centering
     \caption{Truth table for $\boldsymbol{u}_{nk}$}
@@ -580,7 +607,6 @@ first.
 \end{table}
 
 \subsection{Preparation Scheduling}\label{SS.constr9}
-
 With the above constraint, we can finally implement the scheduling constraint.
 This makes use of the \emph{big-M} method, with $\mathbb{M} = 2 \lambda$.
 \begin{equation}
@@ -599,7 +625,8 @@ This makes use of the \emph{big-M} method, with $\mathbb{M} = 2 \lambda$.
     \end{split}
     \label{eq.constr9}
 \end{equation}
-Truth table:
+A truth table, showing which of the above constraints apply, based on the
+values of $\boldsymbol{u}_{nk}$ and $\boldsymbol{u}_{nk}$ is given below.
 \begin{table}[h!]
     \centering
     \caption{Active scheduling constraints based on values of 
