@@ -203,18 +203,6 @@ def csv_columns_to_dict_of_lists(filename):
             data_dict[key] = values
         return data_dict
 
-
-# Return the product of the elements of a list, tuple or set
-def prod(dimensions):
-    try:
-        product = 1
-        for i in dimensions:
-            product *= i
-        return product
-    except:
-        return dimensions
-
-
 # Generator for accessing components of a variable
 def variable_iterator(variable, dimensions):
     if len(dimensions) > 1:
@@ -252,7 +240,7 @@ def _variable_iterator_loc(variable, dimensions, index, depth):
 def unflatten_variable(variable, dimensions):
     unflattened = numpy.empty(dimensions, object)
     variter = variable_iterator_loc(variable, dimensions)
-    for i in range(prod(dimensions)):
+    for i in range(numpy.prod(dimensions)):
         varobject, position = next(variter)
         unflattened[position] = varobject
     return unflattened
@@ -418,3 +406,4 @@ if __name__ == "__main__":
     results = Results(variables)
     buffers.get_results(parameters, results)
     single_cycle_plot(parameters, buffers, vessels, (PATH + "plot.pdf"))
+    
