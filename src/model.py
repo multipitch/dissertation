@@ -396,6 +396,7 @@ if __name__ == "__main__":
     initial_objective_value = pulp.value(problem.objective)
     results = Results(variables)
     buffers.get_results(parameters, results)
+    single_cycle_plot(parameters, buffers, vessels, (PATH + "plot1.pdf"))
     
     # Optimise for secondary objective: minimise hold times
     secondary_objective(problem, variables, buffers, vessels,
@@ -405,5 +406,5 @@ if __name__ == "__main__":
     
     results = Results(variables)
     buffers.get_results(parameters, results)
-    single_cycle_plot(parameters, buffers, vessels, (PATH + "plot.pdf"))
+    single_cycle_plot(parameters, buffers, vessels, (PATH + "plot2.pdf"))
     

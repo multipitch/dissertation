@@ -28,8 +28,9 @@
     $m$ & Vessel size index $\left( m \in M \right)$ & \ref{S.vesseldata}\\
     $n$ & Buffer index $\left( n \in N \right)$ & \ref{S.bufferdata}\\
     $p$ & Slot index $\left( p \in P \right)$ & \ref{S.slots}\\
-    $\boldsymbol{q}_{n}$ & Buffer $n$ hold operation starts in cycle prior to
-        the one in which it finishes & \ref{SS.constr8}\\
+    $\boldsymbol{q}_{n}$ & Boolean decision variable: Buffer $n$ hold operation
+        starts in cycle prior to the one in which it finishes 
+        & \ref{SS.constr8}\\
     $r_{\mathit{MINFILL}}$ & Vessel minimum fill ratio & \ref{S.parameters}\\
     $r_{\mathit{UTIL}}$ & Preparation slot maximum utilisation ratio
         & \ref{S.parameters}\\
@@ -62,20 +63,25 @@
         in the same slot& \ref{SS.constr7}\\
     $\boldsymbol{w}_{nkp}$ & Boolean: Distinct buffers $n$ and $k$ are both
         made in slot $p$ & \ref{SS.constr6}\\
-    $\boldsymbol{x}_{np}$ & Boolean: Buffer $n$ is in slot $p$
+    $\boldsymbol{x}_{np}$ & Boolean: Buffer $n$ is prepared in slot $p$
         & \ref{SS.constr1}\\
-    $\boldsymbol{y}_{mp}$ & Boolean: Vessel size $m$ is in slot $p$
+    $\boldsymbol{y}_{mp}$ & Boolean: A vessel of size $m$ is in slot $p$
         & \ref{S.objfn}\\
     $\boldsymbol{z}_{n}$ & Buffer $n$ hold duration & \ref{SS.constr5}\\
-    $M$ & Number of vessel sizes & \ref{S.vesseldata}\\
-    $N$ & Number of buffers & \ref{S.bufferdata}\\
-    $P$ & Number of slots & \ref{S.slots}\\
+    $M$ & Set of vessel sizes & \ref{S.vesseldata}\\
+    $\mathcal{M}$ & Number of vessel sizes & \ref{S.vesseldata}\\
+    $N$ & Set of buffers & \ref{S.bufferdata}\\
+    $\mathcal{N}$ & Number of buffers & \ref{S.bufferdata}\\
+    $P$ & Set of slots & \ref{S.slots}\\
+    $\mathcal{P}$ & Number of slots & \ref{S.slots}\\
     $U_{n}$ & Volume of buffer $n$ to be preapred & \ref{S.bufferdata}\\
     $V_{m}$ & Maximum working volume of vessel size $m$ & \ref{S.vesseldata}\\
     $V_{\mathit{MAX}}$ & Largest maximum working volume of available vessel
         sizes & \ref{SS.constr3}\\
-    $\boldsymbol{Z}$ & Primary objective function value (minimal total vessel
-        cost) & \ref{S.objfn}\\
+    $\boldsymbol{Y}$ & Secondary objective: Sum of buffer hold times,
+        given minimal total vessel cost & \ref{SS.goal}\\
+    $\boldsymbol{Z}$ & Primary objective: Total vessel cost & \ref{S.objfn}\\
+    $Z^{\prime}$ & Minimal total vessel cost & \ref{SS.goal}\\
     $\lambda$ & Process cycle time (start--to--start duration)
         & \ref{S.parameters}\\
 \end{longtabu}
@@ -84,10 +90,14 @@
 
 Notes:
 
-Decision variables and objective function values are in $\boldsymbol{bold}$
-text.
+Decision variables and objective function values are in 
+$\boldsymbol{\mathit{bold}}$ text.
 
 Subscripts in lower-case represent indices.
 Subscripts in upper-case are descriptive.
 Both subscript types may be used simultaneously, e.g. in the case of
 $t_{USE,n}$.
+
+A prime suprescript denotes an optimum value, e.g. $Z^{\prime}$.
+An asterisk suprescript denotes modulo cycle time, e.g.
+$t_{\mathit{USE},n}^{*} \equiv t_{\mathit{USE},n} \mod \lambda$.
