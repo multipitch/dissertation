@@ -30,30 +30,32 @@
     $p$ & Slot index $\left( p \in P \right)$ & \ref{S.slots}\\
     $\boldsymbol{q}_{n}$ & Buffer $n$ hold operation starts in cycle prior to
         the one in which it finishes & \ref{SS.constr8}\\
-    $r_{MINFILL}$ & Vessel minimum fill ratio & \ref{S.parameters}\\
-    $r_{UTIL}$ & Preparation slot maximum utilisation ratio
+    $r_{\mathit{MINFILL}}$ & Vessel minimum fill ratio & \ref{S.parameters}\\
+    $r_{\mathit{UTIL}}$ & Preparation slot maximum utilisation ratio
         & \ref{S.parameters}\\
-    $t_{USE,n}$ & Buffer $n$ time of first use, relative to batch start
-        & \ref{S.bufferdata}\\
-    $t_{USE,n}^{*}$ & Buffer $n$ time of first use, relative to batch
+    $t_{\mathit{USE},n}$ & Buffer $n$ time of first use, relative to batch
+        start & \ref{S.bufferdata}\\
+    $t_{\mathit{USE},n}^{*}$ & Buffer $n$ time of first use, relative to batch
         start, modulo cycle time & \ref{SS.constr8}\\
-    $\Delta t_{HOLD,MAX}$ & Maximum allowable buffer hold duration
+    $\Delta t_{\mathit{HOLD,MAX}}$ & Maximum allowable buffer hold duration
         & \ref{S.parameters}\\
-    $\Delta t_{HOLD,MIN}$ & Minimum allowable buffer hold duration
+    $\Delta t_{\mathit{HOLD,MIN}}$ & Minimum allowable buffer hold duration
         & \ref{S.parameters}\\
-    $\Delta t_{HOLD,POST}$ & Duration of post-use operations in buffer hold
-        procedures & \ref{S.parameters}\\
-    $\Delta t_{HOLD,PRE}$ & Duration of operations prior to receiving buffer in
-        buffer hold procedures & \ref{S.parameters}\\
-    $\Delta t_{PREP,PRE}$ & Duration of operations prior to transferring out
-        buffer in buffer preparation procedures & \ref{S.parameters}\\
-    $\Delta t_{PREP,POST}$ & Duration of operations post transferring out
-        buffer in buffer preparation procedures & \ref{S.parameters}\\
-    $\Delta t_{PREP,TOTAL}$ & Total duration of buffer preparation procedure
-        & \ref{SS.constr4}\\
-    $\Delta t_{USE,n}$ & Duration of use of buffer $n$ & \ref{S.bufferdata}\\
-    $\Delta t_{TRANSFER}$ & Duration of transfer from buffer preparation vessel
-        to buffer hold vessel & \ref{S.parameters}\\
+    $\Delta t_{\mathit{HOLD,POST}}$ & Duration of post-use operations in buffer
+        hold procedures & \ref{S.parameters}\\
+    $\Delta t_{\mathit{HOLD,PRE}}$ & Duration of operations prior to receiving
+        buffer in buffer hold procedures & \ref{S.parameters}\\
+    $\Delta t_{\mathit{PREP,PRE}}$ & Duration of operations prior to
+        transferring out buffer in buffer preparation procedures & 
+        \ref{S.parameters}\\
+    $\Delta t_{\mathit{PREP,POST}}$ & Duration of operations post transferring
+        out buffer in buffer preparation procedures & \ref{S.parameters}\\
+    $\Delta t_{\mathit{PREP,TOTAL}}$ & Total duration of buffer preparation
+        procedure & \ref{SS.constr4}\\
+    $\Delta t_{\mathit{USE},n}$ & Duration of use of buffer $n$ 
+        & \ref{S.bufferdata}\\
+    $\Delta t_{\mathit{TRANSFER}}$ & Duration of transfer from buffer
+        preparation vessel to buffer hold vessel & \ref{S.parameters}\\
     $\boldsymbol{u}_{nk}$ & Boolean: Buffer $k$ is prepared before buffer $n$
         & \ref{SS.constr8}\\
     $\boldsymbol{v}_{nk}$ & Boolean: Distinct buffers $n$ and $k$ are both made
@@ -70,8 +72,8 @@
     $P$ & Number of slots & \ref{S.slots}\\
     $U_{n}$ & Volume of buffer $n$ to be preapred & \ref{S.bufferdata}\\
     $V_{m}$ & Maximum working volume of vessel size $m$ & \ref{S.vesseldata}\\
-    $V_{MAX}$ & Largest maximum working volume of available vessel sizes
-        & \ref{SS.constr3}\\
+    $V_{\mathit{MAX}}$ & Largest maximum working volume of available vessel
+        sizes & \ref{SS.constr3}\\
     $\boldsymbol{Z}$ & Primary objective function value (minimal total vessel
         cost) & \ref{S.objfn}\\
     $\lambda$ & Process cycle time (start--to--start duration)

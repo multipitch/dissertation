@@ -118,16 +118,16 @@ preparation vessels (see \hyperref[S.parameters]{Section \ref*{S.parameters}}).
 For a complete model, with scheduling, we also need to know when each buffer
 is first required by the process, and the duration for which it is required.
 
-For each buffer, $n \in N$, its time of first use, $t_{USE,n}$, is the time
-when the process draws the first drop of buffer from its hold vessel.
+For each buffer, $n \in N$, its time of first use, $t_{\mathit{USE},n}$, is the
+time when the process draws the first drop of buffer from its hold vessel.
 This time is relative to some batch datum, e.g. the start of the batch or the
 start of downstream processing.
 The choice of datum is unimportant once it is consistently used.
 
-For each buffer, $n \in N$, its duration of first use, $\Delta t_{USE,n}$, is
-the duration from when the process draws the first drop of buffer from its hold
-vessel to when it finishes drawing the last drop of buffer from the same
-vessel.
+For each buffer, $n \in N$, its duration of first use, 
+$\Delta t_{\mathit{USE},n}$, is the duration from when the process draws the
+first drop of buffer from its hold vessel to when it finishes drawing the last
+drop of buffer from the same vessel.
 Note that a process may draw buffer discontinuously from a hold vessel, e.g. a
 cleaning buffer may be drawn from its hold vessel for a few minutes at the end
 of a chromatography procedure and may not be required again until near the end
@@ -137,8 +137,8 @@ Note the use of the general convention that \emph{durations} are denoted by
 $\Delta t$, whereas \emph{times} (relative to some datum) are denoted by $t$.
 It is assumed that all times and durations are in hours.
 
-For each buffer, $n$, $\Delta t_{USE,n}$ must be sufficiently less than
-the cycle time so that there is opportunity to \emph{turn around} its hold
+For each buffer, $n$, $\Delta t_{\mathit{USE},n}$ must be sufficiently less
+than the cycle time so that there is opportunity to \emph{turn around} its hold
 vessel (i.e. sufficient time must exist after use of the buffer to clean and
 sterilise the vessel, receive the subsequent batch of buffer and hold for a 
 sufficient duration before use of that buffer is required by the subsequent
@@ -152,7 +152,8 @@ Sample buffer data is given in \hyperref[tbl.buffer]{Table \ref*{tbl.buffer}}.
     \label{tbl.buffer}
     \begin{tabular}{l | c | c | c}
         names & required volumes & use start times & use durations\\
-        & $U_{n}$ (l) & $t_{USE,n}$ (h) & $\Delta t_{USE,n}$ (h)\\ \hline
+        & $U_{n}$ (l) & $t_{\mathit{USE},n}$ (h) & $\Delta t_{\mathit{USE},n}$
+        (h)\\ \hline
         \text{Buffer \#1} & 19676.0 & 733.87 & 48.99\\
         \text{Buffer \#2} & 18528.0 & 644.18 & 36.95\\
         \text{Buffer \#3} & 17346.0 & 684.60 & 49.27\\
@@ -182,15 +183,15 @@ more detail hereafter.
     \begin{tabular}{l | l | c | c}
         symbol & short description & value & unit\\ \hline
         $\lambda$ & process cycle time & 96.0 & h\\
-        $\Delta t_{PREP,PRE}$ & prep pre duration & 11.0 & h\\
-        $\Delta t_{PREP,POST}$ & prep post duration & 2.5 & h\\
-        $\Delta t_{TRANSFER}$ & transfer duration & 2.2 & h\\
-        $\Delta t_{HOLD,PRE}$ & hold pre duration & 9.0 & h\\
-        $\Delta t_{HOLD,POST}$ & hold post duration & 1.0 & h\\
-        $\Delta t_{HOLD,MIN}$ & minimum hold duration & 12.0 & h\\
-        $\Delta t_{HOLD,MAX}$ & maximum hold duration & 60.0 & h\\
-        $r_{MINFILL}$ & minimum fill ratio & 0.27 & --\\
-        $r_{UTIL}$ & maximum utilisation ratio & 0.7 & --\\
+        $\Delta t_{\mathit{PREP,PRE}}$ & prep pre duration & 11.0 & h\\
+        $\Delta t_{\mathit{PREP,POST}}$ & prep post duration & 2.5 & h\\
+        $\Delta t_{\mathit{TRANSFER}}$ & transfer duration & 2.2 & h\\
+        $\Delta t_{\mathit{HOLD,PRE}}$ & hold pre duration & 9.0 & h\\
+        $\Delta t_{\mathit{HOLD,POST}}$ & hold post duration & 1.0 & h\\
+        $\Delta t_{\mathit{HOLD,MIN}}$ & minimum hold duration & 12.0 & h\\
+        $\Delta t_{\mathit{HOLD,MAX}}$ & maximum hold duration & 60.0 & h\\
+        $r_{\mathit{MINFILL}}$ & minimum fill ratio & 0.27 & --\\
+        $r_{\mathit{UTIL}}$ & maximum utilisation ratio & 0.7 & --\\
     \end{tabular}
 \end{table}
 

@@ -205,15 +205,15 @@ The maximum vessel capacity constraint is:
 \end{equation}
 The minimum vessel capacity constraint is slightly more complex, in that the
 \emph{big-M} method must be utilised. The value used for \emph{big-M} is
-$V_{MAX}$, where:
+$V_{\mathit{MAX}}$, where:
 \begin{equation}
-    V_{MAX} = \text{max} \left( V_{m} \quad \forall m \in M \right)
+    V_{\mathit{MAX}} = \text{max} \left( V_{m} \quad \forall m \in M \right)
 \end{equation}
 The minimum vessel capacity constraint is defined as:
 \begin{equation}
-    V_{MAX} \boldsymbol{x}_{np} + r_{MINFILL} \sum_{m \in M} V_{m}
-    \boldsymbol{y}_{mp} \le U_{n} + V_{MAX} \quad \forall n \in N, \quad
-    \forall p \in P
+    V_{\mathit{MAX}} \boldsymbol{x}_{np} + r_{\mathit{MINFILL}} \sum_{m \in M}
+    V_{m} \boldsymbol{y}_{mp} \le U_{n} + V_{\mathit{MAX}} \quad \forall n \in
+    N, \quad \forall p \in P
     \label{eq.constr3b}
 \end{equation}
 
@@ -226,24 +226,26 @@ of the preparation vessels.
 Note that this will result in a crude approximation but it is often the case
 that detailed timing information is not available or cannot be predicted with
 sufficient accuracy.
-We thus introduce the parameter $r_{UTIL}$, the maximum utilisation ratio.
-The total duration of all preparation procedures in a given slot must not
-be above $r_{UTIL} \lambda$, where $\lambda$ is the cycle time of the process.
+We thus introduce the parameter $r_{\mathit{UTIL}}$, the maximum utilisation
+ratio.
+The total duration of all preparation procedures in a given slot must not be
+above $r_{\mathit{UTIL}} \lambda$, where $\lambda$ is the cycle time of the
+process.
 
-The total duration of a single preparation procedure, $\Delta t_{PREP,TOTAL}$,
-is given by:
+The total duration of a single preparation procedure,
+$\Delta t_{\mathit{PREP,TOTAL}}$, is given by:
 \begin{equation}
-    \Delta t_{PREP,TOTAL} = \Delta t_{PREP,PRE} + \Delta t_{TRANSFER} +
-    \Delta t_{PREP,POST}
+    \Delta t_{\mathit{PREP,TOTAL}} = \Delta t_{\mathit{PREP,PRE}} + 
+    \Delta t_{\mathit{TRANSFER}} + \Delta t_{\mathit{PREP,POST}}
 \end{equation}
 Note that, for the basic case, it is only strictly necessary to know
-$\Delta t_{PREP,TOTAL}$; the constituent durations do not need to be known
-individually.
+$\Delta t_{\mathit{PREP,TOTAL}}$; the constituent durations do not need to be
+known individually.
 
 The following constraint is now defined:
 \begin{equation}
-    \Delta t_{PREP,TOTAL} \sum_{n \in N} \boldsymbol{x}_{np} \le r_{UTIL}
-    \lambda \quad \forall p \in P
+    \Delta t_{\mathit{PREP,TOTAL}} \sum_{n \in N} \boldsymbol{x}_{np} \le
+    r_{\mathit{UTIL}} \lambda \quad \forall p \in P
     \label{eq.constr4}
 \end{equation}
 
@@ -272,14 +274,14 @@ Subject to:
     \tag{\ref{eq.constr3a}}
 \end{equation}
 \begin{equation}
-    V_{MAX} \boldsymbol{x}_{np} + r_{MINFILL} \sum_{m \in M} V_{m}
-    \boldsymbol{y}_{mp} \le U_{n} + V_{MAX} \quad \forall n \in N, \quad
-    \forall p \in P
+    V_{\mathit{MAX}} \boldsymbol{x}_{np} + r_{\mathit{MINFILL}} \sum_{m \in M}
+    V_{m} \boldsymbol{y}_{mp} \le U_{n} + V_{\mathit{MAX}} \quad \forall n \in
+    N, \quad \forall p \in P
     \tag{\ref{eq.constr3b}}
 \end{equation}
 \begin{equation}
-    \Delta t_{PREP,TOTAL} \sum_{n \in N} \boldsymbol{x}_{np} \le r_{UTIL}
-    \lambda \quad \forall p \in P
+    \Delta t_{\mathit{PREP,TOTAL}} \sum_{n \in N} \boldsymbol{x}_{np} \le
+    r_{\mathit{UTIL}} \lambda \quad \forall p \in P
     \tag{\ref{eq.constr4}}
 \end{equation}
 Where:
@@ -317,20 +319,24 @@ procedures being of fixed duration.
 We now intoduce the buffer hold time decision variable, $\boldsymbol{z}_{n}$,
 which has dimensions of $N$:
 \begin{equation}
-    \Delta t_{HOLD,MIN} \le \boldsymbol{z}_{n} \le \Delta t_{HOLD,MAX}; \quad
+    \Delta t_{\mathit{HOLD,MIN}} \le \boldsymbol{z}_{n} \le 
+    \Delta t_{\mathit{HOLD,MAX}}; \quad
     \boldsymbol{z}_{n} \in \mathbb{R} \quad \forall n \in N
     \label{eq.z}
 \end{equation}
 This is the only real-valued variable in the model.
 
+%TODO:
+\textbf{TODO: use mathit for all remaining textual subscripts (stopped here).
+ - including Notation section.}
 The first constraint required for the complete model is the limitation that the
 total duration of each hold procedure must not be greater than the cycle time.
 If this constraint is not observed, a hold procedure in a given batch may not
 have finished before the hold procedure for the next batch is due to start.
 \begin{equation}
-    \boldsymbol{z}_{n} \le \lambda - \left( \Delta t_{HOLD,PRE} +
-    \Delta t_{TRANSFER} + \Delta t_{USE,n} + \Delta t_{HOLD,POST} \right)
-    \quad \forall n \in N
+    \boldsymbol{z}_{n} \le \lambda - \left( \Delta t_{\mathit{HOLD,PRE}} +
+    \Delta t_{\mathit{TRANSFER}} + \Delta t_{\mathit{USE},n} + \Delta
+    t_{\mathit{HOLD,POST}} \right) \quad \forall n \in N
     \label{eq.constr5}
 \end{equation}
 
@@ -339,12 +345,14 @@ have finished before the hold procedure for the next batch is due to start.
 The scheduling constraint may be descibed quite simply:
 Ensure that no two preparation operations overlap in time in a given slot.
 
-Since we have a constant preparation duration, $ \Delta t_{PREP,TOTAL} $, this
-constraint may be expressed, \emph{for any two distinct buffers that are made
-in the same slot}, by the following:
+Since we have a constant preparation duration, 
+$\Delta t_{\mathit{PREP,TOTAL}}$, this constraint may be expressed, 
+\emph{for any two distinct buffers that are made in the same slot}, by the
+following:
 \begin{equation}
-    \lvert \left( t_{USE,k} - \boldsymbol{z}_{k} \right) - \left( t_{USE,n} -
-    \boldsymbol{z}_{n} \right) \rvert \le \Delta t_{PREP,TOTAL} \quad \forall n
+    \lvert \left( t_{\mathit{USE},k} - \boldsymbol{z}_{k} \right) - 
+    \left( t_{\mathit{USE},n} - \boldsymbol{z}_{n} \right) \rvert \le \Delta
+    t_{\mathit{PREP,TOTAL}} \quad \forall n
     \in N, \quad \forall k \in N, k > n
 \end{equation}
 Note that the range of $ k $ is limited to $ k > n $ to prevent duplication
@@ -497,36 +505,37 @@ and a use duration.
 From the point of view of the model, we are only concerned with the
 steady-state cyclic case, so we use a modified use start time:
 \begin{equation}
-    t_{USE,n}^{*} = t_{USE,n} \mod \lambda \quad \forall n \in N
+    t_{\mathit{USE},n}^{*} = t_{\mathit{USE},n} \mod \lambda \quad \forall n
+    \in N
 \end{equation}
 We want to now rigorously define whether an event, $\alpha$, occurs after
 another event, $\beta$, iff $ \alpha \mod \lambda > \beta \mod \lambda $.
 We are concerned with the timing of our preparation procedures.
 Recall that all preparation procedures have the same durations.
 Thus, when deciding which of two such procedures occurs first, we can use
-$ t_{USE,n}^{*} - \boldsymbol{z}_{n} $ to mark the timing of the
+$ t_{\mathit{USE},n}^{*} - \boldsymbol{z}_{n} $ to mark the timing of the
 preparation procedure of a given buffer $n$.
 Note that this may take a negative value, which must be corrected by adding a
 factor of $\lambda$ to bring the vaue back into the single-cycle range, as we
 can't use a modulo expression in an MILP constraint.
 Another binary variable, $ \boldsymbol{q}_{n} $ is introduced to indicate if
-$ t_{USE,n}^{*} - \boldsymbol{z}_{n} < 0 $, i.e. to indicate if 
-$ t_{USE,n}^{*} - \boldsymbol{z}_{n}$ occurs in the previous cycle.
+$ t_{\mathit{USE},n}^{*} - \boldsymbol{z}_{n} < 0 $, i.e. to indicate if 
+$ t_{\mathit{USE},n}^{*} - \boldsymbol{z}_{n}$ occurs in the previous cycle.
 \begin{equation}
     \boldsymbol{q}_{n} \in \left\{ 0, 1 \right\} \quad \forall n \in N
     \label{eq.q}
 \end{equation}
 Note that the value of $ \boldsymbol{q}_{n} $ is undefined if
-$ t_{USE,n}^{*} - \boldsymbol{z}_{n} = 0 $.
+$ t_{\mathit{USE},n}^{*} - \boldsymbol{z}_{n} = 0 $.
 The above definition of $ \boldsymbol{q}_{n} $ is captured in the following
 pair of constraints:
 \begin{equation}
     \begin{split}
         \begin{alignedat}{2}
             \boldsymbol{z}_{n} & {}-{} & \lambda \boldsymbol{q}_{n} & \le
-            t_{USE,n}^{*}\\
+            t_{\mathit{USE},n}^{*}\\
             \boldsymbol{z}_{n} & {}-{} & \lambda \boldsymbol{q}_{n} & \ge
-            t_{USE,n}^{*} - \lambda
+            t_{\mathit{USE},n}^{*} - \lambda
         \end{alignedat}
     \end{split}
     \quad\quad
@@ -537,17 +546,18 @@ pair of constraints:
 \end{equation}
 %TODO:
 The variable $q_{n}$ is used to indicate if
-$ t_{USE,n}^{*} - \boldsymbol{z}_{n} < 0 $.
-Note that $t_{USE,n}^{*} - \boldsymbol{z}_{n} > -\lambda$, so in the case that
-$ t_{USE,n}^{*} - \boldsymbol{z}_{n} < 0 $, we want to add a factor of
-$\lambda$ to $t_{USE,n}^{*} - \boldsymbol{z}_{n}$, which is equivalent to
-moving from an event in a batch which occurs in the previous cycle to the same
-event in a subsequent batch, which will occur in the current cycle.
+$t_{\mathit{USE},n}^{*} - \boldsymbol{z}_{n} < 0$.
+Note that $t_{\mathit{USE},n}^{*} - \boldsymbol{z}_{n} > -\lambda$, so in the
+case that $t_{\mathit{USE},n}^{*} - \boldsymbol{z}_{n} < 0 $, we want to add a
+factor of $\lambda$ to $t_{\mathit{USE},n}^{*} - \boldsymbol{z}_{n}$, which is
+equivalent to moving from an event in a batch which occurs in the previous
+cycle to the same event in a subsequent batch, which will occur in the current
+cycle.
 The switch that adds this factor $\lambda$ is the variable $q_{n}$.
 The expression 
-$t_{USE,n}^{*} - \boldsymbol{z}_{n} + \boldsymbol{q}_{n} \lambda$ is thus an
-appropriate replacement for the expression
-$\left( t_{USE,n}^{*} - \boldsymbol{z}_{n} \right) \mod \lambda$.
+$t_{\mathit{USE},n}^{*} - \boldsymbol{z}_{n} + \boldsymbol{q}_{n} \lambda$
+is thus an appropriate replacement for the expression
+$\left( t_{\mathit{USE},n}^{*} - \boldsymbol{z}_{n} \right) \mod \lambda$.
 The above expression, which represents when preparation procedure $n$ occurs,
 could be replaced by a new variable, for brevity, but since the expression
 contains decision variables, doing so would require the specification of an
@@ -561,7 +571,7 @@ The truth table for $ \boldsymbol{q}_{n} $ is given below.
     \caption{Truth table for $\boldsymbol{q}_{n}$}
     \label{tbl.truthq}
     \begin{tabular}{c | c}
-        $t_{USE,n}^{*} - \boldsymbol{z}_{n}$
+        $t_{\mathit{USE},n}^{*} - \boldsymbol{z}_{n}$
         & $\boldsymbol{q}_{n}$\\ \hline
         <0 & 0\\
         0 & $\left\{ 0, 1 \right\}$\\
@@ -576,10 +586,10 @@ first.
     \begin{split}
         \boldsymbol{z}_{n} - \boldsymbol{z}_{k} - \lambda \boldsymbol{q}_{n}
         + \lambda \boldsymbol{q}_{k} + \lambda \boldsymbol{u}_{nk} &\ge
-        t_{USE,n}^{*} - t_{USE,k}^{*}\\
+        t_{\mathit{USE},n}^{*} - t_{\mathit{USE},k}^{*}\\
         \boldsymbol{z}_{n} - \boldsymbol{z}_{k} - \lambda \boldsymbol{q}_{n}
         + \lambda \boldsymbol{q}_{k} + \lambda \boldsymbol{u}_{nk} &\le
-        t_{USE,n}^{*} - t_{USE,k}^{*} + \lambda\\
+        t_{\mathit{USE},n}^{*} - t_{\mathit{USE},k}^{*} + \lambda\\
         \forall n \in N, \quad \forall k \in N, k > n
     \end{split}
     \label{eq.constr8b}
@@ -593,8 +603,8 @@ complexity of the model.
     \caption{Truth table for $\boldsymbol{u}_{nk}$}
     \label{tbl.truthu}
     \begin{tabular}{c | c c | c}
-        $\left( t_{USE,k}^{*} + \lambda \boldsymbol{q}_{k}
-            - \boldsymbol{z}_{k} \right) - \left( t_{USE,n}^{*}
+        $\left( t_{\mathit{USE},k}^{*} + \lambda \boldsymbol{q}_{k}
+            - \boldsymbol{z}_{k} \right) - \left( t_{\mathit{USE},n}^{*}
             + \lambda \boldsymbol{q}_{n}- \boldsymbol{z}_{n} \right)$
         & $\boldsymbol{u}_{nk}^{\left( 1 \right)}$
         & $\boldsymbol{u}_{nk}^{\left( 2 \right)}$
@@ -614,12 +624,12 @@ This makes use of the \emph{big-M} method, with $\mathbb{M} = 2 \lambda$.
         \begin{alignedat}{10}
             &\boldsymbol{z}_{n} {}-{} &\boldsymbol{z}_{k} {}+{} &2 \lambda
             \boldsymbol{u}_{nk} {}-{} &2 \lambda \boldsymbol{v}_{nk} &\ge
-            &t_{USE,n}^{*} {}-{} &t_{USE,k}^{*} {}+{}
-            &\Delta &t_{PREP,TOTAL} {}-{} 2 &\lambda\\
+            &t_{\mathit{USE},n}^{*} {}-{} &t_{USE,k}^{*} {}+{}
+            &\Delta &t_{\mathit{PREP,TOTAL}} {}-{} 2 &\lambda\\
             - &\boldsymbol{z}_{n} {}+{} &\boldsymbol{z}_{k} {}-{} &2 \lambda
             \boldsymbol{u}_{nk} {}-{} &2 \lambda \boldsymbol{v}_{nk} &\ge
-            - &t_{USE,n}^{*} {}+{} &t_{USE,k}^{*} {}+{}
-            &\Delta &t_{PREP,TOTAL} {}-{} 4 &\lambda
+            - &t_{\mathit{USE},n}^{*} {}+{} &t_{\mathit{USE},k}^{*} {}+{}
+            &\Delta &t_{\mathit{PREP,TOTAL}} {}-{} 4 &\lambda
         \end{alignedat}
         \\\forall n \in N, \quad \forall k \in N, k > n
     \end{split}
@@ -636,13 +646,13 @@ values of $\boldsymbol{u}_{nk}$ and $\boldsymbol{u}_{nk}$ is given below.
         $\boldsymbol{u}_{nk}$ & $\boldsymbol{v}_{nk}$
         & applicable scheduling constraint\\ \hline
         0 & 0 & none (buffers are not prepared in same slot)\\
-        0 & 1 & $\left( t_{USE,k}^{*} - \boldsymbol{z}_{k} \right)
-            - \left( t_{USE,n}^{*} - \boldsymbol{z}_{n} \right)
-            \ge \Delta t_{PREP,TOTAL}$\\
+        0 & 1 & $\left( t_{\mathit{USE},k}^{*} - \boldsymbol{z}_{k} \right)
+            - \left( t_{\mathit{USE},n}^{*} - \boldsymbol{z}_{n} \right)
+            \ge \Delta t_{\mathit{PREP,TOTAL}}$\\
         1 & 0 & none (buffers are not prepared in same slot)  \\
-        1 & 1 & $\left( t_{USE,n}^{*} - \boldsymbol{z}_{n} \right)
-            - \left( t_{USE,k}^{*} - \boldsymbol{z}_{k} \right)
-            \ge \Delta t_{PREP,TOTAL}$\\
+        1 & 1 & $\left( t_{\mathit{USE},n}^{*} - \boldsymbol{z}_{n} \right)
+            - \left( t_{\mathit{USE},k}^{*} - \boldsymbol{z}_{k} \right)
+            \ge \Delta t_{\mathit{PREP,TOTAL}}$\\
     \end{tabular}
 \end{table}
 
@@ -670,20 +680,20 @@ Subject to:
     \tag{\ref{eq.constr3a}}
 \end{equation}
 \begin{equation}
-    V_{MAX} \boldsymbol{x}_{np} + r_{MINFILL} \sum_{m \in M} V_{m}
-    \boldsymbol{y}_{mp} \le U_{n} + V_{MAX} \quad \forall n \in N, \quad
-    \forall p \in P
+    V_{\mathit{MAX}} \boldsymbol{x}_{np} + r_{\mathit{MINFILL}} \sum_{m \in M}
+    V_{m} \boldsymbol{y}_{mp} \le U_{n} + V_{\mathit{MAX}} \quad \forall n \in
+    N, \quad \forall p \in P
     \tag{\ref{eq.constr3b}}
 \end{equation}
 \begin{equation}
-    \Delta t_{PREP,TOTAL} \sum_{n \in N} \boldsymbol{x}_{np} \le r_{UTIL}
-    \lambda \quad \forall p \in P
+    \Delta t_{\mathit{PREP,TOTAL}} \sum_{n \in N} \boldsymbol{x}_{np} \le 
+    r_{\mathit{UTIL}} \lambda \quad \forall p \in P
     \tag{\ref{eq.constr4}}
 \end{equation}
 \begin{equation}
-    \boldsymbol{z}_{n} \le \lambda - \left( \Delta t_{HOLD,PRE} +
-    \Delta t_{TRANSFER} + \Delta t_{USE,n} + \Delta t_{HOLD,POST} \right)
-    \quad \forall n \in N
+    \boldsymbol{z}_{n} \le \lambda - \left( \Delta t_{\mathit{HOLD,PRE}} +
+    \Delta t_{\mathit{TRANSFER}} + \Delta t_{\mathit{USE},n} + \Delta
+    t_{\mathit{HOLD,POST}} \right) \quad \forall n \in N
     \tag{\ref{eq.constr5}}
 \end{equation}
 \begin{equation}
@@ -710,9 +720,9 @@ Subject to:
     \begin{split}
         \begin{alignedat}{2}
             \boldsymbol{z}_{n} & {}-{} & \lambda \boldsymbol{q}_{n} & \le
-            t_{USE,n}^{*}\\
+            t_{\mathit{USE},n}^{*}\\
             \boldsymbol{z}_{n} & {}-{} & \lambda \boldsymbol{q}_{n} & \ge
-            t_{USE,n}^{*} - \lambda
+            t_{\mathit{USE},n}^{*} - \lambda
         \end{alignedat}
     \end{split}
     \quad\quad
@@ -725,10 +735,10 @@ Subject to:
     \begin{split}
         \boldsymbol{z}_{n} - \boldsymbol{z}_{k} - \lambda \boldsymbol{q}_{n}
         + \lambda \boldsymbol{q}_{k} + \lambda \boldsymbol{u}_{nk} &\ge
-        t_{USE,n}^{*} - t_{USE,k}^{*}\\
+        t_{\mathit{USE},n}^{*} - t_{\mathit{USE},k}^{*}\\
         \boldsymbol{z}_{n} - \boldsymbol{z}_{k} - \lambda \boldsymbol{q}_{n}
         + \lambda \boldsymbol{q}_{k} + \lambda \boldsymbol{u}_{nk} &\le
-        t_{USE,n}^{*} - t_{USE,k}^{*} + \lambda\\
+        t_{\mathit{USE},n}^{*} - t_{\mathit{USE},k}^{*} + \lambda\\
         \forall n \in N, \quad \forall k \in N, k > n
     \end{split}
     \tag{\ref{eq.constr8b}}
@@ -738,12 +748,12 @@ Subject to:
         \begin{alignedat}{10}
             &\boldsymbol{z}_{n} {}-{} &\boldsymbol{z}_{k} {}+{} &2 \lambda
             \boldsymbol{u}_{nk} {}-{} &2 \lambda \boldsymbol{v}_{nk} &\ge
-            &t_{USE,n}^{*} {}-{} &t_{USE,k}^{*} {}+{}
-            &\Delta &t_{PREP,TOTAL} {}-{} 2 &\lambda\\
+            &t_{\mathit{USE},n}^{*} {}-{} &t_{\mathit{USE},k}^{*} {}+{}
+            &\Delta &t_{\mathit{PREP,TOTAL}} {}-{} 2 &\lambda\\
             - &\boldsymbol{z}_{n} {}+{} &\boldsymbol{z}_{k} {}-{} &2 \lambda
             \boldsymbol{u}_{nk} {}-{} &2 \lambda \boldsymbol{v}_{nk} &\ge
-            - &t_{USE,n}^{*} {}+{} &t_{USE,k}^{*} {}+{}
-            &\Delta &t_{PREP,TOTAL} {}-{} 4 &\lambda
+            - &t_{\mathit{USE},n}^{*} {}+{} &t_{\mathit{USE},k}^{*} {}+{}
+            &\Delta &t_{\mathit{PREP,TOTAL}} {}-{} 4 &\lambda
         \end{alignedat}
         \\\forall n \in N, \quad \forall k \in N, k > n
     \end{split}
@@ -780,10 +790,13 @@ Where:
     \tag{\ref{eq.y}}
 \end{equation}
 \begin{equation}
-    \Delta t_{HOLD,MIN} \le \boldsymbol{z}_{n} \le \Delta t_{HOLD,MAX}; \quad
-    \boldsymbol{z}_{n} \in \mathbb{R} \quad \forall n \in N
+    \Delta t_{\mathit{HOLD,MIN}} \le \boldsymbol{z}_{n} \le \Delta
+    t_{\mathit{HOLD,MAX}}; \quad \boldsymbol{z}_{n} \in \mathbb{R} \quad
+    \forall n \in N
     \tag{\ref{eq.z}}
 \end{equation}
+
+Mathcal-P: $|\mathcal{P}|$
 
 \section{Implementation}\label{S.implementation}
 
