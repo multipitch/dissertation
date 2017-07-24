@@ -211,6 +211,96 @@ more detail hereafter.
 
 %TODO
 \textbf{TODO: Describe parameters}
+The first parameter sepcified is the cycle time, $\lambda$.  We are concerned
+with the steady-state operation of the process, so the cycle time can be
+thought of as the duration from some fixed point in one batch to the same
+fixed point in the subsequent batch.
+The cycle time is typically some multiple of 24 hours.
+This is for reasons of operability; it is easier for staff if a given task
+occurs at the same time of the day for each batch.
+
+In the model, the preparation and hold procedures are both broken into a number
+of operations.
+The durations of most of these operations are specified as global parameters.
+It is unlikely that detailed timings will be available at the early stages of
+design, so specifying some conservative global parameters provides a model that
+is easy to comprehend and validate.
+In reality, operations such as filling a vessel with water will scale with
+buffer bolume and operations such as cooldown of a vessel after steaming will
+scale with vessel volume.
+This degree of granularity could be added as a future model enhancement.
+
+The following durations are specified as global parameters:
+
+The parameter $\Delta t_{\mathit{PREP,PRE}}$ is the duration of all operations
+in the preparation procedure prior to the transfer of buffer to the buffer hold
+vessel.  
+This may include pressure testing, steam-in-place (SIP) and cooldown, although
+these tasks are not always carried out on preparation vessels.
+The period will include the charging of WFI, the charging of other liquids
+and/or solids, and time for mixing the buffer.
+It may also include some time for sampling or testing and adjustment of the
+buffer.
+
+The parameter $\Delta t_{\mathit{PREP,POST}}$ is the duration of all operations
+in the preparation procedure that take place after the transfer of the buffer
+to the buffer hold vessel is complete.
+This is typically just comprised of the clean-in-place (CIP) of the vessel.
+CIP involves a separate piece of equipment, the CIP skid, which circulates
+cleaning fluids (detergents and/or acids, bases) through the vessel and some of
+its attached pipework.
+
+The parameter $\Delta t_{\mathit{PREP,POST}}$ is the duration of the transfer
+of buffer from the preparation vessel to the hold vessel, via a sterile filter.
+Although this varies with the buffer volume, the relationship is not that
+straightforward.
+As buffer and vessel volumes increase, a change in pipe diameter or pump size
+may be appropriate, giving large step changes to the transfer duration.
+Accordingly, a conservative global parameter for transfer duration is
+appropriate for early-stage design.
+
+The parameter $\Delta t_{\mathit{HOLD,PRE}}$ is the duration of all operations
+in the hold procedure prior to the commencement of receipt of buffer from the
+preparation vessel.
+This typically includes pressure testing, SIP and cooldown.
+
+The parameter $\Delta t_{\mathit{HOLD,POST}}$ is the duration of all operations
+in the hold procedure that take place after the last use of buffer by the
+process is complete.
+Like $\Delta t_{\mathit{PREP,POST}}$, this is primarily comprised of a CIP of
+the respective vessel.
+
+Looking at the explanatory equipment time utilisation diagram, the one
+parameter not yet mentioned is the buffer hold duration, $\boldsymbol{z}_{n}$.
+Note that this is a decision variable, and not a parameter; it is discussed in
+more detail in the subsequent chapter.
+The buffer hold duration is the duration that spans from the end of the
+transfer into the buffer hold vessel until the start of the first use of the
+buffer by the process.
+As will be described in the next chapter, we place some bounds on this duration
+and express these bounds as a pair of global parameters.
+The parameter $\Delta t_{\mathit{HOLD,MIN}}$ defines the minimum allowabe
+duration of the buffer hold operation.
+In practice, the operators of a plant do not want to schedule buffer
+preparations so that the transfer is complete moments before the buffer is
+required by the process, as any delays at this stage could imapct production.
+A value, typically in the range of several hours to one day, can be specified
+to ensure that buffers are prepared with some flexibility to handle delays.
+At the other end of the scale, buffers may expire and the global variable 
+$\Delta t_{\mathit{HOLD,MIN}}$ is defined to set a maximum allowable hold
+duration.
+
+When selecting a vessel, as mentioned in Section ???, a minimum fill ratio,
+$r_{\mathit{MINFILL}}$ is defined to ensure that a vessel isn't selected that
+is far too big for the buffer being prepared.
+
+Finally, the utilisation ratio, $r_{\mathit{UTIL}}$, places an upper limit on
+how busy a preparation vessel is allowed to be.
+In the absence of detailed buffer scheduling information, this may represent an
+`engineering factor' to account for unforseeable scheduling clashes.
+If detailed scheduling information is available, the ratio can be set to unity
+to effectively remove its influence as a constraint, or the ratio could be
+maintained at some value to allow for some overhead in the design.
 
 \section{Output Data}\label{S.outputdata}
 

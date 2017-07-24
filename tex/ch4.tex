@@ -327,8 +327,8 @@ procedures being of fixed duration.
 
 \subsection{Hold Procedure Duration}\label{SS.constr5}
 
-We now introduce the buffer hold time decision variable, $\boldsymbol{z}_{n}$,
-which has dimensions of $N$:
+We now introduce the buffer hold duration decision variable, 
+$\boldsymbol{z}_{n}$, which has dimensions of $N$:
 \begin{equation}
     \Delta t_{\mathit{HOLD,MIN}} \le \boldsymbol{z}_{n} \le 
     \Delta t_{\mathit{HOLD,MAX}}; \quad
@@ -857,7 +857,8 @@ reducing $\boldsymbol{z}_{n}$ by $\delta$.
 Recall also that $\boldsymbol{z}_{n}$ has a lower bound, 
 $\Delta t_{\mathit{HOLD,MIN}}$.
 In terms of visualising a realistic schedule, it is desirable to minimise the
-hold times, i.e. we wish to define a new objective function, to be minimised:
+hold durations, i.e. we wish to define a new objective function, to be
+minimised:
 \begin{equation}
     \boldsymbol{Y} = \sum_{n \in N} \boldsymbol{z}_{n} \quad \forall n \in N
     \label{eq.objfn2}
