@@ -836,10 +836,9 @@ illustrate the effects of goal programming.
 \begin{figure}
     \centering
     \includegraphics[angle=0,scale=0.55]{../examples/large-scale/plot1.pdf}
-    \caption{Large-Scale Example -- Primary Objective}
+    \caption{Large-scale example -- primary objective}
     \label{fig.primary}
 \end{figure}
-
 Note that the solution requires four vessels, with volumes of
 \SI{8000}{\litre}, \SI{10000}{\litre}, \SI{15000}{\litre} and
 \SI{20000}{\litre} respectively.  
@@ -868,8 +867,8 @@ i.e. we define
 \begin{equation}
     Z^{\prime} = \min \boldsymbol{Z}
 \end{equation}
-In the above equation, $Z^{\prime}$ is the optimal objective function value obtained by solving
-the complete model.
+In the above equation, $Z^{\prime}$ is the optimal objective function value
+obtained by solving the complete model.
 Note that $Z^{\prime}$ is not bolded, as it is treated as a constant parameter
 in our second-pass model.
 The complete model is then re-run with the original objective function replaced
@@ -879,7 +878,12 @@ added:
     \sum_{m \in M} \sum_{p \in P} c_m \boldsymbol{y}_{mp} = Z^{\prime}
     \label{eq.constr10}
 \end{equation}
-
+\begin{figure}
+    \centering
+    \includegraphics[angle=0,scale=0.55]{../examples/large-scale/plot2.pdf}
+    \caption{Large-scale example -- secondary objective}
+    \label{fig.secondary}
+\end{figure}
 Implementing the secondary goal programming model on the same data-set yields
 the following plot.
 Note that the buffer hold procedures for buffers \#5, \#8 and \#9 are no longer
@@ -889,13 +893,6 @@ same minimal cost is obtained), some buffers are now prepared in different
 vessels to those originally assigned.
 For example, in the original result, buffer \#8 was prepared in a 15,000 l
 vessel and with the secondary goal added, it is prepared in am 8,000 l vessel.
-
-\begin{figure}
-    \centering
-    \includegraphics[angle=0,scale=0.55]{../examples/large-scale/plot2.pdf}
-    \caption{Large-Scale Example -- Secondary Objective}
-    \label{fig.secondary}
-\end{figure}
 
 \subsection{Secondary Model Summary}\label{SS.model2summary}
 

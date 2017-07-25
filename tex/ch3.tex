@@ -42,6 +42,26 @@ One particular example, which is based on obfuscated data from a large-scale
 facility, is used throughout this chapter to illustrate the format of the data.
 
 \section{Vessel Data}\label{S.vesseldata}
+
+\begin{table}[h!]
+    \centering
+    \caption{Vessel data for large-scale example}
+    \label{tbl.vessel}
+    \begin{tabular}{l | r | r}
+        names & volumes & costs\\
+        & $V_{m}$ (l) & $c_{m}$ (--)\\\hline
+        \SI{2000}{\litre} & \SI{2222.0}{} & \SI{95.64}{}\\
+        \SI{4000}{\litre} & \SI{4444.0}{} & \SI{144.96}{}\\
+        \SI{5000}{\litre} & \SI{5556.0}{} & \SI{165.72}{}\\
+        \SI{8000}{\litre} & \SI{8889.0}{} & \SI{219.71}{}\\
+        \SI{10000}{\litre} & \SI{11111.0}{} & \SI{251.19}{}\\
+        \SI{12000}{\litre} & \SI{13333.0}{} & \SI{280.23}{}\\
+        \SI{15000}{\litre} & \SI{16667.0}{} & \SI{320.37}{}\\
+        \SI{20000}{\litre} & \SI{22222.0}{} & \SI{380.73}{}\\
+        \SI{25000}{\litre} & \SI{27778.0}{} & \SI{435.28}{}\\
+    \end{tabular}
+\end{table}
+
 The vessel data will contain several parameters for each available vessel size,
 $m \in M$.
 A vessel data-set will contain entries for $\mathcal{M}$ vessel sizes:
@@ -89,26 +109,32 @@ decimal places.
 Note that the vessel volumes, $V_{m}$, are larger than the nominal volumes
 indicated in the `names' column.  The contents of the `names' column are
 treated as identifiers and are not used in any calculation.
+
+\section{Buffer Data}\label{S.bufferdata}
+
 \begin{table}[h!]
     \centering
-    \caption{Vessel data for large-scale example}
-    \label{tbl.vessel}
-    \begin{tabular}{l | r | r}
-        names & volumes & costs\\
-        & $V_{m}$ (l) & $c_{m}$ (--)\\\hline
-        \SI{2000}{\litre} & \SI{2222.0}{} & \SI{95.64}{}\\
-        \SI{4000}{\litre} & \SI{4444.0}{} & \SI{144.96}{}\\
-        \SI{5000}{\litre} & \SI{5556.0}{} & \SI{165.72}{}\\
-        \SI{8000}{\litre} & \SI{8889.0}{} & \SI{219.71}{}\\
-        \SI{10000}{\litre} & \SI{11111.0}{} & \SI{251.19}{}\\
-        \SI{12000}{\litre} & \SI{13333.0}{} & \SI{280.23}{}\\
-        \SI{15000}{\litre} & \SI{16667.0}{} & \SI{320.37}{}\\
-        \SI{20000}{\litre} & \SI{22222.0}{} & \SI{380.73}{}\\
-        \SI{25000}{\litre} & \SI{27778.0}{} & \SI{435.28}{}\\
+    \caption{Buffer data for large-scale example}
+    \label{tbl.buffer}
+    \begin{tabular}{l | c | c | c}
+        names & required volumes & use start times & use durations\\
+        & $U_{n}$ (l) & $t_{\mathit{USE},n}$ (h) & $\Delta t_{\mathit{USE},n}$
+        (h)\\ \hline
+        \text{Buffer \#1} & \SI{19676.0}{} & \SI{733.87}{} & \SI{48.99}{}\\
+        \text{Buffer \#2} & \SI{18528.0}{} & \SI{644.18}{} & \SI{36.95}{}\\
+        \text{Buffer \#3} & \SI{17346.0}{} & \SI{684.60}{} & \SI{49.27}{}\\
+        \text{Buffer \#4} & \SI{15055.0}{} & \SI{764.96}{} & \SI{28.01}{}\\
+        \text{Buffer \#5} & \SI{13896.0}{} & \SI{628.54}{} & \SI{52.59}{}\\
+        \text{Buffer \#6} & \SI{10267.0}{} & \SI{728.99}{} & \SI{53.12}{}\\
+        \text{Buffer \#7} & \SI{10070.0}{} & \SI{677.94}{} & \SI{20.86}{}\\
+        \text{Buffer \#8} & \SI{6797.0}{} & \SI{728.99}{} & \SI{53.12}{}\\
+        \text{Buffer \#9} & \SI{6716.0}{} & \SI{612.90}{} & \SI{70.40}{}\\
+        \text{Buffer \#10} & \SI{4632.0}{} & \SI{645.50}{} & \SI{35.63}{}\\
+        \text{Buffer \#11} & \SI{3780.0}{} & \SI{729.34}{} & \SI{43.19}{}\\
+        \text{Buffer \#12} & \SI{3694.0}{} & \SI{678.92}{} & \SI{42.17}{}\\
     \end{tabular}
 \end{table}
 
-\section{Buffer Data}\label{S.bufferdata}
 The buffer data will contain several parameters for each buffer to be prepared,
 $n \in N$.
 A buffer data-set will contain entries for $\mathcal{N}$ buffers:
@@ -160,36 +186,21 @@ batch).
 
 Sample buffer data are given in \hyperref[tbl.buffer]{Table \ref*{tbl.buffer}}.
 
-\begin{table}[h!]
-    \centering
-    \caption{Buffer data for large-scale example}
-    \label{tbl.buffer}
-    \begin{tabular}{l | c | c | c}
-        names & required volumes & use start times & use durations\\
-        & $U_{n}$ (l) & $t_{\mathit{USE},n}$ (h) & $\Delta t_{\mathit{USE},n}$
-        (h)\\ \hline
-        \text{Buffer \#1} & \SI{19676.0}{} & \SI{733.87}{} & \SI{48.99}{}\\
-        \text{Buffer \#2} & \SI{18528.0}{} & \SI{644.18}{} & \SI{36.95}{}\\
-        \text{Buffer \#3} & \SI{17346.0}{} & \SI{684.60}{} & \SI{49.27}{}\\
-        \text{Buffer \#4} & \SI{15055.0}{} & \SI{764.96}{} & \SI{28.01}{}\\
-        \text{Buffer \#5} & \SI{13896.0}{} & \SI{628.54}{} & \SI{52.59}{}\\
-        \text{Buffer \#6} & \SI{10267.0}{} & \SI{728.99}{} & \SI{53.12}{}\\
-        \text{Buffer \#7} & \SI{10070.0}{} & \SI{677.94}{} & \SI{20.86}{}\\
-        \text{Buffer \#8} & \SI{6797.0}{} & \SI{728.99}{} & \SI{53.12}{}\\
-        \text{Buffer \#9} & \SI{6716.0}{} & \SI{612.90}{} & \SI{70.40}{}\\
-        \text{Buffer \#10} & \SI{4632.0}{} & \SI{645.50}{} & \SI{35.63}{}\\
-        \text{Buffer \#11} & \SI{3780.0}{} & \SI{729.34}{} & \SI{43.19}{}\\
-        \text{Buffer \#12} & \SI{3694.0}{} & \SI{678.92}{} & \SI{42.17}{}\\
-    \end{tabular}
-\end{table}
-
 \section{Parameters}\label{S.parameters}
+
+\begin{figure}
+    \centering
+    \includegraphics[angle=0,scale=0.55]{./figures/explanatory.pdf}
+    \caption{Equipment time utilisation for a single buffer}
+    \label{fig.explanatory}
+\end{figure}
 
 In addition to the buffer-specific and vessel-specific data detailed above,
 some global parameters are required to specify the problem.
 For the large-scale example, these parameters are tabulated in
 \hyperref[tbl.parameters]{Table \ref*{tbl.parameters}} and are described in
 more detail hereafter.
+
 \begin{table}[h!]
     \centering
     \caption{Global parameters for large-scale example}
@@ -209,8 +220,6 @@ more detail hereafter.
     \end{tabular}
 \end{table}
 
-%TODO
-\textbf{TODO: Describe parameters}
 The first parameter sepcified is the cycle time, $\lambda$.  We are concerned
 with the steady-state operation of the process, so the cycle time can be
 thought of as the duration from some fixed point in one batch to the same
@@ -304,9 +313,98 @@ maintained at some value to allow for some overhead in the design.
 
 \section{Output Data}\label{S.outputdata}
 
+This section describes the format of the outputs generated by the model, rather
+than the values of the results themselves, which are discussed in detail in 
+\hyperref[C.results]{Chapter \ref*{C.results}}.
+
+The primary aim is to generate a list of the required preparation volumes.
+For the example used in this chapter, the following table of results may be
+generated.
+
+\begin{table}[h!]
+    \centering
+    \caption{Required preparation vessels for large-scale example}
+    \label{tbl.reqvessels}
+    \begin{tabular}{r}
+        vessel size\\ \hline
+        \SI{8000}{\litre}\\
+        \SI{10000}{\litre}\\
+        \SI{15000}{\litre}\\
+        \SI{20000}{\litre}\\
+    \end{tabular}
+\end{table}
+
+While the above table gives the essential information allowing the buffer
+preparation area to be sized and costed, it may be more instructive to return
+a matrix showing where each buffer is to be prepared.
+Such a matrix is shown in the table below.
+
+\begin{table}[h!]
+    \centering
+    \caption{Buffer / vessel matrix for large-scale example}
+    \label{tbl.bvmatrix}
+    \begin{tabular}{l | c | c | c | c }
+        & \SI{8000}{\litre} & \SI{10000}{\litre} & \SI{15000}{\litre} &
+        \SI{20000}{\litre}\\ \hline
+        Buffer \#1  &   &   &   & * \\
+        Buffer \#2  &   &   &   & * \\
+        Buffer \#3  &   &   &   & * \\
+        Buffer \#4  &   &   & * &   \\
+        Buffer \#5  &   &   &   & * \\
+        Buffer \#6  &   &   & * &   \\
+        Buffer \#7  &   & * &   &   \\
+        Buffer \#8  &   &   & * &   \\
+        Buffer \#9  & * &   &   &   \\
+        Buffer \#10 & * &   &   &   \\
+        Buffer \#11 & * &   &   &   \\
+        Buffer \#12 &   &   &   &   \\
+    \end{tabular}
+\end{table}
+
+Note that it is unlikely that there may exist more than one possible optimal
+version of table xxx, especially if costs were scaled non-lineraly with vessel
+volumes.
+For the table above, many optimal version may exist; e.g. it may be possible to
+switch the vessels in which buffers are prepared and still end up with the same
+optimal vessel selection.
+This phenomenon is dealt with in more detail in Section xxx.
+
+While the above succinct table does give more information, it still doesn't
+visibly confirm to the reader that the solution is feasible.
+An equipment time utilisation plot provides a clear visual illustration of a
+solution and displays a feasible schedule.
+The explanatory plot in Figure xxx is an example of an equipment time
+utilisation plot.  
+An equipment time utilisation plot for the large-scale example covered in this
+chapter is displayed below.
 \begin{figure}
     \centering
-    \includegraphics[angle=0,scale=0.55]{./figures/explanatory.pdf}
-    \caption{Equipment Time Utilisation for a Single Buffer}
-    \label{fig.explanatory}
+    \includegraphics[angle=0,scale=0.55]{../examples/large-scale/plot1.pdf}
+    \caption{Equipment time utilisation for large-scale example}
+    \label{fig.etu1}
 \end{figure}
+Each horizontal entry represents a piece of equipment (preparation or hold
+vessels in this case).
+The presence of a bar indicates that the respective piece of equipment is in
+use.  
+The hatched bars indicate transfers, with backslash hatching representing the
+transfer from the buffer preparation vessel to the buffer hold vessel and
+forward-slash hatching representing the transfer of buffer from the hold vessel
+to the process.
+The latter is shown as a contiguous bar in the hold vessel, representing the
+period from the start of the first use to the end of the last use of the buffer
+in a given batch, although the demand from the process may be discontinuous.
+
+Note that the time window shown in the plot is of a single cycle at
+steady-state; the next cycle and the previous cycle would be identical.
+In a sense, the offest of the single-cycle window is somewhat arbitrary; the
+plot can be thought of as a cylinder that has been cut at right angles to its
+ends and flattened out.
+As it happens, for the buffers shown, none of their hold procedures start and
+finish in the same cycle; they all overlap the cycle boundaries.
+
+It should be noted also that the plot does not highlight which batches the
+procedures belong to.
+The entire downstream process may take more than one cycle to complete, so the
+window visible in the plot could be showing buffer preparation and hold
+procedures from several succesive batches.
