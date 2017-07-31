@@ -2,6 +2,7 @@ import matplotlib.cm
 import matplotlib.pyplot
 import numpy
 import pylatexenc.latexencode
+from scipy.misc import comb
 
 def single_cycle_plot(parameters, buffers, vessels, filename=None):    
     # TODO: add legend, naming convention changes, include hatching / sub-bars
@@ -19,7 +20,7 @@ def single_cycle_plot(parameters, buffers, vessels, filename=None):
     P = N  # number of slots    
     ct = parameters.cycle_time
        
-    colors=list(matplotlib.cm.tab20(numpy.linspace(0,1,N)))
+    colors = list(matplotlib.cm.tab20(numpy.linspace(0,1,N)))
     
     used_slots = set(buffers.prep_slots)
     nslots = len(used_slots)
@@ -113,7 +114,7 @@ def single_cycle_plot(parameters, buffers, vessels, filename=None):
         matplotlib.pyplot.show()
 
 
-def explanatory_plot(filename=None):
+def explanatory_plot():
     matplotlib.pyplot.rc("text", usetex=True)
     matplotlib.pyplot.rc("font", family="serif")
     matplotlib.rcParams["hatch.linewidth"] = 0.5
@@ -180,11 +181,45 @@ def explanatory_plot(filename=None):
             
     matplotlib.pyplot.title("Equipment Time Utilisation for One Cycle")
     matplotlib.pyplot.tight_layout()
+    matplotlib.pyplot.savefig("explanatory.pdf")
+
+
+
+def complexity_plot(parameter):
+    matplotlib.pyplot.rc("text", usetex=True)
+    matplotlib.pyplot.rc("font", family="serif")
+    fig, ax = matplotlib.pyplot.subplots(figsize=(5.5, 3))
+    N = numpy.arange(1, 41, 1)
     
-    if filename:
-        matplotlib.pyplot.savefig(filename)
+    # baselines
+    ax.plot(N, N, "--k", linewidth=1, label="$N$")
+    ax.scatter(N[1:], comb(N[1:], 2), label="${{N}\choose{2}}$", marker=".",
+               color="k", s=2)
+    ax.plot(N, N**2, "-.k", linewidth=1, label="$N^2$")
+    ax.plot(N, N**3, "-k", dashes=[4, 2, 1, 2, 1, 2], linewidth=1, 
+            label="$N^3$")
+    
+    if parameter == "dimensions":
+        # basic model
+        ax.scatter(N, 2 * N**2, label="basic model", marker="^")
+        # complete model
+        complete_dims = (N[1:] + 2) * comb(N[1:], 2) + 2 * (N[1:]**2 + N[1:])
+        ax.scatter(N[1:], complete_dims, label="complete model", marker="o")
+    elif parameter == "equations":
+        # basic model
+        ax.scatter(N, 2 * N**2 + 3 * N + 1, label="basic model", marker="^")
+        # complete model
+        complete_eqns = (3 * N[1:]**2  + 7 * comb(N[1:], 2) + 6 * N[1:] + 1)
+        ax.scatter(N[1:], complete_eqns, label="complete model", marker="o")
     else:
-        matplotlib.pyplot.show()
+        raise ValueError("{} is not a valid parameter".format(parameter))
+    
+    ax.set_yscale("log")
+    ax.set_xlabel("number of buffers, $N$")
+    ax.set_ylabel("number of {}".format(parameter))
+    matplotlib.pyplot.legend(loc=0, ncol=3)
+    matplotlib.pyplot.tight_layout()
+    matplotlib.pyplot.savefig("{}.pdf".format(parameter))
 
 
 # If cyclic operation continues past end of cycle, split into two operations
@@ -199,5 +234,7 @@ def cyclic_xranges(start_time, duration, ct):
 
 if __name__ == "__main__":
 
-    explanatory_plot("explanatory.pdf")
+    explanatory_plot()
+    complexity_plot("dimensions")
+    complexity_plot("equations")
     
