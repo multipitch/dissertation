@@ -24,10 +24,18 @@ His errors are volitional and are the portals of discovery.
 \end{quote}
 
 \section{Introduction}\label{S.intro5}
-
+\begin{figure}
+    \centering
+    \includegraphics[angle=0,scale=0.55]{../examples/large-scale/plot2.pdf}
+    \caption{Equipment time utilisation for large-scale example}
+    \label{fig.etu}
+\end{figure}
 The equipment time utilisation plot for the sample data given in 
 \hyperref[C.data]{Chapter \ref*{C.data}} is given in
 \hyperref[fig.etu]{Figure \ref*{fig.etu}}.
+
+%TODO
+\textbf{TODO: discuss results}
 
 %TODO
 \textbf{TODO: generate more datasets}
@@ -45,19 +53,6 @@ The equipment time utilisation plot for the sample data given in
     \caption{Model complexity -- equations}
     \label{fig.eqns}
 \end{figure}
-\begin{table}[h!]
-    \centering
-    \caption{Model complexity}
-    \label{tbl.complexity1}
-    \begin{tabular}{l | c | c}
-        model & no. of dimensions & no. of equations\\ \hline
-        basic & $\mathcal{N}^2 + \mathcal{N} \mathcal{M}$
-            & $2\mathcal{N}^2 + 3\mathcal{N} + 1$\\
-        complete & $\mathcal{N} {{\mathcal{N}}\choose{2}}
-            + 2\mathcal{N}^2 + 2\mathcal{N} +\mathcal{N} \mathcal{M}$
-            & $3\mathcal{N} + 7{{\mathcal{N}}\choose{2}} + 6\mathcal{N} + 1$\\
-    \end{tabular}
-\end{table}
 The notation for complexity in this section is according to \citet{Knuth:1976}.
 
 Noting that there is a weak dependence on $\mathcal{M}$ and that as the problem
@@ -72,10 +67,9 @@ be used as a conservative simplification when considering complexity.
         model & no. of dimensions & no. of equations\\ \hline
         basic & $\mathcal{N}^2 + \mathcal{N} \mathcal{M}$
             & $2\mathcal{N}^2 + 3\mathcal{N} + 1$\\
-        complete & $\mathcal{N} {{\mathcal{N}}\choose{2}} + \mathcal{N}^2
-            + 2{{\mathcal{N}}\choose{2}} + 2\mathcal{N} 
-            + \mathcal{N} \mathcal{M}$
-            & $3\mathcal{N}^2 + 7{{\mathcal{N}}\choose{2}} + 6\mathcal{N} +1$\\
+        complete & $\mathcal{N} {{\mathcal{N}}\choose{2}}
+            + 2\mathcal{N}^2 + 2\mathcal{N} +\mathcal{N} \mathcal{M}$
+            & $3\mathcal{N} + 7{{\mathcal{N}}\choose{2}} + 6\mathcal{N} + 1$\\
     \end{tabular}
 \end{table}
 \begin{table}[h!]
@@ -101,11 +95,3 @@ $\Theta \left( \mathcal{N}^2 \right)$.
 %TODO
 \textbf{TODO: time taken as a function of input size and as a function of 
     solver choice}
-
-\newpage
-\begin{figure}
-    \centering
-    \includegraphics[angle=0,scale=0.55]{../examples/large-scale/plot2.pdf}
-    \caption{Equipment time utilisation for large-scale example}
-    \label{fig.etu}
-\end{figure}

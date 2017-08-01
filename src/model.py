@@ -9,6 +9,8 @@ import argparse
 import configparser
 import csv
 import os
+import random
+import timeit
 
 import numpy
 import pulp
@@ -52,11 +54,16 @@ else:
 
 class Parameters:
     
-    def __init__(self, filename=PARAMETERS):
-        file_parser = configparser.SafeConfigParser()
-        file_parser.read(filename)
-        parameters = file_parser.items("parameters")
-        self.input_dict = dict([(p[0], float(p[1])) for p in parameters])
+    def __init__(self, data=PARAMETERS):
+        if type(data) == str:
+            file_parser = configparser.SafeConfigParser()
+            file_parser.read(data)
+            parameters = file_parser.items("parameters")
+            self.input_dict = dict([(p[0], float(p[1])) for p in parameters])
+        elif type(data) == dict:
+            self.input_dict = data
+        else:
+            raise TypeError("data should be a filename string or a dict")        
         self.cycle_time = self.input_dict["cycle_time"]
         self.prep_pre_duration = self.input_dict["prep_pre_duration"]
         self.prep_post_duration = self.input_dict["prep_post_duration"]
@@ -82,21 +89,30 @@ class Parameters:
 
 class Vessels:
     
-    def __init__(self, filename=VESSELS):
-        self.filename = filename
-        self.input_dict = csv_columns_to_dict_of_lists(self.filename)
+    def __init__(self, data=VESSELS):
+        if type(data) == str:
+            self.input_dict = csv_columns_to_dict_of_lists(data)            
+        elif type(data) == dict:
+            self.input_dict = data
+        else:
+            raise TypeError("data should be a filename string or a dict")   
         self.names = self.input_dict["names"]
         self.volumes = self.input_dict["volumes"]
         self.costs = self.input_dict["costs"]
         self.max_volume = max(self.volumes)
+        self.min_volume = min(self.volumes)
         self.count = len(self.names)
 
 
 class Buffers:
     
-    def __init__(self, cycle_time, filename=BUFFERS):
-        self.filename = filename
-        self.input_dict = csv_columns_to_dict_of_lists(self.filename)
+    def __init__(self, cycle_time, data=BUFFERS):
+        if type(data) == str:
+            self.input_dict = csv_columns_to_dict_of_lists(data)        
+        elif type(data) == dict:
+            self.input_dict = data
+        else:
+            raise TypeError("data should be a filename string or a dict")  
         self.names = self.input_dict["names"]
         self.volumes = self.input_dict["volumes"]
         self.absolute_use_start_times = self.input_dict["use_start_times"]
@@ -379,16 +395,63 @@ def secondary_objective(problem, variables, buffers, vessels,
     problem += sum([variables.z.o[n] for n in ns])
 
 
-if __name__ == "__main__":
-    from plots import single_cycle_plot
+def generate_random_model(N, min_duration_ratio=0.2, max_duration_ratio=0.9):
+    parameters = Parameters()
+    vessels = Vessels()
+    buffer_dict = {"names": [], "volumes": [], "use_start_times": [],
+                   "use_durations": []}
+                   
+    ct = parameters.cycle_time
+    max_vol = vessels.max_volume
+    min_vol = vessels.min_volume * parameters.minimum_fill_ratio
+    min_duration = min_duration_ratio * ct
+    max_feasible_duration = ct - (parameters.hold_pre_duration
+                                  + parameters.transfer_duration
+                                  + parameters.hold_duration_min
+                                  + parameters.hold_post_duration)
+    max_duration = max_feasible_duration * max_duration_ratio    
     
-    # TODO: error handling for failed optimisations
+    for n in range(N):
+        buffer_dict["names"].append("Buffer {}".format(n + 1))      
+        buffer_dict["volumes"].append(random.uniform(min_vol, max_vol))
+        buffer_dict["use_start_times"].append(random.uniform(0, ct))
+        buffer_dict["use_durations"].append(random.uniform(min_duration,
+                                                           max_duration))
     
+    buffers = Buffers(parameters.cycle_time, buffer_dict)
+    
+    return parameters, vessels, buffers
+
+    
+def run_random_models(sizes, count=100, verbose=False):
+    random.seed(3876401295) # for repeatability
+    durations = {}
+    for N in sizes:
+        durations[N] = {}
+        durations_ = []
+        for c in range(count):
+            parameters, vessels, buffers = generate_random_model(N)
+            problem, variables = define_problem(parameters, buffers, vessels)
+            initial_objective(problem, variables, buffers, vessels)
+            start = timeit.default_timer()
+            problem.solve(SOLVER)
+            end = timeit.default_timer()
+            if problem.status != 1:
+                raise Exception("Problem size {}, run {} cannot be optimised"
+                                .format(N, c))
+            duration = end - start
+            durations_.append(duration)
+            durations[N][c] = duration
+            print("\n\n Completed run {}, size {}\n\n".format(c, N))
+        durations[N]["avg"] = sum(durations_) / len(durations_)
+    return durations
+
+    
+def run_primary():
     parameters = Parameters()
     buffers = Buffers(parameters.cycle_time)
     vessels = Vessels() 
-    problem, variables = define_problem(parameters, buffers, vessels)
-    
+    problem, variables = define_problem(parameters, buffers, vessels)    
     # Optimise for initial objective: minimise cost
     initial_objective(problem, variables, buffers, vessels)
     problem.solve(SOLVER)
@@ -397,14 +460,32 @@ if __name__ == "__main__":
     results = Results(variables)
     buffers.get_results(parameters, results)
     single_cycle_plot(parameters, buffers, vessels, (PATH + "plot1.pdf"))
-    
+    return (parameters, buffers, vessels, problem, variables,
+            initial_objective_value)
+
+
+def run_secondary(parameters, buffers, vessels, problem, variables,
+                  initial_objective_value):
     # Optimise for secondary objective: minimise hold times
     secondary_objective(problem, variables, buffers, vessels,
                         initial_objective_value)
     problem.solve(SOLVER)
     print("Status:", pulp.LpStatus[problem.status])
-    
+    secondary_objective_value = pulp.value(problem.objective)
     results = Results(variables)
     buffers.get_results(parameters, results)
     single_cycle_plot(parameters, buffers, vessels, (PATH + "plot2.pdf"))
+    return (parameters, buffers, vessels, problem, variables,
+            secondary_objective_value)
+
+            
+if __name__ == "__main__":
+    from plots import single_cycle_plot
+    
+    # TODO: error handling for failed optimisations
+    
+    #primary = run_primary()
+    #secondary = run_secondary(*primary)
+    
+    #durations = run_random_models([2, 4, 6, 8, 10, 12, 14, 16])
     
