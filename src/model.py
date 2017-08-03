@@ -31,6 +31,7 @@ parser.add_argument("-s", "--solver", default="", type=str,
 
 
 # globals
+DEADBAND = 0.01
 ARGS = parser.parse_args()
 PATH = os.path.abspath(os.path.expanduser(ARGS.path)) + "/"
 PARAMETERS = PATH + ARGS.parameters
@@ -78,13 +79,6 @@ class Parameters:
         self.prep_total_duration = (self.prep_pre_duration
                                     + self.transfer_duration
                                     + self.prep_post_duration)
-    
-    def __repr__(self):
-        lines = ""
-        for k, v in self.__dict__.items():
-            if k != "input_dict":
-                lines += "{}: {}\n".format(k,v)
-        return lines[:-1] # strip trailing newline
 
 
 class Vessels:
@@ -272,6 +266,7 @@ def define_problem(parameters, buffers, vessels):
     ps = list(range(P))
     
     ct = parameters.cycle_time
+    ct_ = ct * (1 - DEADBAND)
     t_use = buffers.use_start_times
     
     # Problem
@@ -342,6 +337,9 @@ def define_problem(parameters, buffers, vessels):
     for n in ns:
         problem += z.o[n] - ct * q.o[n] <= buffers.use_start_times[n]
         problem += z.o[n] - ct * q.o[n] >= buffers.use_start_times[n] - ct
+        # added to avoid edge case:
+        #problem += z.o[n] - ct * q.o[n] >= buffers.use_start_times[n] - ct_
+        #problem += z.o[n] <= buffers.use_start_times[n] - DEADBAND
     
     # For each pair of distinct buffers, indicate if the first buffer is
     # prepared after the second (unconstrained if simultaneous)
@@ -355,13 +353,21 @@ def define_problem(parameters, buffers, vessels):
     # Each prep vessel can only do one thing at a time
     big_M = 2 * ct
     for n in ns:
-        for k in range(n + 1, N):
+        for k in range(n + 1, N):            
+            problem += (z.o[n] - z.o[k] - big_M * v.o[n][k]
+                        >= t_use[n] - t_use[k] + parameters.prep_total_duration
+                        - big_M)
+            problem += (z.o[k] - z.o[n] - big_M * v.o[n][k]
+                        >= t_use[k] - t_use[n] + parameters.prep_total_duration
+                        - big_M)
+            """
             problem += (z.o[n] - z.o[k] + big_M * u.o[n][k] - big_M * v.o[n][k]
                         >= t_use[n] - t_use[k] + parameters.prep_total_duration
                         - big_M)
             problem += (z.o[k] - z.o[n] - big_M * u.o[n][k] - big_M * v.o[n][k]
                         >= t_use[k] - t_use[n] + parameters.prep_total_duration
                         - 2 * big_M)
+            """
     
     # In each slot, utilisation ratio must be below a maximum value
     mpu = parameters.maximum_prep_utilisation
@@ -395,7 +401,8 @@ def secondary_objective(problem, variables, buffers, vessels,
     problem += sum([variables.z.o[n] for n in ns])
 
 
-def generate_random_model(N, min_duration_ratio=0.2, max_duration_ratio=0.9):
+def generate_random_model(N, min_duration_ratio=0.2, max_duration_ratio=0.9,
+                          to_file=False):
     parameters = Parameters()
     vessels = Vessels()
     buffer_dict = {"names": [], "volumes": [], "use_start_times": [],
@@ -412,14 +419,24 @@ def generate_random_model(N, min_duration_ratio=0.2, max_duration_ratio=0.9):
     max_duration = max_feasible_duration * max_duration_ratio    
     
     for n in range(N):
-        buffer_dict["names"].append("Buffer {}".format(n + 1))      
-        buffer_dict["volumes"].append(random.uniform(min_vol, max_vol))
-        buffer_dict["use_start_times"].append(random.uniform(0, ct))
-        buffer_dict["use_durations"].append(random.uniform(min_duration,
-                                                           max_duration))
-    
+        buffer_dict["names"].append("Buffer #{}".format(n + 1))  
+        volume = round(random.uniform(min_vol, max_vol), 2)
+        buffer_dict["volumes"].append(volume)
+        use_start_time = round(random.uniform(0, ct), 2)
+        buffer_dict["use_start_times"].append(use_start_time)
+        use_duration = round(random.uniform(min_duration, max_duration), 2)
+        buffer_dict["use_durations"].append(use_duration)
+       
+    if to_file:
+        with open("buffers.csv", "w") as f:
+            w = csv.writer(f, delimiter=",", quoting=csv.QUOTE_NONNUMERIC,
+                           quotechar="\"",)
+            keys = ["names", "volumes", "use_start_times", "use_durations"]
+            w.writerow(keys)
+            w.writerows(zip(*[buffer_dict[key] for key in keys]))
+            return
+
     buffers = Buffers(parameters.cycle_time, buffer_dict)
-    
     return parameters, vessels, buffers
 
     
