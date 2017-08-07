@@ -268,13 +268,18 @@ def define_problem(parameters, buffers, vessels):
     ct = parameters.cycle_time
     ct_ = ct * (1 - DEADBAND)
     t_use = buffers.use_start_times
+    t_prep = parameters.prep_total_duration
     
     # Problem
     problem = pulp.LpProblem("Buffer Preparation Vessel Selection",
                              pulp.LpMinimize)
     
     # Variables
+    l = Variable("l", (N,), 0, 1, "Integer")
+    o = Variable("o", (N,), 0, 1, "Integer")
     q = Variable("q", (N,), 0, 1, "Integer")
+    r = Variable("r", (N,), 0, 1, "Integer")
+    s = Variable("s", (N,), 0, 1, "Integer")
     u = Variable("u", (N, N), 0, 1, "Integer")
     v = Variable("v", (N, N), 0, 1, "Integer")
     w = Variable("w", (N, N, P), 0, 1, "Integer")
@@ -337,10 +342,11 @@ def define_problem(parameters, buffers, vessels):
     for n in ns:
         problem += z.o[n] - ct * q.o[n] <= buffers.use_start_times[n]
         problem += z.o[n] - ct * q.o[n] >= buffers.use_start_times[n] - ct
-        # added to avoid edge case:
+        ## added to avoid edge case:
         #problem += z.o[n] - ct * q.o[n] >= buffers.use_start_times[n] - ct_
         #problem += z.o[n] <= buffers.use_start_times[n] - DEADBAND
     
+    """
     # For each pair of distinct buffers, indicate if the first buffer is
     # prepared after the second (unconstrained if simultaneous)
     for n in ns:
@@ -349,11 +355,39 @@ def define_problem(parameters, buffers, vessels):
                         + ct * q.o[k] >= t_use[n] - t_use[k])
             problem += (z.o[n] - z.o[k] + ct * u.o[n][k] - ct * q.o[n]
                         + ct * q.o[k] <= t_use[n] - t_use[k] + ct)
+    """
+    # Stuff for scheduling  -TODO: explain in more detail:
+    for n in ns:
+        problem += ct * l.o[n] + ct * q.o[n] - z.o[n] <= t_prep - t_use[n] + ct
+        problem += ct * o.o[n] - ct * q.o[n] + z.o[n] <= t_prep + t_use[n]
+        problem += 2 * r.o[n] - l.o[n] - o.o[n] <= 0
+        problem += ct * r.o[n] + ct * q.o[n] - z.o[n] >= t_prep - t_use[n]
+        problem += ct * r.o[n] - ct * q.o[n] + z.o[n] >= t_prep + t_use[n] - ct
+        problem += -ct * q.o[n] + ct * s.o[n] + z.o[n] <= t_use[n] + 0.5 * ct
+        problem += -ct * q.o[n] + ct * s.o[n] + z.o[n] >= t_use[n] - 0.5 * ct
+                        
     
     # Each prep vessel can only do one thing at a time
     big_M = 2 * ct
     for n in ns:
-        for k in range(n + 1, N):            
+        for k in range(n + 1, N):
+            """
+            #problem += (z.o[n] - ct * q.o[n] 
+            #            - big_M * u.o[n][k] + big_M * v.o[n][k]
+            #            <= t_use[n] + big_M)
+            problem += (z.o[k] - z.o[n] - ct * q.o[k] + ct * q.o[n]
+                        - big_M * u.o[n][k] + big_M * v.o[n][k]
+                        <= t_use[k] - t_use[n] - t_prep)
+            problem += (z.o[k] - z.o[n] - ct * q.o[k] + ct * q.o[n]
+                        - big_M * u.o[n][k] - big_M * v.o[n][k]
+                        >= t_use[k] - t_use[n] + t_prep - 2 * big_M)
+            #problem += (z.o[n] - ct * q.o[n] 
+            #            - big_M * u.o[n][k] - big_M * v.o[n][k]
+            #            >= t_use[n] - ct - 2 * big_M)
+            """
+        
+        
+            """           
             problem += (z.o[n] - z.o[k] - big_M * v.o[n][k]
                         >= t_use[n] - t_use[k] + parameters.prep_total_duration
                         - big_M)
@@ -361,14 +395,35 @@ def define_problem(parameters, buffers, vessels):
                         >= t_use[k] - t_use[n] + parameters.prep_total_duration
                         - big_M)
             """
+            """
             problem += (z.o[n] - z.o[k] + big_M * u.o[n][k] - big_M * v.o[n][k]
+                        - ct * q.o[n] + ct * q.o[k] # test!
                         >= t_use[n] - t_use[k] + parameters.prep_total_duration
                         - big_M)
             problem += (z.o[k] - z.o[n] - big_M * u.o[n][k] - big_M * v.o[n][k]
+                        - ct * q.o[k] + ct * q.o[n] # test!
                         >= t_use[k] - t_use[n] + parameters.prep_total_duration
                         - 2 * big_M)
             """
-    
+            problem += (big_M * r.o[n] + ct * q.o[k] - ct * q.o[n] 
+                        + big_M * u.o[n][k] - big_M * v.o[n][k] - z.o[k] 
+                        + z.o [n] >= t_prep - t_use[k] + t_use[n] - big_M)
+            problem += (-big_M * r.o[n] + ct * q.o[k] - ct * q.o[n] 
+                        + big_M * u.o[n][k] + big_M * v.o[n][k] - z.o[k] 
+                        + z.o [n] <= -t_prep - t_use[k] + t_use[n] + 2 * big_M)
+            problem += (-big_M * r.o[n] + ct * q.o[k] - ct * q.o[n] 
+                        + big_M * s.o[n] + big_M * v.o[n][k] - z.o[k] + z.o [n]
+                        <= -t_prep - t_use[k] + t_use[n] + 2 * big_M)
+            problem += (big_M * r.o[n] + ct * q.o[k] - ct * q.o[n] 
+                        - big_M * s.o[n] - big_M * v.o[n][k] - z.o[k] + z.o [n]
+                        >= t_prep - t_use[k] + t_use[n] - 2 * big_M - ct)
+            problem += (big_M * r.o[n] + ct * q.o[k] - ct * q.o[n] 
+                        + big_M * s.o[n] - big_M * v.o[n][k] - z.o[k] + z.o [n]
+                        >= t_prep - t_use[k] + t_use[n] - big_M)
+            problem += (-big_M * r.o[n] + ct * q.o[k] - ct * q.o[n] 
+                        - big_M * s.o[n] + big_M * v.o[n][k] - z.o[k] + z.o [n]
+                        <= -t_prep - t_use[k] + t_use[n] + big_M + ct)
+                                                    
     # In each slot, utilisation ratio must be below a maximum value
     mpu = parameters.maximum_prep_utilisation
     ptd = parameters.prep_total_duration
@@ -500,9 +555,10 @@ if __name__ == "__main__":
     from plots import single_cycle_plot
     
     # TODO: error handling for failed optimisations
-    
-    #primary = run_primary()
-    #secondary = run_secondary(*primary)
+    #generate_random_model(12, min_duration_ratio=0.2, max_duration_ratio=0.9,
+    #                      to_file=True)
+    primary = run_primary()
+    secondary = run_secondary(*primary)
     
     #durations = run_random_models([2, 4, 6, 8, 10, 12, 14, 16])
     
