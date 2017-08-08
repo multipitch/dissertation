@@ -261,12 +261,7 @@ def define_problem(parameters, buffers, vessels):
     N = buffers.count
     P = N  # number of slots
     
-    ms = list(range(M))
-    ns = list(range(N))
-    ps = list(range(P))
-    
     ct = parameters.cycle_time
-    ct_ = ct * (1 - DEADBAND)
     t_use = buffers.use_start_times
     t_prep = parameters.prep_total_duration
     
@@ -275,185 +270,144 @@ def define_problem(parameters, buffers, vessels):
                              pulp.LpMinimize)
     
     # Variables
-    l = Variable("l", (N,), 0, 1, "Integer")
-    o = Variable("o", (N,), 0, 1, "Integer")
+    o = Variable("o", (N, N), 0, 1, "Integer")
     q = Variable("q", (N,), 0, 1, "Integer")
     r = Variable("r", (N,), 0, 1, "Integer")
     s = Variable("s", (N,), 0, 1, "Integer")
-    u = Variable("u", (N, N), 0, 1, "Integer")
+    u = Variable("u", (N,), 0, 1, "Integer")
     v = Variable("v", (N, N), 0, 1, "Integer")
     w = Variable("w", (N, N, P), 0, 1, "Integer")
     x = Variable("x", (N, P), 0, 1, "Integer")
-    y = Variable("y", (M, P), 0, 1, "Integer")
+    y = Variable("y", (M, P), 0, 1, "Integer")    
     z = Variable("z", (N,), parameters.hold_duration_min,
                  parameters.hold_duration_max, "Continuous")
     
     # Keep track of variables in a class
-    variables = Variables([q, u, v, w, x, y, z])
-    
-    # Objective Function
-    #problem += sum([vessels.costs[m] * y.o[m][p] for m in ms for p in ps])
+    variables = Variables([o, q, r, s, u, v, w, x, y, z])
     
     # A buffer may only be prepared in one slot
-    for n in ns:
-        problem += sum([x.o[n][p] for p in ps]) == 1
+    for n in range(N):
+        problem += sum([x.o[n][p] for p in range(P)]) == 1
     
     # Each slot can contain at most one vessel
-    for p in ps:
-        problem += sum([y.o[m][p] for m in ms]) <= 1
+    for p in range(P):
+        problem += sum([y.o[m][p] for m in range(M)]) <= 1
     
     # Vessels must be big enough for buffers
-    for n in ns:
-        for p in ps:
+    vessel_vs = vessels.volumes
+    for n in range(N):
+        for p in range(P):
             problem += (buffers.volumes[n] * x.o[n][p]
-                        <= sum([vessels.volumes[m] * y.o[m][p] for m in ms]))
+                        <= sum([vessel_vs[m] * y.o[m][p] for m in range(M)]))
     
     # Vessels must be small emough for buffers
     mfr = parameters.minimum_fill_ratio
-    for n in ns:
-        for p in ps:
+    for n in range(N):
+        for p in range(P):
             problem += (vessels.max_volume * x.o[n][p]
-                        + mfr * sum([vessels.volumes[m]*y.o[m][p] for m in ms])
-                        <= buffers.volumes[n]
-                        + vessels.max_volume)
+                        + mfr * sum([vessel_vs[m]*y.o[m][p] for m in range(M)])
+                        <= buffers.volumes[n] + vessels.max_volume)
     
-    # Total hold proceudre durations must be less than cycle time
-    for n in ns:
+    # Total hold procedure durations must be less than cycle time
+    for n in range(N):
         rhs = (ct - parameters.hold_pre_duration - parameters.transfer_duration
                - parameters.hold_post_duration - buffers.use_durations[n])
         problem += z.o[n] <= rhs
     
     # For each pair of distinct buffers, for each slot, indicate if both
     # buffers are prepared in the given slot
-    for n in ns:
+    for n in range(N):
         for k in range(n + 1, N):
-            for p in ps:
+            for p in range(P):
                 problem += x.o[n][p] + x.o[k][p] - w.o[n][k][p] <= 1
-                problem += 0.5 * x.o[n][p] + 0.5 * x.o[k][p] >= w.o[n][k][p]
+                problem += x.o[n][p] + x.o[k][p] >= 2 * w.o[n][k][p]
     
     # For each pair of distinct buffers, indicate if they are  prepared in the
     # same slot
-    for n in ns:
+    for n in range(N):
         for k in range(n + 1, N):
-            problem += sum([w.o[n][k][p] for p in ps]) - v.o[n][k] <= 0
+            problem += sum([w.o[n][k][p] for p in range(P)]) - v.o[n][k] <= 0
     
     # For each buffer, indicate if relative use start time minus hold time is
     # negative
-    for n in ns:
-        problem += z.o[n] - ct * q.o[n] <= buffers.use_start_times[n]
-        problem += z.o[n] - ct * q.o[n] >= buffers.use_start_times[n] - ct
-        ## added to avoid edge case:
-        #problem += z.o[n] - ct * q.o[n] >= buffers.use_start_times[n] - ct_
-        #problem += z.o[n] <= buffers.use_start_times[n] - DEADBAND
+    for n in range(N):
+        problem += ct * q.o[n] - z.o[n] >= - buffers.use_start_times[n]
+        problem += ct * q.o[n] - z.o[n] <= - buffers.use_start_times[n] + ct
+        
+    # For each buffer, indicate if upper bound of free time window is greater
+    # than the cycle time
+    for n in range(N):     
+        problem += - ct * q.o[n] + ct * r.o[n] + z.o[n] <= t_prep + t_use[n]
+        problem += (- ct * q.o[n] + ct * r.o[n] + z.o[n] 
+                    >= t_prep + t_use[n] - ct)
     
-    """
-    # For each pair of distinct buffers, indicate if the first buffer is
-    # prepared after the second (unconstrained if simultaneous)
-    for n in ns:
-        for k in range(n + 1, N):
-            problem += (z.o[n] - z.o[k] + ct * u.o[n][k] - ct * q.o[n] 
-                        + ct * q.o[k] >= t_use[n] - t_use[k])
-            problem += (z.o[n] - z.o[k] + ct * u.o[n][k] - ct * q.o[n]
-                        + ct * q.o[k] <= t_use[n] - t_use[k] + ct)
-    """
-    # Stuff for scheduling  -TODO: explain in more detail:
-    for n in ns:
-        problem += ct * l.o[n] + ct * q.o[n] - z.o[n] <= t_prep - t_use[n] + ct
-        problem += ct * o.o[n] - ct * q.o[n] + z.o[n] <= t_prep + t_use[n]
-        problem += 2 * r.o[n] - l.o[n] - o.o[n] <= 0
-        problem += ct * r.o[n] + ct * q.o[n] - z.o[n] >= t_prep - t_use[n]
-        problem += ct * r.o[n] - ct * q.o[n] + z.o[n] >= t_prep + t_use[n] - ct
-        problem += -ct * q.o[n] + ct * s.o[n] + z.o[n] <= t_use[n] + 0.5 * ct
-        problem += -ct * q.o[n] + ct * s.o[n] + z.o[n] >= t_use[n] - 0.5 * ct
-                        
+    # For each buffer, indicate if lower bound of free time window is less
+    # than zero
+    for n in range(N):
+        problem += ct * q.o[n] + ct * s.o[n] - z.o[n] >= t_prep - t_use[n]
+        problem += ct * q.o[n] + ct * s.o[n] - z.o[n] <= t_prep - t_use[n] + ct
+    
+    # For each buffer, indicate if free time window crosses cycle boundary
+    # (u = r xor s)
+    for n in range(N):
+        problem += r.o[n] + s.o[n] - u.o[n] >= 0
+        problem += r.o[n] + s.o[n] + u.o[n] <= 2
+        problem += r.o[n] - s.o[n] - u.o[n] <= 0
+        problem += r.o[n] - s.o[n] + u.o[n] >= 0
+    
     
     # Each prep vessel can only do one thing at a time
     big_M = 2 * ct
-    for n in ns:
+    for n in range(N):
         for k in range(n + 1, N):
-            """
-            #problem += (z.o[n] - ct * q.o[n] 
-            #            - big_M * u.o[n][k] + big_M * v.o[n][k]
-            #            <= t_use[n] + big_M)
-            problem += (z.o[k] - z.o[n] - ct * q.o[k] + ct * q.o[n]
-                        - big_M * u.o[n][k] + big_M * v.o[n][k]
-                        <= t_use[k] - t_use[n] - t_prep)
-            problem += (z.o[k] - z.o[n] - ct * q.o[k] + ct * q.o[n]
-                        - big_M * u.o[n][k] - big_M * v.o[n][k]
-                        >= t_use[k] - t_use[n] + t_prep - 2 * big_M)
-            #problem += (z.o[n] - ct * q.o[n] 
-            #            - big_M * u.o[n][k] - big_M * v.o[n][k]
-            #            >= t_use[n] - ct - 2 * big_M)
-            """
-        
-        
-            """           
-            problem += (z.o[n] - z.o[k] - big_M * v.o[n][k]
-                        >= t_use[n] - t_use[k] + parameters.prep_total_duration
-                        - big_M)
-            problem += (z.o[k] - z.o[n] - big_M * v.o[n][k]
-                        >= t_use[k] - t_use[n] + parameters.prep_total_duration
-                        - big_M)
-            """
-            """
-            problem += (z.o[n] - z.o[k] + big_M * u.o[n][k] - big_M * v.o[n][k]
-                        - ct * q.o[n] + ct * q.o[k] # test!
-                        >= t_use[n] - t_use[k] + parameters.prep_total_duration
-                        - big_M)
-            problem += (z.o[k] - z.o[n] - big_M * u.o[n][k] - big_M * v.o[n][k]
-                        - ct * q.o[k] + ct * q.o[n] # test!
-                        >= t_use[k] - t_use[n] + parameters.prep_total_duration
-                        - 2 * big_M)
-            """
-            problem += (big_M * r.o[n] + ct * q.o[k] - ct * q.o[n] 
-                        + big_M * u.o[n][k] - big_M * v.o[n][k] - z.o[k] 
-                        + z.o [n] >= t_prep - t_use[k] + t_use[n] - big_M)
-            problem += (-big_M * r.o[n] + ct * q.o[k] - ct * q.o[n] 
-                        + big_M * u.o[n][k] + big_M * v.o[n][k] - z.o[k] 
-                        + z.o [n] <= -t_prep - t_use[k] + t_use[n] + 2 * big_M)
-            problem += (-big_M * r.o[n] + ct * q.o[k] - ct * q.o[n] 
-                        + big_M * s.o[n] + big_M * v.o[n][k] - z.o[k] + z.o [n]
-                        <= -t_prep - t_use[k] + t_use[n] + 2 * big_M)
-            problem += (big_M * r.o[n] + ct * q.o[k] - ct * q.o[n] 
-                        - big_M * s.o[n] - big_M * v.o[n][k] - z.o[k] + z.o [n]
-                        >= t_prep - t_use[k] + t_use[n] - 2 * big_M - ct)
-            problem += (big_M * r.o[n] + ct * q.o[k] - ct * q.o[n] 
-                        + big_M * s.o[n] - big_M * v.o[n][k] - z.o[k] + z.o [n]
+            problem += (ct * q.o[k] - ct * q.o[n] + ct * r.o[n] 
+                        - big_M * u.o[n] - big_M * v.o[n][k]
+                        - z.o[k] + z.o[n]
+                        >= t_prep - t_use[k] + t_use[n] - 2 * big_M)
+            problem += (ct * q.o[k] - ct * q.o[n] - ct * s.o[n] 
+                        + big_M * u.o[n] + big_M * v.o[n][k]
+                        - z.o[k] + z.o[n]
+                        <= - t_prep - t_use[k] + t_use[n] + 2 * big_M)
+            problem += (ct * q.o[k] - ct * q.o[n] + ct * r.o[n] 
+                        + big_M * u.o[n] - big_M * v.o[n][k]
+                        + big_M * o.o[n][k] - z.o[k] + z.o[n]
                         >= t_prep - t_use[k] + t_use[n] - big_M)
-            problem += (-big_M * r.o[n] + ct * q.o[k] - ct * q.o[n] 
-                        - big_M * s.o[n] + big_M * v.o[n][k] - z.o[k] + z.o [n]
-                        <= -t_prep - t_use[k] + t_use[n] + big_M + ct)
-                                                    
+            problem += (ct * q.o[k] - ct * q.o[n] - ct * s.o[n] 
+                        - big_M * u.o[n] + big_M * v.o[n][k]
+                        - big_M * o.o[n][k] - z.o[k] + z.o[n]
+                        <= - t_prep - t_use[k] + t_use[n])
+
     # In each slot, utilisation ratio must be below a maximum value
     mpu = parameters.maximum_prep_utilisation
     ptd = parameters.prep_total_duration
-    for p in ps:
-        problem += sum([x.o[n][p] for n in ns]) * ptd <= ct * mpu
+    for p in range(P):
+        problem += sum([x.o[n][p] for n in range(N)]) * ptd <= ct * mpu
     return problem, variables
 
 
 def initial_objective(problem, variables, buffers, vessels):
-    ms = range(vessels.count)
-    ps = range(buffers.count)
-    y = variables.y
+    M = vessels.count
+    N = buffers.count
+    P = N  # number of slots
     
     # Minimise total vessel cost
-    problem += sum([vessels.costs[m] * y.o[m][p] for m in ms for p in ps])
+    problem += sum([vessels.costs[m] * variables.y.o[m][p] 
+                    for m in range(M) for p in range(P)])
 
 
 def secondary_objective(problem, variables, buffers, vessels,
                         initial_objective_value):
-    ns = range(buffers.count)
-    ms = range(vessels.count)
-    ps = ns
-    y = variables.y
+    M = vessels.count
+    N = buffers.count
+    P = N  # number of slots
     
     # Constrain total vessel cost to be equal to initial objective
-    problem += (sum([vessels.costs[m] * y.o[m][p] for m in ms for p in ps])
+    problem += (sum([vessels.costs[m] * variables.y.o[m][p] 
+                     for m in range(M) for p in range(P)])
                 == initial_objective_value)
     
     # Minimise sum of hold times
-    problem += sum([variables.z.o[n] for n in ns])
+    problem += sum([variables.z.o[n] for n in range(N)])
 
 
 def generate_random_model(N, min_duration_ratio=0.2, max_duration_ratio=0.9,
@@ -526,6 +480,7 @@ def run_primary():
     problem, variables = define_problem(parameters, buffers, vessels)    
     # Optimise for initial objective: minimise cost
     initial_objective(problem, variables, buffers, vessels)
+    #problem.writeLP("primary.lp")
     problem.solve(SOLVER)
     print("Status:", pulp.LpStatus[problem.status])
     initial_objective_value = pulp.value(problem.objective)
@@ -541,6 +496,7 @@ def run_secondary(parameters, buffers, vessels, problem, variables,
     # Optimise for secondary objective: minimise hold times
     secondary_objective(problem, variables, buffers, vessels,
                         initial_objective_value)
+    #problem.writeLP("secondary.lp")
     problem.solve(SOLVER)
     print("Status:", pulp.LpStatus[problem.status])
     secondary_objective_value = pulp.value(problem.objective)
