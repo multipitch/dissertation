@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-python ../../src/plots.py
+python3 ../../src/plots.py

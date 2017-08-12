@@ -110,6 +110,7 @@ def single_cycle_plot(parameters, buffers, vessels, filename=None):
     matplotlib.pyplot.tight_layout()
     if filename:
         matplotlib.pyplot.savefig(filename)
+        matplotlib.pyplot.close("all")
     else:
         matplotlib.pyplot.show()
 
@@ -182,8 +183,145 @@ def explanatory_plot():
     matplotlib.pyplot.title("Equipment Time Utilisation for One Cycle")
     matplotlib.pyplot.tight_layout()
     matplotlib.pyplot.savefig("explanatory.pdf")
+    matplotlib.pyplot.close("all")
 
+def sched_plot_single():
+    matplotlib.pyplot.rc("text", usetex=True)
+    matplotlib.pyplot.rc("font", family="serif")
+    matplotlib.rcParams["hatch.linewidth"] = 0.5
+    
+    reftime = 60
+    duration = 20
+    offset = -15
+    overhang = 10
+    xmin = 0
+    xmax = 100
+    ymin = 0
+    ymax = 100
+    thickness = 20
+    
+    fig, ax = matplotlib.pyplot.subplots(figsize=(8, 2))
+    
+    ymid = 0.5 * (ymin + ymax)
+    bottom = ymid - 0.5 * thickness    
+    leftstart = xmin - overhang
+    leftduration = reftime - duration - leftstart
+    leftmid = 0.5 * (xmin + reftime - duration)
+    rightstart = reftime + duration
+    rightduration = xmax + overhang - rightstart
+    rightmid = 0.5 * (reftime + duration + xmax)
+    prepmid = reftime + offset + 0.5 * duration
+    tprepn = "$\\textrm{\\boldmath$t$}_{\mathit{PREP},n}$"
+    tprepk = "$\\textrm{\\boldmath$t$}_{\mathit{PREP},k}$"
+    tupper = tprepn[:-1] + " - \Delta t_{\mathit{PREP}}$"
+    tlower = tprepn[:-1] + " + \Delta t_{\mathit{PREP}}$"
+    ax.broken_barh([(leftstart, leftduration), (rightstart, rightduration)],
+                   (bottom, thickness), facecolors="0.75", linestyle="None",
+                   zorder=3)
+    ax.broken_barh([(reftime + offset, duration)], (bottom, thickness),
+                   facecolors="white", edgecolors="black", linewidth=0.75,
+                   zorder=3)
+    ax.plot([reftime], [bottom + thickness], '.k', zorder=4)
+    ax.set_ylim(ymin, ymax)
+    ax.set_xlim(xmin, xmax)
+    ax.grid(axis="x", linestyle="solid", linewidth=1, zorder=0)
+    ax.grid(axis="y", linestyle="dashed", linewidth=1, zorder=0)
+    ax.set_xlabel("time (h)")
+    ax.set_yticks([ymid])
+    ax.set_xticks([xmin, reftime - duration, reftime, reftime + duration,
+                   xmax])
+    ax.set_xticklabels(["0", tupper, tprepn, tlower, "$T$"])               
+    ax.set_yticklabels(["vessel $p$"])
+    ax.text(leftmid, ymid, tprepk + " feasible region", fontsize=8,
+            horizontalalignment="center", verticalalignment="center", zorder=4)
+    ax.text(prepmid, ymid, "buffer $n$ prep. procedure", fontsize=8,
+            horizontalalignment="center", verticalalignment="center", zorder=4)
+    ax.text(rightmid, ymid, tprepk + " feasible region", fontsize=8,
+            horizontalalignment="center", verticalalignment="center", zorder=4)
+    
+            
+    matplotlib.pyplot.title("Equipment Time Utilisation for One Cycle")
+    matplotlib.pyplot.tight_layout()
+    matplotlib.pyplot.savefig("sched1.pdf")
+    matplotlib.pyplot.close("all")
 
+def sched_plot_all():
+    matplotlib.pyplot.rc("text", usetex=True)
+    matplotlib.pyplot.rc("font", family="serif")
+    matplotlib.rcParams["hatch.linewidth"] = 0.5
+    
+    ct = 100 # cycle time
+    duration = 20
+    offset = -15
+    overhang = 10
+    xmin = 0
+    xmax = ct
+    ymin = 0
+    thickness = 15
+    spacing = 50
+    reftimes = [0,
+                0.5 * duration,
+                duration,
+                0.5 * ct,
+                ct - duration,
+                ct - 0.5 * duration,
+                ct]
+    reftimes.reverse()
+    fig, ax = matplotlib.pyplot.subplots(figsize=(8, 5))
+    lines = len(reftimes)
+    ymax = lines * spacing
+    ymids = [(i + 0.5) * spacing for i in range(lines)]
+    bottoms= [i - 0.5 * thickness for i in ymids]
+    leftstart = xmin - overhang
+    leftdurations = [i - duration - leftstart for i in reftimes]
+    rightstarts = [i + duration for i in reftimes]
+    rightdurations = [xmax + overhang - i for i in rightstarts]
+    tprepn = "$\\textrm{\\boldmath$t$}_{\mathit{PREP},n}$"
+    tupper = tprepn[:-1] + " - \Delta t_{\mathit{PREP}}$"
+    tlower = tprepn[:-1] + " + \Delta t_{\mathit{PREP}}$"
+    
+    prep_xranges = []
+    free_xranges = []
+    for i in range(lines):
+        prep_xranges.append(cyclic_xranges((reftimes[i] + offset) % ct,
+                                           duration, ct))
+        free_xranges.append(cyclic_xranges((reftimes[i] + duration) % ct,
+                                           ct - 2 * duration, ct))
+                                           
+    
+    for i in range(lines):
+        ax.broken_barh(prep_xranges[i],
+                       (bottoms[i], thickness), facecolors="white",
+                       edgecolors="black", linewidth=0.75, zorder=3)
+
+    for i in range(lines):
+        ax.broken_barh(free_xranges[i],
+                       (bottoms[i], thickness), facecolors="0.75",
+                       linestyle="None", zorder=3)
+        ax.plot([reftimes[i]], [bottoms[i] + thickness], '.k', zorder=4)
+    
+    ax.set_ylim(ymin, ymax)
+    ax.set_xlim(xmin, xmax)
+    ax.grid(axis="x", linestyle="solid", linewidth=1, zorder=0)
+    ax.grid(axis="y", linestyle="dashed", linewidth=1, zorder=0)
+    ax.set_xlabel("time (h)")
+    ax.set_yticks(ymids)
+    ax.set_xticks([xmin, xmax])
+    ax.set_xticklabels(["0", "$T$"])
+    ylabels = [tprepn[:-1] + " = 0$",
+               "$0 < " + tprepn[1:-1] + " < " + tupper[1:],
+               tprepn[:-1] + " = " + tupper[1:],
+               tupper[:-1] + " < " + tprepn[1:-1] + " < " + tlower[1:],
+               tprepn[:-1] + " = " + tlower[1:],
+               tlower[:-1] + " < " + tprepn[1:-1] + " < T$",
+               tprepn[:-1] + "= T$"]    
+    ylabels.reverse()
+    ax.set_yticklabels(ylabels)            
+    matplotlib.pyplot.title("Equipment Time Utilisation for One Cycle")
+    matplotlib.pyplot.tight_layout()
+    matplotlib.pyplot.savefig("sched2.pdf")
+    matplotlib.pyplot.close("all")
+    
 
 def complexity_plot(parameter):
     matplotlib.pyplot.rc("text", usetex=True)
@@ -220,6 +358,7 @@ def complexity_plot(parameter):
     matplotlib.pyplot.legend(loc=0, ncol=3)
     matplotlib.pyplot.tight_layout()
     matplotlib.pyplot.savefig("{}.pdf".format(parameter))
+    matplotlib.pyplot.close("all")
 
 
 # If cyclic operation continues past end of cycle, split into two operations
@@ -233,8 +372,11 @@ def cyclic_xranges(start_time, duration, ct):
 
 
 if __name__ == "__main__":
-
+    
+    
     explanatory_plot()
+    sched_plot_single()
+    sched_plot_all()
     complexity_plot("dimensions")
     complexity_plot("equations")
     

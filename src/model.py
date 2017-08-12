@@ -333,13 +333,12 @@ def define_problem(parameters, buffers, vessels):
     # For each buffer, indicate if upper bound of free time window is less
     # than zero
     for n in range(N):
-        problem += ct * q.o[n] + ct * s.o[n] - z.o[n] >= - t_prep - t_use[n]
-        problem += ct * q.o[n] + ct * s.o[n] - z.o[n] <= ct - t_prep - t_use[n]
+        problem += ct * q.o[n] + ct * s.o[n] - z.o[n] >= t_prep - t_use[n]
+        problem += ct * q.o[n] + ct * s.o[n] - z.o[n] <= t_prep - t_use[n] + ct
     
-    
+    """
     # Hack to avoid edge cases at upper cycle time boundary
     # TODO: May not be required - test robustness with this disabled
-    """
     deadband = 0.01 # deadband
     for n in range(N):
         problem += ct * q.o[n] - z.o[n] <= - t_use[n] + (1 - deadband) * ct
@@ -349,6 +348,7 @@ def define_problem(parameters, buffers, vessels):
                     <= - t_prep - t_use[n] + (1 - deadband) * ct)
     """
     
+    """
     # For each buffer, indicate if free time window crosses cycle boundary
     # (u = r xor s)
     for n in range(N):
@@ -356,7 +356,14 @@ def define_problem(parameters, buffers, vessels):
         problem += r.o[n] + s.o[n] + u.o[n] <= 2
         problem += r.o[n] - s.o[n] - u.o[n] <= 0
         problem += r.o[n] - s.o[n] + u.o[n] >= 0
-          
+    """
+    
+    # For each buffer, indicate if free time window crosses cycle boundary
+    # (u = r xor s)
+    for n in range(N):
+        problem += r.o[n] + s.o[n] - u.o[n] >= 0
+        problem += r.o[n] + s.o[n] - 2 * u.o[n] <= 0
+    
     # Each prep vessel can only do one thing at a time
     big_M = 2 * ct
     for n in range(N):
@@ -377,7 +384,7 @@ def define_problem(parameters, buffers, vessels):
                         + big_M * u.o[n] - ct * r.o[n]
                         + big_M * sum([w.o[n][k][p] for p in range(P)])
                         <= t_use[n] - t_use[k] - t_prep + 2 * big_M)
-         
+    
     # In each slot, utilisation ratio must be below a maximum value
     mpu = parameters.maximum_prep_utilisation
     ptd = parameters.prep_total_duration
@@ -476,7 +483,7 @@ def run_random_models(sizes, count=100, verbose=False):
     return durations
 
     
-def run_primary():
+def run_primary(plot=True):
     parameters = Parameters()
     buffers = Buffers(parameters.cycle_time)
     vessels = Vessels() 
@@ -489,13 +496,14 @@ def run_primary():
     initial_objective_value = pulp.value(problem.objective)
     results = Results(variables)
     buffers.get_results(parameters, results)
-    single_cycle_plot(parameters, buffers, vessels, (PATH + "plot1.pdf"))
+    if plot:
+        single_cycle_plot(parameters, buffers, vessels, (PATH + "plot1.pdf"))
     return (parameters, buffers, vessels, problem, variables,
             initial_objective_value)
 
 
 def run_secondary(parameters, buffers, vessels, problem, variables,
-                  initial_objective_value):
+                  initial_objective_value, plot=True):
     # Optimise for secondary objective: minimise hold times
     secondary_objective(problem, variables, buffers, vessels,
                         initial_objective_value)
@@ -505,7 +513,8 @@ def run_secondary(parameters, buffers, vessels, problem, variables,
     secondary_objective_value = pulp.value(problem.objective)
     results = Results(variables)
     buffers.get_results(parameters, results)
-    single_cycle_plot(parameters, buffers, vessels, (PATH + "plot2.pdf"))
+    if plot:
+        single_cycle_plot(parameters, buffers, vessels, (PATH + "plot2.pdf"))
     return (parameters, buffers, vessels, problem, variables,
             secondary_objective_value)
 
@@ -514,11 +523,25 @@ if __name__ == "__main__":
     from plots import single_cycle_plot
     
     # TODO: error handling for failed optimisations
-    #generate_random_model(12, min_duration_ratio=0.2, max_duration_ratio=0.9,
-    #                      to_file=True)
-    primary = run_primary()
-    secondary = run_secondary(*primary)
     
+    def many_random(N):
+        for n in range(N):
+            generate_random_model(12, min_duration_ratio=0.2,
+                                  max_duration_ratio=0.9, to_file=False)
+            primary = run_primary(plot=False)
+            secondary = run_secondary(*primary, plot=False)
+    
+    
+    def standard():
+            primary = run_primary()
+            secondary = run_secondary(*primary)
+            return primary, secondary
+           
+    
+    #many_random(100)
+    
+    standard()     
+     
     #durations = run_random_models([2, 4, 6, 8, 10, 12, 14, 16])
 
     # for probing results
