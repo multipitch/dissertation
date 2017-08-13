@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # TODO: more extensive use of numpy
 # TODO: some duplication of data across classes - rationalise???
@@ -26,26 +26,34 @@ parser.add_argument("-b", "--buffers", default="buffers.csv", type=str,
                     help="buffers filename (default: buffers.csv)")
 parser.add_argument("-v", "--vessels", default="vessels.csv", type=str,
                     help="vessel filename (default: vessels.csv)")
-parser.add_argument("-s", "--solver", default="", type=str,
-                    help="solver to be used (default: COIN)")
+parser.add_argument("-s", "--solver", default=None, type=str,
+                    help="solver to be used (default: <PuLP default>)")
+parser.add_argument("-n", "--no-secondary", action='store_true',
+                    help="do not solve for secondary constraint")
+parser.add_argument("-w", "--write", action='store_true',
+                    help="write problem to file in .lp format")
 
 
 # globals
-DEADBAND = 0.01
+#DEADBAND = 0.01
 ARGS = parser.parse_args()
 PATH = os.path.abspath(os.path.expanduser(ARGS.path)) + "/"
 PARAMETERS = PATH + ARGS.parameters
 BUFFERS = PATH + ARGS.buffers
 VESSELS = PATH + ARGS.vessels
+WRITE = ARGS.write
+NO_SECONDARY = ARGS.no_secondary
 # the following solvers are installed on the test machine; solvers currently
 # causing issues have been commented out
-if ARGS.solver.upper() in ["", "PULP_CBC_CMD"]:
-    SOLVER = pulp.solvers.PULP_CBC_CMD()
+if ARGS.solver is None: # use pulp's default
+    SOLVER = None 
+elif ARGS.solver.upper() == "PULP_CBC_CMD":
+    SOLVER = pulp.solvers.PULP_CBC_CMD(msg=1, threads=os.cpu_count())
 elif ARGS.solver.upper() == "CPLEX":
     SOLVER = pulp.solvers.CPLEX()
 elif ARGS.solver.upper() == "GLPK":
     SOLVER = pulp.solvers.GLPK()
-#elif ARGS.solver.upper() == "XPRESS": # not working currently
+#elif ARGS.solver.upper() == "XPRESS":
 #    SOLVER = pulp.solvers.XPRESS()
 #elif ARGS.solver.upper() in ["COIN", "COIN_CMD"]:
 #    SOLVER = pulp.solvers.COIN_CMD()
@@ -213,6 +221,7 @@ def csv_columns_to_dict_of_lists(filename):
             data_dict[key] = values
         return data_dict
 
+
 # Generator for accessing components of a variable
 def variable_iterator(variable, dimensions):
     if len(dimensions) > 1:
@@ -303,6 +312,12 @@ def define_problem(parameters, buffers, vessels):
                         + mfr * sum([vv[m]*y.o[m][p] for m in range(M)])
                         <= buffers.volumes[n] + vessels.max_volume)
     
+    # In each slot, utilisation ratio must be below a maximum value
+    mpu = parameters.maximum_prep_utilisation
+    ptd = parameters.prep_total_duration
+    for p in range(P):
+        problem += sum([x.o[n][p] for n in range(N)]) * ptd <= ct * mpu
+    
     # Hold procedure durations must be less than cycle time
     for n in range(N):
         rhs = (ct - parameters.hold_pre_duration - parameters.transfer_duration
@@ -319,34 +334,22 @@ def define_problem(parameters, buffers, vessels):
      
     
     # For each buffer, indicate if relative use start time minus hold time is
-    # negative
+    # negative (defining q)
     for n in range(N):
         problem += ct * q.o[n] - z.o[n] >= - buffers.use_start_times[n]
         problem += ct * q.o[n] - z.o[n] <= - buffers.use_start_times[n] + ct
         
     # For each buffer, indicate if lower bound of free time window is greater
-    # than the cycle time
+    # than the cycle time (defining r)
     for n in range(N):     
         problem += ct * r.o[n] - ct * q.o[n] + z.o[n] <= t_prep + t_use[n]
         problem += ct * r.o[n] - ct * q.o[n] + z.o[n] >= t_prep + t_use[n] - ct
     
     # For each buffer, indicate if upper bound of free time window is less
-    # than zero
+    # than zero (defining s)
     for n in range(N):
         problem += ct * q.o[n] + ct * s.o[n] - z.o[n] >= t_prep - t_use[n]
         problem += ct * q.o[n] + ct * s.o[n] - z.o[n] <= t_prep - t_use[n] + ct
-    
-    """
-    # Hack to avoid edge cases at upper cycle time boundary
-    # TODO: May not be required - test robustness with this disabled
-    deadband = 0.01 # deadband
-    for n in range(N):
-        problem += ct * q.o[n] - z.o[n] <= - t_use[n] + (1 - deadband) * ct
-        problem += (ct * q.o[n] + ct * r.o[n] - z.o[n]
-                    <= t_prep - t_use[n] + (1 - deadband) * ct)
-        problem += (ct * q.o[n] - ct * s.o[n] - z.o[n] 
-                    <= - t_prep - t_use[n] + (1 - deadband) * ct)
-    """
     
     """
     # For each buffer, indicate if free time window crosses cycle boundary
@@ -359,7 +362,7 @@ def define_problem(parameters, buffers, vessels):
     """
     
     # For each buffer, indicate if free time window crosses cycle boundary
-    # (u = r xor s)
+    # (u = r or s)
     for n in range(N):
         problem += r.o[n] + s.o[n] - u.o[n] >= 0
         problem += r.o[n] + s.o[n] - 2 * u.o[n] <= 0
@@ -385,11 +388,16 @@ def define_problem(parameters, buffers, vessels):
                         + big_M * sum([w.o[n][k][p] for p in range(P)])
                         <= t_use[n] - t_use[k] - t_prep + 2 * big_M)
     
-    # In each slot, utilisation ratio must be below a maximum value
-    mpu = parameters.maximum_prep_utilisation
-    ptd = parameters.prep_total_duration
-    for p in range(P):
-        problem += sum([x.o[n][p] for n in range(N)]) * ptd <= ct * mpu
+    """
+    # Hack to avoid edge cases at upper cycle time boundary
+    # TODO: May not be required - test robustness with this disabled
+    for n in range(N):
+        problem += ct * q.o[n] - z.o[n] <= - t_use[n] + (1 - DEADBAND) * ct
+        problem += (ct * q.o[n] + ct * r.o[n] - z.o[n]
+                    <= t_prep - t_use[n] + (1 - DEADBAND) * ct)
+        problem += (ct * q.o[n] - ct * s.o[n] - z.o[n] 
+                    <= - t_prep - t_use[n] + (1 - DEADBAND) * ct)
+    """
       
     return problem, variables
     
@@ -459,6 +467,50 @@ def generate_random_model(N, min_duration_ratio=0.2, max_duration_ratio=0.9,
     return parameters, vessels, buffers
 
     
+def run_primary(plot=True, write=False):
+    parameters = Parameters()
+    buffers = Buffers(parameters.cycle_time)
+    vessels = Vessels() 
+    problem, variables = define_problem(parameters, buffers, vessels)    
+    # Optimise for initial objective: minimise cost
+    initial_objective(problem, variables, buffers, vessels)
+    if write:
+        problem.writeLP("primary.lp")
+    problem.solve(SOLVER)
+    print("Status:", pulp.LpStatus[problem.status])
+    initial_objective_value = pulp.value(problem.objective)
+    results = Results(variables)
+    buffers.get_results(parameters, results)
+    if plot:
+        single_cycle_plot(parameters, buffers, vessels, (PATH + "plot1.pdf"))
+    return (parameters, buffers, vessels, problem, variables,
+            initial_objective_value)
+
+
+def run_secondary(parameters, buffers, vessels, problem, variables,
+                  initial_objective_value, plot=True, write=False):
+    # Optimise for secondary objective: minimise hold times
+    secondary_objective(problem, variables, buffers, vessels,
+                        initial_objective_value)
+    if write:
+        problem.writeLP("secondary.lp")
+    problem.solve(SOLVER)
+    print("Status:", pulp.LpStatus[problem.status])
+    secondary_objective_value = pulp.value(problem.objective)
+    results = Results(variables)
+    buffers.get_results(parameters, results)
+    if plot:
+        single_cycle_plot(parameters, buffers, vessels, (PATH + "plot2.pdf"))
+    return (parameters, buffers, vessels, problem, variables,
+            secondary_objective_value)
+
+
+def standard_run():
+        primary = run_primary(write=WRITE)
+        if not NO_SECONDARY:
+            secondary = run_secondary(*primary, write=WRITE)
+
+
 def run_random_models(sizes, count=100, verbose=False):
     random.seed(3876401295) # for repeatability
     durations = {}
@@ -482,65 +534,33 @@ def run_random_models(sizes, count=100, verbose=False):
         durations[N]["avg"] = sum(durations_) / len(durations_)
     return durations
 
-    
-def run_primary(plot=True):
-    parameters = Parameters()
-    buffers = Buffers(parameters.cycle_time)
-    vessels = Vessels() 
-    problem, variables = define_problem(parameters, buffers, vessels)    
-    # Optimise for initial objective: minimise cost
-    initial_objective(problem, variables, buffers, vessels)
-    problem.writeLP("primary.lp")
-    problem.solve(SOLVER)
-    print("Status:", pulp.LpStatus[problem.status])
-    initial_objective_value = pulp.value(problem.objective)
-    results = Results(variables)
-    buffers.get_results(parameters, results)
-    if plot:
-        single_cycle_plot(parameters, buffers, vessels, (PATH + "plot1.pdf"))
-    return (parameters, buffers, vessels, problem, variables,
-            initial_objective_value)
 
+def many_random(N):
+    for n in range(N):
+        generate_random_model(12, min_duration_ratio=0.2,
+                              max_duration_ratio=0.9, to_file=False)
+        primary = run_primary(plot=False)
+       
 
-def run_secondary(parameters, buffers, vessels, problem, variables,
-                  initial_objective_value, plot=True):
-    # Optimise for secondary objective: minimise hold times
-    secondary_objective(problem, variables, buffers, vessels,
-                        initial_objective_value)
-    problem.writeLP("secondary.lp")
-    problem.solve(SOLVER)
-    print("Status:", pulp.LpStatus[problem.status])
-    secondary_objective_value = pulp.value(problem.objective)
-    results = Results(variables)
-    buffers.get_results(parameters, results)
-    if plot:
-        single_cycle_plot(parameters, buffers, vessels, (PATH + "plot2.pdf"))
-    return (parameters, buffers, vessels, problem, variables,
-            secondary_objective_value)
+def one_random(seed=None):
+    if seed:
+        random.seed(seed)
+    generate_random_model(12, min_duration_ratio=0.2,
+                          max_duration_ratio=0.9, to_file=True)
+    standard_run()
 
             
 if __name__ == "__main__":
     from plots import single_cycle_plot
     
+    standard_run()
+
     # TODO: error handling for failed optimisations
-    
-    def many_random(N):
-        for n in range(N):
-            generate_random_model(12, min_duration_ratio=0.2,
-                                  max_duration_ratio=0.9, to_file=False)
-            primary = run_primary(plot=False)
-            secondary = run_secondary(*primary, plot=False)
-    
-    
-    def standard():
-            primary = run_primary()
-            secondary = run_secondary(*primary)
-            return primary, secondary
-           
     
     #many_random(100)
     
-    standard()     
+    # the line below was used to generate example plots used in ch3/ch4
+    #one_random(123456)    
      
     #durations = run_random_models([2, 4, 6, 8, 10, 12, 14, 16])
 

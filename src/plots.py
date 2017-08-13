@@ -104,7 +104,7 @@ def single_cycle_plot(parameters, buffers, vessels, filename=None):
     ax.set_yticklabels(hold_labels[::-1] + prep_labels[::-1])
     ax.set_xlim(0, parameters.cycle_time)
     ax.set_ylim(0, N + nslots + 1)
-    matplotlib.pyplot.title("Equipment Time Utilisation for One Cycle")
+    matplotlib.pyplot.title("Steady-State Equipment Time Utilisation")
     
     # Write to file or plot to screen
     matplotlib.pyplot.tight_layout()
@@ -160,8 +160,7 @@ def explanatory_plot():
     ax.set_ylabel("Process Equipment")
     ax.set_yticks([40, 100, 160])
     ax.set_xticks([0, 64, 100])
-    ax.set_xticklabels(["0", "$t_{USE,n}\\ \\textup{mod}\\ \lambda$",
-                        "$\lambda$"])
+    ax.set_xticklabels(["0", "$t_{USE,n}$", "$\lambda$"])
     ax.set_yticklabels(["(Process Users)", "Hold Vessel", 
                         "Preparation Vessel"])
                         
@@ -180,7 +179,7 @@ def explanatory_plot():
     ax.text(48, 100, "$\\textbf{\\textit{z}}_{n}$", fontsize=8,
             horizontalalignment="center", verticalalignment="center")
             
-    matplotlib.pyplot.title("Equipment Time Utilisation for One Cycle")
+    matplotlib.pyplot.title("Steady-State Equipment Time Utilisation")
     matplotlib.pyplot.tight_layout()
     matplotlib.pyplot.savefig("explanatory.pdf")
     matplotlib.pyplot.close("all")
@@ -240,7 +239,7 @@ def sched_plot_single():
             horizontalalignment="center", verticalalignment="center", zorder=4)
     
             
-    matplotlib.pyplot.title("Equipment Time Utilisation for One Cycle")
+    matplotlib.pyplot.title("Steady-State Equipment Time Utilisation")
     matplotlib.pyplot.tight_layout()
     matplotlib.pyplot.savefig("sched1.pdf")
     matplotlib.pyplot.close("all")
@@ -317,7 +316,7 @@ def sched_plot_all():
                tprepn[:-1] + "= T$"]    
     ylabels.reverse()
     ax.set_yticklabels(ylabels)            
-    matplotlib.pyplot.title("Equipment Time Utilisation for One Cycle")
+    matplotlib.pyplot.title("Steady-State Equipment Time Utilisation")
     matplotlib.pyplot.tight_layout()
     matplotlib.pyplot.savefig("sched2.pdf")
     matplotlib.pyplot.close("all")
