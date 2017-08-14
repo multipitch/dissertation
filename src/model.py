@@ -467,7 +467,7 @@ def generate_random_model(N, min_duration_ratio=0.2, max_duration_ratio=0.9,
     return parameters, vessels, buffers
 
     
-def run_primary(plot=True, write=False):
+def run_primary(solver=SOLVER, plot=True, write=False):
     parameters = Parameters()
     buffers = Buffers(parameters.cycle_time)
     vessels = Vessels() 
@@ -476,7 +476,7 @@ def run_primary(plot=True, write=False):
     initial_objective(problem, variables, buffers, vessels)
     if write:
         problem.writeLP("primary.lp")
-    problem.solve(SOLVER)
+    problem.solve(solver)
     print("Status:", pulp.LpStatus[problem.status])
     initial_objective_value = pulp.value(problem.objective)
     results = Results(variables)
@@ -488,13 +488,14 @@ def run_primary(plot=True, write=False):
 
 
 def run_secondary(parameters, buffers, vessels, problem, variables,
-                  initial_objective_value, plot=True, write=False):
+                  initial_objective_value, solver=SOLVER, plot=True,
+                  write=False):
     # Optimise for secondary objective: minimise hold times
     secondary_objective(problem, variables, buffers, vessels,
                         initial_objective_value)
     if write:
         problem.writeLP("secondary.lp")
-    problem.solve(SOLVER)
+    problem.solve(solver)
     print("Status:", pulp.LpStatus[problem.status])
     secondary_objective_value = pulp.value(problem.objective)
     results = Results(variables)
@@ -505,18 +506,19 @@ def run_secondary(parameters, buffers, vessels, problem, variables,
             secondary_objective_value)
 
 
-def standard_run():
-        primary = run_primary(write=WRITE)
-        if not NO_SECONDARY:
-            secondary = run_secondary(*primary, write=WRITE)
+def standard_run(no_secondary=NO_SECONDARY, write=WRITE, solver=SOLVER):
+        primary = run_primary(solver=solver, plot=True, write=write)
+        if not no_secondary:
+            secondary = run_secondary(*primary, solver=solver, plot=True, 
+                                      write=write)
 
 
-def run_random_models(sizes, count=100, verbose=False):
-    random.seed(3876401295) # for repeatability
-    durations = {}
-    for N in sizes:
-        durations[N] = {}
-        durations_ = []
+def run_random_models(sizes, count=100, to_file=True, verbose=True, ret=True):
+    #random.seed(3876401295) # for repeatability
+    durations = numpy.empty((len(sizes), count))
+    print(durations)
+    
+    for n, N in enumerate(sizes):
         for c in range(count):
             parameters, vessels, buffers = generate_random_model(N)
             problem, variables = define_problem(parameters, buffers, vessels)
@@ -528,11 +530,20 @@ def run_random_models(sizes, count=100, verbose=False):
                 raise Exception("Problem size {}, run {} cannot be optimised"
                                 .format(N, c))
             duration = end - start
-            durations_.append(duration)
-            durations[N][c] = duration
-            print("\n\n Completed run {}, size {}\n\n".format(c, N))
-        durations[N]["avg"] = sum(durations_) / len(durations_)
-    return durations
+            durations[n][c] = duration
+            if verbose:
+                print("\n\nCompleted run {}, size {}".format(c, N))
+                print("Solver time: {0:.32f} s\n\n".format(duration))
+                
+    if to_file:
+        with open("durations.csv", "w") as f:
+            writer = csv.writer(f)
+            writer.writerow(sizes)
+        with open("durations.csv", "ab") as f:
+            numpy.savetxt(f, durations, delimiter=",")
+
+    if ret:
+        return durations
 
 
 def many_random(N):
@@ -551,42 +562,18 @@ def one_random(seed=None):
 
             
 if __name__ == "__main__":
-    from plots import single_cycle_plot
+    from plots import single_cycle_plot, timing_plot
     
-    standard_run()
-
     # TODO: error handling for failed optimisations
     
+    #standard_run()
+   
     #many_random(100)
     
     # the line below was used to generate example plots used in ch3/ch4
     #one_random(123456)    
-     
-    #durations = run_random_models([2, 4, 6, 8, 10, 12, 14, 16])
-
-    # for probing results
-    """
-    (parameters, buffers, vessels, problem, variables, 
-     secondary_objective_value) = secondary
-    M = vessels.count
-    N = buffers.count
-    P = N
-    ct = parameters.cycle_time
-    t_use = buffers.use_start_times
-    t_prep = parameters.prep_total_duration    
-    q = variables.q.values
-    r = variables.r.values
-    s = variables.s.values
-    u = variables.u.values
-    v = variables.v.values
-    w = variables.w.values
-    x = variables.x.values
-    y = variables.y.values
-    z = variables.z.values
-    mfr = parameters.minimum_fill_ratio
-    vv = vessels.volumes
-    big_M = 2 * ct
-    mpu = parameters.maximum_prep_utilisation
-    ptd = parameters.prep_total_duration
-    """
     
+    #sizes = [2, 4, 6, 8, 10, 12]
+    #durations = run_random_models(sizes, 100)
+    #avg_durations = dict(zip(sizes, durations.mean(axis=1)))
+    #timing_plot(sizes, durations)

@@ -1,19 +1,18 @@
+import csv
+
 import matplotlib.cm
 import matplotlib.pyplot
 import numpy
 import pylatexenc.latexencode
 from scipy.misc import comb
 
+# Global settings for matplotlib
+matplotlib.pyplot.rc("text", usetex=True)
+matplotlib.pyplot.rc("font", family="serif")
+matplotlib.rcParams["hatch.linewidth"] = 0.5
+
+
 def single_cycle_plot(parameters, buffers, vessels, filename=None):    
-    # TODO: add legend, naming convention changes, include hatching / sub-bars
-    # TODO: function for generating list of (start, duration) pairs based on
-    # an input (start, duration) and cycle time
-    # TODO: make more use of numpy / vectorized functions to remove some loops
-    # TODO: sorting/ranking below is messy - should be able to simplify
-    
-    matplotlib.pyplot.rc("text", usetex=True)
-    matplotlib.pyplot.rc("font", family="serif")
-    matplotlib.rcParams["hatch.linewidth"] = 0.5
 
     M = vessels.count
     N = buffers.count
@@ -116,9 +115,6 @@ def single_cycle_plot(parameters, buffers, vessels, filename=None):
 
 
 def explanatory_plot():
-    matplotlib.pyplot.rc("text", usetex=True)
-    matplotlib.pyplot.rc("font", family="serif")
-    matplotlib.rcParams["hatch.linewidth"] = 0.5
     
     fig, ax = matplotlib.pyplot.subplots(figsize=(10, 3))
     
@@ -185,9 +181,6 @@ def explanatory_plot():
     matplotlib.pyplot.close("all")
 
 def sched_plot_single():
-    matplotlib.pyplot.rc("text", usetex=True)
-    matplotlib.pyplot.rc("font", family="serif")
-    matplotlib.rcParams["hatch.linewidth"] = 0.5
     
     reftime = 60
     duration = 20
@@ -245,9 +238,6 @@ def sched_plot_single():
     matplotlib.pyplot.close("all")
 
 def sched_plot_all():
-    matplotlib.pyplot.rc("text", usetex=True)
-    matplotlib.pyplot.rc("font", family="serif")
-    matplotlib.rcParams["hatch.linewidth"] = 0.5
     
     ct = 100 # cycle time
     duration = 20
@@ -323,8 +313,7 @@ def sched_plot_all():
     
 
 def complexity_plot(parameter):
-    matplotlib.pyplot.rc("text", usetex=True)
-    matplotlib.pyplot.rc("font", family="serif")
+    
     fig, ax = matplotlib.pyplot.subplots(figsize=(5.5, 3))
     N = numpy.arange(1, 41, 1)
     
@@ -360,6 +349,21 @@ def complexity_plot(parameter):
     matplotlib.pyplot.close("all")
 
 
+def timing_plot(inputdata):
+    if type(inputdata) is str:
+        sizes, durations = read_durations(inputdata)
+    else:
+        (sizes, durations) = inputdata
+    fig, ax = matplotlib.pyplot.subplots(figsize=(3, 3))
+    ax.boxplot(durations.transpose(), labels=sizes)
+    ax.set_yscale("log")
+    ax.set_xlabel("number of buffers, $N$")
+    ax.set_ylabel("solution time (seconds)")
+    matplotlib.pyplot.tight_layout()
+    matplotlib.pyplot.savefig("timing.pdf")
+    matplotlib.pyplot.close("all")    
+    
+
 # If cyclic operation continues past end of cycle, split into two operations
 def cyclic_xranges(start_time, duration, ct):
     if 0 <= start_time < ct:
@@ -370,6 +374,15 @@ def cyclic_xranges(start_time, duration, ct):
     raise ValueError("start time out of range")
 
 
+def read_durations(filename="durations.csv"):
+    with open(filename) as f:
+        reader = csv.reader(f)
+        sizes = next(reader)
+    durations = numpy.genfromtxt("durations.csv", delimiter=",", 
+                                 skip_header=True)
+    return sizes, durations
+
+
 if __name__ == "__main__":
     
     
@@ -378,4 +391,5 @@ if __name__ == "__main__":
     sched_plot_all()
     complexity_plot("dimensions")
     complexity_plot("equations")
+    timing_plot("durations.csv")
     
