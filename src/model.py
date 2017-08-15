@@ -516,8 +516,12 @@ def standard_run(no_secondary=NO_SECONDARY, write=WRITE, solver=SOLVER):
 def run_random_models(sizes, count=100, to_file=True, verbose=True, ret=True):
     #random.seed(3876401295) # for repeatability
     durations = numpy.empty((len(sizes), count))
-    print(durations)
     
+    if to_file:
+        with open("durations.csv", "w") as f:
+            writer = csv.writer(f)
+            writer.writerow(sizes)
+
     for n, N in enumerate(sizes):
         for c in range(count):
             parameters, vessels, buffers = generate_random_model(N)
@@ -534,13 +538,10 @@ def run_random_models(sizes, count=100, to_file=True, verbose=True, ret=True):
             if verbose:
                 print("\n\nCompleted run {}, size {}".format(c, N))
                 print("Solver time: {0:.32f} s\n\n".format(duration))
-                
-    if to_file:
-        with open("durations.csv", "w") as f:
-            writer = csv.writer(f)
-            writer.writerow(sizes)
-        with open("durations.csv", "ab") as f:
-            numpy.savetxt(f, durations, delimiter=",")
+               
+        if to_file:
+            with open("durations.csv", "ab") as f:
+                numpy.savetxt(f, durations, delimiter=",")
 
     if ret:
         return durations

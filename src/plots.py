@@ -318,30 +318,31 @@ def complexity_plot(parameter):
     N = numpy.arange(1, 41, 1)
     
     # baselines
-    ax.plot(N, N, "--k", linewidth=1, label="$N$")
-    ax.scatter(N[1:], comb(N[1:], 2), label="${{N}\choose{2}}$", marker=".",
-               color="k", s=2)
-    ax.plot(N, N**2, "-.k", linewidth=1, label="$N^2$")
+    ax.plot(N, N, "--k", linewidth=1, label="$\mathcal{N}$")
+    ax.scatter(N[1:], comb(N[1:], 2), label="${{\mathcal{N}}\choose{2}}$",
+               marker=".", color="k", s=2)
+    ax.plot(N, N**2, "-.k", linewidth=1, label="$\mathcal{N}^2$")
     ax.plot(N, N**3, "-k", dashes=[4, 2, 1, 2, 1, 2], linewidth=1, 
-            label="$N^3$")
+            label="$\mathcal{N}^3$")
     
     if parameter == "dimensions":
         # basic model
         ax.scatter(N, 2 * N**2, label="basic model", marker="^")
         # complete model
-        complete_dims = (N[1:] + 2) * comb(N[1:], 2) + 2 * (N[1:]**2 + N[1:])
+        complete_dims = (N[1:] + 1) * comb(N[1:], 2) + 2 * N[1:]**2 + 5 * N[1:]
         ax.scatter(N[1:], complete_dims, label="complete model", marker="o")
     elif parameter == "equations":
         # basic model
         ax.scatter(N, 2 * N**2 + 3 * N + 1, label="basic model", marker="^")
         # complete model
-        complete_eqns = (3 * N[1:]**2  + 7 * comb(N[1:], 2) + 6 * N[1:] + 1)
+        complete_eqns = (2 * N[1:]**2 + (2 * N[1:] + 4)  * comb(N[1:], 2)
+                         + 12 * N[1:] + 1)
         ax.scatter(N[1:], complete_eqns, label="complete model", marker="o")
     else:
         raise ValueError("{} is not a valid parameter".format(parameter))
     
     ax.set_yscale("log")
-    ax.set_xlabel("number of buffers, $N$")
+    ax.set_xlabel("number of buffers, $\mathcal{N}$")
     ax.set_ylabel("number of {}".format(parameter))
     matplotlib.pyplot.legend(loc=0, ncol=3)
     matplotlib.pyplot.tight_layout()
@@ -354,10 +355,10 @@ def timing_plot(inputdata):
         sizes, durations = read_durations(inputdata)
     else:
         (sizes, durations) = inputdata
-    fig, ax = matplotlib.pyplot.subplots(figsize=(3, 3))
+    fig, ax = matplotlib.pyplot.subplots(figsize=(5.5, 5.5))
     ax.boxplot(durations.transpose(), labels=sizes)
     ax.set_yscale("log")
-    ax.set_xlabel("number of buffers, $N$")
+    ax.set_xlabel("number of buffers, $\mathcal{N}$")
     ax.set_ylabel("solution time (seconds)")
     matplotlib.pyplot.tight_layout()
     matplotlib.pyplot.savefig("timing.pdf")
@@ -386,10 +387,10 @@ def read_durations(filename="durations.csv"):
 if __name__ == "__main__":
     
     
-    explanatory_plot()
-    sched_plot_single()
-    sched_plot_all()
-    complexity_plot("dimensions")
-    complexity_plot("equations")
-    timing_plot("durations.csv")
-    
+    #explanatory_plot()
+    #sched_plot_single()
+    #sched_plot_all()
+    #complexity_plot("dimensions")
+    #complexity_plot("equations")
+    #timing_plot("durations.csv")
+    pass

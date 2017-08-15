@@ -25,7 +25,11 @@
     $\boldsymbol{a}_{nk}$ & boolean; buffers $n$ and $k$ prepared in same
     vessel & \ref{SS.constr6}\\
     $c_{m}$ & (relative) cost of vessel $m$ & \ref{S.vesseldata}\\
+    $f_{\mathit{MAXUSE}}$ & buffer maximum use time ratio 
+        & \ref{SS.randomdata}\\
     $f_{\mathit{MINFILL}}$ & vessel minimum fill ratio & \ref{S.parameters}\\
+    $f_{\mathit{MINUSE}}$ & buffer minimum use time ratio 
+        & \ref{SS.randomdata}\\
     $f_{\mathit{UTIL}}$ & preparation slot maximum utilisation ratio
         & \ref{S.parameters}\\
     $k$ & secondary buffer index $\left( k \in N, k \ne n \right)$
@@ -51,6 +55,8 @@
         & \ref{S.bufferdata}\\
     $t_{\mathit{USE},n}^{*}$ & buffer $n$ time of first use, unnormalised 
         & \ref{S.bufferdata}\\
+    $\Delta t_{\mathit{FEAS}}$ & maximum feasible buffer use duration
+        & \ref{SS.randomdata}\\
     $\Delta t_{\mathit{HOLD,MAX}}$ & maximum allowable buffer hold duration
         & \ref{S.parameters}\\
     $\Delta t_{\mathit{HOLD,MIN}}$ & minimum allowable buffer hold duration
