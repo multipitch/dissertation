@@ -1,10 +1,3 @@
-#!/usr/bin/env python3
-
-# TODO: more extensive use of numpy
-# TODO: some duplication of data across classes - rationalise???
-# TODO: more data preprocessing to rule out infeasible problems
-
-
 import argparse
 import configparser
 import csv
@@ -15,6 +8,7 @@ import timeit
 import numpy
 import pulp
 
+from plots import single_cycle_plot, timing_plot
 
 parser = argparse.ArgumentParser(prog="model.py",
                                  description="Run buffer vessel simulation.")

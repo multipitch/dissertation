@@ -30,7 +30,7 @@ def single_cycle_plot(parameters, buffers, vessels, filename=None):
     sorted_prep_names = [buffers.p_to_m[i] for i in sorted_slots]
     prep_index = [slot_ranks[i] for i in buffers.prep_slots] 
     bar_height = 0.6
-    fig, ax = matplotlib.pyplot.subplots(figsize=(10, (N + nslots + 2) / 2.5))
+    fig, ax = matplotlib.pyplot.subplots(figsize=(6.875, 0.25*(N + nslots +5)))
     
     # Buffer Hold Vessel Bars
     hold_xranges = []
@@ -65,7 +65,7 @@ def single_cycle_plot(parameters, buffers, vessels, filename=None):
         yranges = [(ystart, bar_height), 
                    (N - (0.5 + n + 0.5 * bar_height), bar_height)]
         for yrange in yranges:
-            ax.broken_barh(xranges, yrange, facecolors=colors[n], hatch="///",
+            ax.broken_barh(xranges, yrange, facecolors=colors[n], hatch="////",
                            edgecolors="black", linewidth=0.5, zorder=3)
     
     # Use Bars
@@ -74,7 +74,7 @@ def single_cycle_plot(parameters, buffers, vessels, filename=None):
                                  buffers.use_durations[n], ct)
         ystart =  N +  nslots - (prep_index[n] - 0.5 + 0.5 * bar_height)
         yrange = (N - (0.5 + n + 0.5 * bar_height), bar_height)
-        ax.broken_barh(xranges, yrange, facecolors=colors[n], hatch="\\\\\\",
+        ax.broken_barh(xranges, yrange, facecolors=colors[n], hatch="\\\\\\\\",
                        edgecolors="black", linewidth=0.5, zorder=3)
     
     # Procedure Outlines
@@ -91,7 +91,7 @@ def single_cycle_plot(parameters, buffers, vessels, filename=None):
     ax.set_ylabel("Vessels")
     ax.set_yticks([n + 0.5 for n in range(N)]
                   + [i + 0.5 for i in range (N + 1, N + nslots + 2)])
-    ax.set_xticks([6 * (t + 1) for t in range(int(parameters.cycle_time / 6))])
+    ax.set_xticks([8 * t for t in range(int(parameters.cycle_time / 8) + 1)])
     prep_labels = []
     for i in sorted_prep_names:
         prep_label = "{} Prep ".format(vessels.names[i])
@@ -387,10 +387,10 @@ def read_durations(filename="durations.csv"):
 if __name__ == "__main__":
     
     
-    #explanatory_plot()
-    #sched_plot_single()
-    #sched_plot_all()
-    #complexity_plot("dimensions")
-    #complexity_plot("equations")
-    #timing_plot("durations.csv")
+    explanatory_plot()
+    sched_plot_single()
+    sched_plot_all()
+    complexity_plot("dimensions")
+    complexity_plot("equations")
+    timing_plot("durations.csv")
     pass
