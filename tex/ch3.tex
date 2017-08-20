@@ -111,13 +111,18 @@ decimal places.
 Note that the vessel volumes, $V_{m}$, are equal to the nominal volumes
 indicated in the `names' column.  The contents of the `names' column are
 treated as identifiers and are not used in any calculation.
-It is not uncommmon to have values of $V_{m}$ slightly larger than their
+It is not uncommon to have values of $V_{m}$ slightly larger than their
 respective named (nominal) volumes; a vessel with a nominal volume of e.g.\
 \SI{1000}{\litre} will be capable of holding at least \SI{1000}{\litre}, with
 the precise maximum working volume being a function of the vessel geometry.
 
 \section{Buffer Data}\label{S.bufferdata}
-
+\begin{figure}
+    \centering
+    \includegraphics[angle=0,scale=0.55]{./figures/explanatory.pdf}
+    \caption{Equipment time utilisation for a single buffer}
+    \label{fig.explanatory}
+\end{figure}
 \begin{table}[h!]
     \centering
     \caption{Buffer data for random example}
@@ -167,7 +172,7 @@ is first required by the process, and the duration for which it is required.
 
 Sample buffer data are given in \hyperref[tbl.buffer]{Table \ref*{tbl.buffer}}.
 \hyperref[fig.explanatory]{Figure \ref*{fig.explanatory}} gives an overview of
-data and parameters related to scheduling, which are detailed in the reaminder
+data and parameters related to scheduling, which are detailed in the remainder
 of this section and in \hyperref[S.parameters]{Section \ref*{S.parameters}}.
 The plot in \hyperref[fig.explanatory]{Figure \ref*{fig.explanatory}} is
 termed an \emph{equipment time utilisation} plot; in this instance it just
@@ -175,13 +180,6 @@ shows the preparation and hold procedures for a single buffer.
 This style of plot is covered in more detail in
 \hyperref[C.results]{Chapter \ref*{C.results}}, where similar plots can be used
 to visually display a working steady-state schedule for a feasible solution.
-
-\begin{figure}
-    \centering
-    \includegraphics[angle=0,scale=0.55]{./figures/explanatory.pdf}
-    \caption{Equipment time utilisation for a single buffer}
-    \label{fig.explanatory}
-\end{figure}
 
 For each buffer, $n \in N$, its (unnormalised) time of first use,
 $t_{\mathit{USE},n}^{*}$, is the time when the process draws the first drop of
@@ -251,7 +249,7 @@ more detail hereafter.
     \end{tabular}
 \end{table}
 
-The first parameter sepcified is the cycle time, $T$.  We are concerned
+The first parameter specified is the cycle time, $T$.  We are concerned
 with the steady-state operation of the process, so the cycle time can be
 thought of as the duration from some fixed point in one batch to the same
 fixed point in the subsequent batch.
@@ -270,7 +268,7 @@ It is unlikely that detailed timings will be available at the early stages of
 design, so specifying some conservative global parameters provides a model that
 is easy to comprehend and validate.
 In reality, operations such as filling a vessel with water will scale with
-buffer bolume and operations such as cooldown of a vessel after steaming will
+buffer volume and operations such as cool-down of a vessel after steaming will
 scale with vessel volume.
 This degree of granularity could be added as a future model enhancement.
 
@@ -279,7 +277,7 @@ The following durations are specified as global parameters:
 The parameter $\Delta t_{\mathit{PREP,PRE}}$ is the duration of all operations
 in the preparation procedure prior to the transfer of buffer to the buffer hold
 vessel.  
-This may include pressure testing, steam-in-place (SIP) and cooldown, although
+This may include pressure testing, steam-in-place (SIP) and cool-down, although
 these tasks are not always carried out on preparation vessels.
 The period will include the charging of WFI, the charging of other liquids
 and/or solids, and time for mixing the buffer.
@@ -325,11 +323,11 @@ As will be described in
 \hyperref[C.methodology]{Chapter \ref*{C.methodology}},
 we place some bounds on this duration and express these bounds as a pair of
 global parameters.
-The parameter $\Delta t_{\mathit{HOLD,MIN}}$ defines the minimum allowabe
+The parameter $\Delta t_{\mathit{HOLD,MIN}}$ defines the minimum allowable
 duration of the buffer hold operation.
 In practice, the operators of a plant do not want to schedule buffer
 preparations so that the transfer is complete moments before the buffer is
-required by the process, as any delays at this stage could imapct production.
+required by the process, as any delays at this stage could impact production.
 A value, typically in the range of several hours to one day, can be specified
 to ensure that buffers are prepared with some flexibility to handle delays.
 At the other end of the scale, buffers may expire and the global variable 
@@ -344,7 +342,7 @@ buffer being prepared. The rationale for this was mentioned in
 Finally, the utilisation ratio, $f_{\mathit{UTIL}}$, places an upper limit on
 how busy a preparation vessel is allowed to be.
 In the absence of detailed buffer scheduling information, this may represent an
-`engineering factor' to account for unforseeable scheduling clashes.
+`engineering factor' to account for unforeseeable scheduling clashes.
 If detailed scheduling information is available, the ratio can be set to unity
 to effectively remove its influence as a constraint, or the ratio could be
 maintained at some value less than one to allow for some overhead in the
@@ -363,7 +361,7 @@ bioprocessing facilities.
 A function was developed to generate random buffer data.
 The function requires four inputs; the number of buffers required,
 $\mathcal{N}$, the minimum duration ratio, $f_{\mathit{MINUSE}}$, the maximum
-duration ratio, $f_{\mathit{MAXUSE}}$, and a `parameters' dataset.
+duration ratio, $f_{\mathit{MAXUSE}}$, and a `parameters' data set.
 The function generates the required number of buffers, each with
 $t_{\mathit{USE},n}^{*}$ uniformly distributed in the range
 $0 < t_{\mathit{USE},n}^{*} < T$. Note that, for the random data, this means

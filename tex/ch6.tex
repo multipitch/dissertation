@@ -15,12 +15,82 @@
 
 \chapter{Discussion}\label{C.discussion}
 
-\section{Introduction}\label{S.intro6}
+\begin{quote}
+We chase misprinted lies
 
-In this chapter we examine \ldots
+We face the path of time
 
-%TODO
-\textbf{TODO: interesting things about the results}
+\hspace{2cm}--- Alice in Chains, \emph{Nutshell}
+\end{quote}
 
-%TODO
-\textbf{TODO: scope for further work}
+The models derived in \hyperref[C.methodology]{Chapter \ref*{C.methodology}}
+succeed in describing the buffer vessel selection problem.
+The code which implements the models produces feasible
+solutions from input data sets and gives both quantitative outputs (values for
+all variables) and a useful visual output (equipment time utilisation plot).
+
+The basic model represents the simplest manifestation of the buffer vessel
+selection problem, requiring a minimal amount of information
+This has been built on by the complete model, which accounts for the scheduling
+and accordingly requires some timing information.
+The secondary model builds on the complete model to provide a more realistic
+schedule, but does not improve on the primary objective, namely the
+minimisation of vessel costs.
+
+The model contains a number of simplifications.
+Some of these simplifications are required due to the probable lack of
+sufficient information.
+One such example is fixed operation durations for operations such as
+transfers.
+If only a single model of pump were available, a flow rate could be
+defined, so the transfer duration would scale linearly with the buffer volume.
+In reality, given the range of volumes in a typical process, several sizes of
+pumps and pipework may be specified so that pumps aren't oversized for small
+transfers and pumps aren't so small that large transfers take an unacceptable
+length of time.  As a result, the assumption that transfer duration is fixed
+allows the selection of a conservative transfer time to cover all
+eventualities.
+
+Another assumption is that buffer volumes are fixed.
+For example, if a buffer is used in two operations which occur in different
+procedures at very different times in the cycle, we do not allow the
+possibility that we may split this buffer into two separate preparations.
+If, for instance, the particular buffer was the largest-volume buffer being
+prepared by some margin, it may make sense to split it into two batches to
+reduce the maximum size of preparation vessel required.
+There are trade-offs here between the saving from reducing the volume of the
+largest reparation vessel and the increased operating costs from performing an
+extra preparation.
+Apart from the difficulty for building such flexibility into the model, the
+objective function would potentially become a good deal more difficult to
+define, involving data on operating versus capital cost which may not be
+available with any degree of accuracy.
+
+One additional feature which warrants further work is material compatibility.
+Certain buffers may require the use of high-nickel alloys instead of the
+usual grades of stainless steel; these alloys may be several times the price
+of stainless steel.
+A more resistant vessel can be used to prepare all buffers that may be prepared
+in a less resistant vessel.
+This would require a compatibility matrix between buffers and vessel materials
+(the latter being a new dimension).
+Additional logic would also be required to prevent incorrect vessel material
+selection.
+
+Similar logic could be used in the case of flammable buffers.
+Occasionally, ethanol is used in buffers. While the final buffer may not be
+flammable, due to dilution, the handling of pure ethanol at the preparation
+stage requires explosion-rated preparation vessels, which can be considerably
+more expensive.
+The vessels themselves may be similar, but all sensors, pumps, impellers,
+actuated valves, etc.\ would need to be explosion-rated and this can add
+significantly to the overall vessel cost.
+If such a vessel were required, it could be used to produce non-flammable
+buffers, but a non-explosion-rated vessel could not be used to handle flammable
+materials.
+
+Other scope for further work includes the application of the model to
+multi-product facilities.
+Generally, a multi-product facility will run a campaign of batches of one
+product, then switch over to run a campaign of some other process.
+Such a facility would need buffer vessels capable of supporting each process.

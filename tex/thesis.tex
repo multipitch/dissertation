@@ -28,6 +28,7 @@
 %
 
 \documentclass[a4paper,12pt,bibtotoc]{book}
+%\documentclass[a4paper,12pt,bibtotoc,oneside]{book} %  note no blank pages
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{makeidx}
@@ -44,6 +45,7 @@ subfigure}
 \sisetup{input-ignore={,},input-decimal-markers={.}}
 \usepackage[hidelinks]{hyperref}
 \usepackage{doi}
+\usepackage{showframe} % comment this out to remove page layout frames
 
 \input{macros}
 \input{declarns}
@@ -56,6 +58,7 @@ subfigure}
 %\setlength{ \textheight     }{  24cm }
 \setlength{ \textwidth      }{  14cm }
 \setlength{ \oddsidemargin  }{ 1.0cm }
+%\setlength{ \oddsidemargin  }{ 1.5cm }
 \setlength{ \evensidemargin }{ 1.0cm }
 
 \numberwithin{equation}{section}
@@ -153,15 +156,26 @@ To \ldots
 %% Acknowledgements (including permissions and other credits).
 \chapter*{Acknowledgements}
 
-I would like to thank \ldots
+I would like to thank my supervisor, Prof. Michael O'Neill.
+
+I would also like to thank David Lynch for the helpful feedback on the write-up
+and Dr. Paula Carroll for her advice on linear programming.
 
 %% Abstract
 %%\begin{abstract}
 \chapter*{Abstract} 
-It is intended that the abstract be used, while work is ongoing, as a brief
-summary of the state of progress of the dissertation.  The abstract shall be
-completed once the main body of the dissertation is complete.  On completion, it
-will contain a high-level overview of the work done, in simple, plain language.
+This dissertation seeks to define the problem of buffer vessel selection in
+bioprocessing facility design.
+It succeeded in modelling the problem mathematically, as a series of linear
+constraints on binary and real variables.
+The problem was then implemented such that it can be solved using one of a
+range of mixed-integer linear programming packages.
+Equipment time utilisation plots were designed to visualise the results.
+The models were trialled on both random and real-world data and found to be
+robust.
+The complexity of the models and time taken for solution were investigated.
+Scope for further work was outlined in terms of some additional features or
+constraints that could be added to the model.
 %%\end{abstract}
 
 %%   List of important abbreviations (including special fonts, e.g.,
@@ -191,27 +205,27 @@ will contain a high-level overview of the work done, in simple, plain language.
 %%   accompanying CD/DVD. \include appendix/ces as it/they will be big enough to
 %%   justify its/their own ``chapter(s)''
 \cleardoublepage
-\appendix
-\addappheadtotoc         % adds a separating entry to the TOC, saying Appendices
-\noappendicestocpagenum  % ensures there is no page number after that TOC 
+%\appendix          %%%%% Removed this line and next two - ST   
+%\addappheadtotoc         % adds a separating entry to the TOC, saying Appendices
+%\noappendicestocpagenum  % ensures there is no page number after that TOC 
 %                          separating entry
 % It may happen that the first appendix (e.g., Detailed Tables) appears before
 % the "Appendices" line in the table of contents.  If so, edit thesis.toc and
 % move the Appendices line there above the first appendix, then re-run LaTeX to 
 % get the thesis.dvi file right.  You may have to repeatedly do this every time 
 % you LaTeX!
-\cleardoublepage
-\include{appendix1}
-\include{appendix2} 
+%\cleardoublepage    %%%%% Removed - ST
+%\include{appendix1} %%%%% Removed - ST
+%\include{appendix2} %%%%% Removed - ST
 % and so on
 
 %%   Endnotes (if needed)
 
 %%   Glossary of terms
 %%   \include this as it may be big enough to justify its own ``chapter''
-\cleardoublepage
-\addcontentsline{toc}{chapter}{Glossary}
-\include{glossary}
+%\cleardoublepage                         %%%%% Removed - ST
+%\addcontentsline{toc}{chapter}{Glossary} %%%%% Removed - ST
+%\include{glossary}                       %%%%% Removed - ST
 
 %%   Bibliography (References)
 \cleardoublepage
@@ -224,8 +238,8 @@ will contain a high-level overview of the work done, in simple, plain language.
 \include{notation}
 
 %%   Index
-\cleardoublepage
-\addcontentsline{toc}{chapter}{Index}
-\printindex
+%\cleardoublepage                      %%%%% Removed - ST
+%\addcontentsline{toc}{chapter}{Index} %%%%% Removed - ST
+%\printindex                           %%%%% Removed - ST
 
 \end{document}

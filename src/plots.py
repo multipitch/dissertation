@@ -39,7 +39,7 @@ def single_cycle_plot(parameters, buffers, vessels, filename=None):
         hold_xranges.append((cyclic_xranges(buffers.hold_start_times[n], 
                                             buffers.hold_total_durations[n],
                                             ct)))
-        hold_yranges.append((N - (0.5 + n + 0.5 * bar_height), bar_height))               
+        hold_yranges.append((N - (0.5 + n + 0.5 * bar_height), bar_height))
     for n in range(N):
         ax.broken_barh(hold_xranges[n], hold_yranges[n], facecolors=colors[n],
                        zorder=3)
@@ -312,9 +312,9 @@ def sched_plot_all():
     matplotlib.pyplot.close("all")
     
 
-def complexity_plot(parameter):
+def complexity_plot(parameter, figsize=(5.5, 3)):
     
-    fig, ax = matplotlib.pyplot.subplots(figsize=(5.5, 3))
+    fig, ax = matplotlib.pyplot.subplots(figsize=figsize)
     N = numpy.arange(1, 41, 1)
     
     # baselines
@@ -325,7 +325,7 @@ def complexity_plot(parameter):
     ax.plot(N, N**3, "-k", dashes=[4, 2, 1, 2, 1, 2], linewidth=1, 
             label="$\mathcal{N}^3$")
     
-    if parameter == "dimensions":
+    if parameter == "variables":
         # basic model
         ax.scatter(N, 2 * N**2, label="basic model", marker="^")
         # complete model
@@ -350,13 +350,13 @@ def complexity_plot(parameter):
     matplotlib.pyplot.close("all")
 
 
-def timing_plot(inputdata):
+def timing_plot(inputdata, figsize=(5.5, 5.5)):
     if type(inputdata) is str:
         sizes, durations = read_durations(inputdata)
     else:
         (sizes, durations) = inputdata
-    fig, ax = matplotlib.pyplot.subplots(figsize=(5.5, 5.5))
-    ax.boxplot(durations.transpose(), labels=sizes)
+    fig, ax = matplotlib.pyplot.subplots(figsize=figsize)
+    ax.boxplot(durations.transpose(), positions=sizes, labels=sizes)
     ax.set_yscale("log")
     ax.set_xlabel("number of buffers, $\mathcal{N}$")
     ax.set_ylabel("solution time (seconds)")
@@ -377,20 +377,21 @@ def cyclic_xranges(start_time, duration, ct):
 
 def read_durations(filename="durations.csv"):
     with open(filename) as f:
-        reader = csv.reader(f)
-        sizes = next(reader)
+        reader = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+        _sizes = next(reader)
     durations = numpy.genfromtxt("durations.csv", delimiter=",", 
                                  skip_header=True)
+    sizes = [int(i) for i in _sizes]
     return sizes, durations
 
 
 if __name__ == "__main__":
     
     
-    explanatory_plot()
-    sched_plot_single()
-    sched_plot_all()
-    complexity_plot("dimensions")
-    complexity_plot("equations")
-    timing_plot("durations.csv")
+    #explanatory_plot()
+    #sched_plot_single()
+    #sched_plot_all()
+    #complexity_plot("variables")
+    #complexity_plot("equations")
+    timing_plot("durations.csv", (6,4.5))
     pass

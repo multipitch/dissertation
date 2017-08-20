@@ -22,8 +22,8 @@
 \begin{longtabu} to \textwidth {X[-1,l] X[1,l]<{\strut} X[-1,r]}
     \tb{Symbol} & \tb{Description} & \tb{Ref}\\\hline
     \endhead
-    $\boldsymbol{a}_{nk}$ & boolean; buffers $n$ and $k$ prepared in same
-    vessel & \ref{SS.constr6}\\
+    $\boldsymbol{a}_{nk}$ & buffers $n$ and $k$ prepared in same
+    vessel (binary) & \ref{SS.constr6}\\
     $c_{m}$ & (relative) cost of vessel $m$ & \ref{S.vesseldata}\\
     $f_{\mathit{MAXUSE}}$ & buffer maximum use time ratio 
         & \ref{SS.randomdata}\\
@@ -37,23 +37,27 @@
     $m$ & vessel size index $\left( m \in M \right)$ & \ref{S.vesseldata}\\
     $n$ & buffer index $\left( n \in N \right)$ & \ref{S.bufferdata}\\
     $p$ & slot index $\left( p \in P \right)$ & \ref{S.slots}\\
-    $\boldsymbol{q}_{n}$ & boolean; 
-        $t_{\mathit{USE},n} - \boldsymbol{z}_{n} < 0$ & \ref{SS.prepreftimes}\\
-    $\boldsymbol{r}_{n}$ & boolean; 
-        $t_{\mathit{USE},n} - \boldsymbol{z}_{n} < 0$ & \ref{SS.cyclic}\\
-    $\boldsymbol{s}_{n}$ & boolean; 
-        $t_{\mathit{USE},n} - \boldsymbol{z}_{n} < 0$ & \ref{SS.cyclic}\\
-    $t_{\mathit{LOWER},n}$ & lower bound of feasible scheduling region for all
+    $\boldsymbol{q}_{n}$ & the buffer $n$ hold operation crosses the
+        single-cycle boundaries (binary) & \ref{SS.prepreftimes}\\
+    $\boldsymbol{r}_{n}$ & $\boldsymbol{t}_{\mathit{LOWER},n}$ occurs before
+        $\boldsymbol{t}_{\mathit{PREP},n}$ in the single-cycle window (binary)
+        & \ref{SS.cyclic}\\
+    $\boldsymbol{s}_{n}$ &
+        $\boldsymbol{t}_{\mathit{UPPER},n}$ occurs after
+        $\boldsymbol{t}_{\mathit{PREP},n}$ in the single-cycle window (binary)
+        & \ref{SS.cyclic}\\
+    $\boldsymbol{t}_{\mathit{LOWER},n}$ & lower bound of feasible scheduling
+        region for all buffers $k > n$ with respect to buffer $n$
+        & \ref{SS.cyclic}\\
+    $\boldsymbol{t}_{\mathit{PREP},k}$ & preparation reference time for buffer
+        $k$ & \ref{SS.prepreftimes}\\
+    $\boldsymbol{t}_{\mathit{PREP},n}$ & preparation reference time for buffer
+        $n$ & \ref{SS.prepreftimes}\\
+    $\boldsymbol{t}_{\mathit{UPPER},n}$ & upper bound of feasible scheduling region for all
         buffers $k > n$ with respect to buffer $n$ & \ref{SS.cyclic}\\
-    $t_{\mathit{UPPER},n}$ & upper bound of feasible scheduling region for all
-        buffers $k > n$ with respect to buffer $n$ & \ref{SS.cyclic}\\
-    $t_{\mathit{PREP},k}$ & preparation reference time for buffer $k$ 
-        & \ref{SS.prepreftimes}\\
-    $t_{\mathit{PREP},n}$ & preparation reference time for buffer $n$ 
-        & \ref{SS.prepreftimes}\\
     $t_{\mathit{USE},n}$ & buffer $n$ time of first use, normalised
         & \ref{S.bufferdata}\\
-    $t_{\mathit{USE},n}^{*}$ & buffer $n$ time of first use, unnormalised 
+    $t_{\mathit{USE},n}^{*}$ & buffer $n$ time of first use, un-normalised 
         & \ref{S.bufferdata}\\
     $\Delta t_{\mathit{FEAS}}$ & maximum feasible buffer use duration
         & \ref{SS.randomdata}\\
@@ -65,26 +69,28 @@
         hold procedures & \ref{S.parameters}\\
     $\Delta t_{\mathit{HOLD,PRE}}$ & duration of operations prior to receiving
         buffer in buffer hold procedures & \ref{S.parameters}\\
+    $\Delta t_{\mathit{PREP}}$ & total duration of buffer preparation
+        procedures & \ref{SS.constr4}\\
     $\Delta t_{\mathit{PREP,PRE}}$ & duration of operations prior to
         transferring out buffer in buffer preparation procedures & 
         \ref{S.parameters}\\
     $\Delta t_{\mathit{PREP,POST}}$ & duration of operations post transferring
         out buffer in buffer preparation procedures & \ref{S.parameters}\\
-    $\Delta t_{\mathit{PREP}}$ & total duration of buffer preparation
-        procedure & \ref{SS.constr4}\\
     $\Delta t_{\mathit{USE},n}$ & duration of use of buffer $n$ 
         & \ref{S.bufferdata}\\
-    $\Delta t_{\mathit{TRANSFER}}$ & duration of transfer from buffer
+    $\Delta t_{\mathit{TRANSFER}}$ & duration of transfers from buffer
         preparation vessel to buffer hold vessel & \ref{S.parameters}\\
-    $\boldsymbol{u}_{n}$ & boolean; single feasible scheduling window for 
-        buffer $k > n$ with respect to buffer $n$ & \ref{SS.cyclic}\\
-    $\boldsymbol{v}_{nk}$ & boolean; feasible scheduling window for buffer
-        $k > n$ is before buffer $n$ preparation procedure & \ref{SS.cyclic}\\
-    $\boldsymbol{w}_{nkp}$ & boolean; distinct buffers $n$ and $k$ are both
-        made in slot $p$ & \ref{SS.constr6}\\
-    $\boldsymbol{x}_{np}$ & boolean; buffer $n$ is prepared in slot $p$
+    $\boldsymbol{u}_{n}$ & feasible scheduling window for 
+        buffer $k$ with respect to buffer $n$  does not cross cycle
+        boundary (binary) & \ref{SS.cyclic}\\
+    $\boldsymbol{v}_{nk}$ & feasible scheduling window for buffer
+        $k$ with respect to buffer $n$ occurs before buffer $n$ preparation
+        procedure (binary) & \ref{SS.cyclic}\\
+    $\boldsymbol{w}_{nkp}$ & distinct buffers $n$ and $k$ are both
+        made in slot $p$ (binary) & \ref{SS.constr6}\\
+    $\boldsymbol{x}_{np}$ & buffer $n$ is prepared in slot $p$ (binary)
         & \ref{SS.constr1}\\
-    $\boldsymbol{y}_{mp}$ & boolean; a vessel of size $m$ is in slot $p$
+    $\boldsymbol{y}_{mp}$ & a vessel of size $m$ is in slot $p$ (binary)
         & \ref{S.objfn}\\
     $\boldsymbol{z}_{n}$ & buffer $n$ hold duration & \ref{SS.constr5}\\
     $M$ & Set of vessel sizes & \ref{S.vesseldata}\\
@@ -94,7 +100,7 @@
     $P$ & Set of slots & \ref{S.slots}\\
     $\mathcal{P}$ & number of slots & \ref{S.slots}\\
     $T$ & process cycle time (start--to--start duration) & \ref{S.parameters}\\
-    $U_{n}$ & volume of buffer $n$ to be preapred & \ref{S.bufferdata}\\
+    $U_{n}$ & volume of buffer $n$ to be prepared & \ref{S.bufferdata}\\
     $V_{m}$ & maximum working volume of vessel size $m$ & \ref{S.vesseldata}\\
     $V_{\mathit{MAX}}$ & largest maximum working volume of available vessel
         sizes & \ref{SS.constr3}\\
@@ -116,7 +122,7 @@ Subscripts in upper-case are descriptive.
 Both subscript types may be used simultaneously, e.g. in the case of
 $t_{USE,n}$.
 
-A prime suprescript denotes an optimum value, e.g. $Z^{\prime}$.
+A prime superscript denotes an optimum value, e.g. $Z^{\prime}$.
 
 Greek letters are used throughout the text as `throwaway' variables, to
 explain certain concepts and are not included in the list of notation.

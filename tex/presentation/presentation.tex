@@ -1,0 +1,535 @@
+\documentclass{beamer}
+\usetheme{Boadilla}
+\usepackage{siunitx}
+\usepackage{amsmath}
+\usepackage{graphicx}
+
+\title[Bioprocessing facilities design]{Dissertation:
+    Optimising the design of buffer preparation in bioprocessing facilities}
+\subtitle{MSc in Business Analytics Part Time 2015--2017}
+\author{Sean Tully}
+\institute{University College Dublin}
+\date{25\textsuperscript{th} August 2017}
+
+\begin{document}
+\setbeamertemplate{caption}{\raggedright\insertcaption\par}
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+
+\begin{frame}
+    \frametitle{Introduction -- Problem Definition}
+    \begin{columns}
+        \column{0.65\textwidth}
+            \begin{itemize}
+                \item Bioprocessing involves the synthesis of therapeutic
+                    products using biological agents (bacteria or mammalian
+                    cells)        
+                \item The purification of these products typically requires the
+                    use of 10--20 different buffer solutions (\emph{buffers})
+                \item Calculating the correct number and volume of vessels for
+                    buffer preparation in a large-scale facility represents a
+                    significant engineering challenge
+                \item The aim of this work was to develop a methodology for
+                    calculating buffer vessel requirements, given some process
+                    information
+            \end{itemize}        
+        \column{0.35\textwidth}
+        \begin{figure}
+            \centering
+            \includegraphics[angle=0,scale=0.22]{alexion.jpg}\\
+            \vspace{0.3cm}
+            \includegraphics[angle=0,scale=0.22]{centocor.jpg}
+            \caption{Alexion, Dublin and Centocor, Cork \copyright PM Group}
+        \end{figure}
+    \end{columns}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Buffer Preparation}
+    \begin{columns}
+        \column{0.5\textwidth}
+        \begin{itemize}
+            \item Buffer preparation requires two vessels
+            \item Each buffer is prepared in a \emph{preparation vessel}, which
+                may be used to prepare many buffers
+            \item It is assumed that each buffer has a dedicated \emph{hold
+                vessel}
+            \item We want to minimise the total cost of vessels in buffer
+                preparation.
+        \end{itemize}
+        \column{0.5\textwidth}
+        \begin{figure}
+            \centering
+            \includegraphics[angle=0,scale=0.5]{./../figures/buffer_pfd.pdf}
+            \caption{Single buffer preparation -- equipment}
+        \end{figure}
+    \end{columns}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Buffer Preparation Scheduling}
+    \begin{figure}
+        \centering
+        \includegraphics[angle=0,scale=0.45]{./../figures/explanatory.pdf}
+        \caption{Single buffer preparation -- scheduling}
+    \end{figure}
+    \begin{itemize}
+    \item The volume of each buffer is known, as is it's time of first use and
+        total duration of use
+    \item Some flexibility exists in the hold duration and in vessel selection
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Global parameters for random example}
+    \begin{table}
+        \begin{tabular}{l | l | r | c}
+            symbol & short description & value & unit\\ \hline
+            $T$ & process cycle time & 96.0 & h\\
+            $\Delta t_{\mathit{PREP,PRE}}$ & prep pre duration & 12.0 & h\\
+            $\Delta t_{\mathit{PREP,POST}}$ & prep post duration & 1.5 & h\\
+            $\Delta t_{\mathit{TRANSFER}}$ & transfer duration & 2.0 & h\\
+            $\Delta t_{\mathit{HOLD,PRE}}$ & hold pre duration & 8.0 & h\\
+            $\Delta t_{\mathit{HOLD,POST}}$ & hold post duration & 1.5 & h\\
+            $\Delta t_{\mathit{HOLD,MIN}}$ & minimum hold duration & 12.0 & h\\
+            $\Delta t_{\mathit{HOLD,MAX}}$ & maximum hold duration & 60.0 & h\\
+            $f_{\mathit{MINFILL}}$ & minimum fill ratio & 0.3 & --\\
+            $f_{\mathit{UTIL}}$ & maximum utilisation ratio & 0.8 & --\\
+        \end{tabular}
+    \end{table}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Vessel data for random example}
+    \begin{table}
+        \begin{tabular}{l | r | r}
+            names & volumes & costs\\
+            & $V_{m}$ (l) & $c_{m}$ (--)\\\hline
+            \SI{1000}{\litre} & \SI{1000.0}{} & \SI{63.10}{}\\
+            \SI{2000}{\litre} & \SI{2000.0}{} & \SI{95.64}{}\\
+            \SI{3000}{\litre} & \SI{3000.0}{} & \SI{121.98}{}\\
+            \SI{4000}{\litre} & \SI{4000.0}{} & \SI{144.96}{}\\
+            %\SI{5000}{\litre} & \SI{5000.0}{} & \SI{165.72}{}\\
+            %\SI{6000}{\litre} & \SI{6000.0}{} & \SI{184.88}{}\\
+            %\SI{8000}{\litre} & \SI{8000.0}{} & \SI{219.71}{}\\
+            %\SI{10000}{\litre} & \SI{10000.0}{} & \SI{251.19}{}\\
+            %\SI{12000}{\litre} & \SI{12000.0}{} & \SI{280.83}{}\\
+            %\SI{16000}{\litre} & \SI{16000.0}{} & \SI{333.02}{}\\
+            %\SI{18000}{\litre} & \SI{18000.0}{} & \SI{357.41}{}\\
+            $\quad\vdots$ & $\vdots\quad$ & $\vdots\quad$\\
+            \SI{20000}{\litre} & \SI{20000.0}{} & \SI{380.73}{}\\
+            \SI{22000}{\litre} & \SI{22000.0}{} & \SI{403.14}{}\\
+            \SI{25000}{\litre} & \SI{25000.0}{} & \SI{435.28}{}\\
+            \SI{30000}{\litre} & \SI{30000.0}{} & \SI{485.59}{}\\
+        \end{tabular}
+    \end{table}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Buffer data for random example}
+    \begin{table}
+        \centering
+        \label{tbl.buffer}
+        \begin{tabular}{l | c | c | c}
+            names & required volumes & use start times & use durations\\
+            & $U_{n}$ (l) & $t_{\mathit{USE},n}^{*}$ (h) 
+            & $\Delta t_{\mathit{USE},n}$
+            (h)\\ \hline
+            \text{Buffer \#1} & \SI{24427.13}{} & \SI{76.23}{} & \SI{20.56}{}\\
+            \text{Buffer \#2} & \SI{5487.29}{} & \SI{0.21}{} & \SI{49.77}{}\\
+            \text{Buffer \#3} & \SI{2588.36}{} & \SI{25.78}{} & \SI{24.56}{}\\
+            \text{Buffer \#4} & \SI{7102.05}{} & \SI{46.79}{} & \SI{27.77}{}\\
+            \text{Buffer \#5} & \SI{1020.87}{} & \SI{87.7}{} & \SI{36.58}{}\\
+            \text{Buffer \#6} & \SI{19508.79}{} & \SI{35.52}{} & \SI{58.53}{}\\
+            \text{Buffer \#7} & \SI{23073.55}{} & \SI{42.26}{} & \SI{39.71}{}\\
+            \text{Buffer \#8} & \SI{25454.10}{} & \SI{48.38}{} & \SI{43.47}{}\\
+            \text{Buffer \#9} & \SI{24088.67}{} & \SI{4.18}{} & \SI{55.41}{}\\
+            \text{Buffer \#10} & \SI{3172.46}{} & \SI{48.31}{} & \SI{23.27}{}\\
+            \text{Buffer \#11} & \SI{24752.71}{} & \SI{76.38}{} & \SI{45.80}{}\\
+            \text{Buffer \#12} & \SI{13445.31}{} & \SI{73.93}{} & \SI{34.25}{}\\
+        \end{tabular}
+    \end{table}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Basic Model}
+    Objective Function: Minimise total preparation vessel cost\\
+    \begin{equation}
+        \boldsymbol{Z} = \sum_{m \in M} \sum_{p \in P} c_m \boldsymbol{y}_{mp}
+    \end{equation}
+    Subject to \ldots
+    \begin{itemize}
+    \item Each buffer must be prepared in exactly one slot\\
+    \begin{equation}
+        \sum_{p \in P} \boldsymbol{x}_{np} = 1 \quad \forall n \in N
+    \end{equation}
+    \item Each slot may contain at most one vessel instance
+    \begin{equation}
+        \sum_{m \in M} \boldsymbol{y}_{mp} \le 1 \quad \forall p \in P
+    \end{equation}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Basic Model (continued)}
+    \begin{itemize}
+    \item Each vessel must be adequately sized for all buffers prepared in it
+    \begin{equation}
+        U_{n} \boldsymbol{x}_{np} \le \sum_{m \in M} V_{m} \boldsymbol{y}_{mp}
+        \quad \forall n \in N, \enspace \forall p \in P
+    \end{equation}
+    \begin{equation}
+        V_{\mathit{MAX}} + U_{n} \ge 
+        f_{\mathit{MINFILL}} \sum_{m \in M} V_{m} \boldsymbol{y}_{mp}
+        + V_{\mathit{MAX}} \boldsymbol{x}_{np} 
+        \quad \forall n \in N, \enspace \forall p \in P
+    \end{equation}
+    \item Each preparation slot must not be too busy
+    \begin{equation}
+        \Delta t_{\mathit{PREP}} \sum_{n \in N} \boldsymbol{x}_{np} \le
+        f_{\mathit{UTIL}} T \quad \forall p \in P
+    \end{equation}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Complete Model}
+    \begin{itemize}
+        \item The complete model adds scheduling constraints to the basic
+        model
+        \item The general scheduling constraint can be stated quite simply:\\
+        \emph{`Two events requiring the same piece of equipment must not occur
+        simultaneously'}
+        \item To state the above constraint mathematically is not so simple
+        \item The additional constraints required will now be described
+        \ldots
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Complete Model -- Additional constraints}
+    \begin{itemize}
+        \item Hold procedures must not clash
+        \begin{multline}
+            \Delta t_{\mathit{HOLD,PRE}} + \Delta t_{\mathit{TRANSFER}}
+            + \boldsymbol{z}_{n} + \Delta t_{\mathit{USE},n} 
+            + \Delta t_{\mathit{HOLD,POST}} \le T\\ \quad \forall n \in N
+        \end{multline}
+        \item Identify if a pair of distinct buffers are both prepared in a
+        \emph{particular} slot (note: cubic)
+        \begin{equation}
+            \begin{split}
+                \begin{alignedat}{11}
+                    &\boldsymbol{w}_{nkp} {}&&\le{} \tfrac{1}{2} 
+                    &&\boldsymbol{x}_{np}
+                    {}+{} &&\tfrac{1}{2} && \boldsymbol{x}_{kp} &{}-{} 1\\
+                    &\boldsymbol{w}_{nkp} {}&&\ge{} &&\boldsymbol{x}_{np} {}+{}
+                    && && \boldsymbol{x}_{kp} &{}-{} 1\\
+                \end{alignedat}
+            \end{split}
+            \quad
+            \begin{split}
+                \forall n \in N, \enspace \forall k \in N; \; k > n, \enspace 
+                \forall p \in P
+            \end{split}
+            \label{eq.w1}
+        \end{equation}
+        \item The above can be used to tell us if  a pair of distinct buffers
+        are both prepared in the \emph{same} slot
+        \begin{equation}
+            \boldsymbol{a}_{nk} = \sum_{p \in P} \boldsymbol{w}_{nkp} \quad
+            \forall n \in N, \enspace \forall k \in N; \; k > n
+            \label{eq.a1}
+        \end{equation}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Complete Model -- Additional constraints (continued)}
+    \begin{itemize}
+        \item We now define a number of additional constraints which are
+        required due to the cyclic nature of the scheduling problem
+        \begin{equation}
+            \begin{split}
+                \begin{alignedat}{2}
+                    T \boldsymbol{q}_{n} - \boldsymbol{z}_{n} &\ge
+                    - t_{\mathit{USE},n}\\
+                    T \boldsymbol{q}_{n} - \boldsymbol{z}_{n} &\le
+                    - t_{\mathit{USE},n} + T\\
+                \end{alignedat}
+            \end{split}
+            \quad \forall n \in N
+        \end{equation}
+        \begin{equation}
+            \begin{split}
+                \begin{alignedat}{2}
+                    - T \boldsymbol{q}_{n} + T \boldsymbol{r}_{n} 
+                    + \boldsymbol{z}_{n}
+                    &\le t_{\mathit{USE},n} + \Delta t_{\mathit{PREP}}\\
+                    - T \boldsymbol{q}_{n} + T \boldsymbol{r}_{n}
+                    + \boldsymbol{z}_{n}
+                    &\ge t_{\mathit{USE},n} + \Delta t_{\mathit{PREP}} - T\\
+                    \end{alignedat}
+                \quad \forall n \in N
+            \end{split}
+        \end{equation}
+        \begin{equation}
+            \begin{split}
+                \begin{alignedat}{2}
+                    T \boldsymbol{q}_{n} + T \boldsymbol{s}_{n} 
+                    - \boldsymbol{z}_{n}
+                    &\le -t_{\mathit{USE},n} + \Delta t_{\mathit{PREP}}\\
+                    T \boldsymbol{q}_{n} + T \boldsymbol{s}_{n} 
+                    - \boldsymbol{z}_{n}
+                    &\ge -t_{\mathit{USE},n} + \Delta t_{\mathit{PREP}} + T\\
+                    \end{alignedat}
+                \quad \forall n \in N
+            \end{split}
+        \end{equation}
+        \begin{equation}
+            \begin{split}
+                \begin{alignedat}{8}
+                    &&\boldsymbol{r}_{n} && {}+{} &&\boldsymbol{s}_{n} && {}-{} 
+                    &&\boldsymbol{u}_{n} &\ge 0\\
+                    &&\boldsymbol{r}_{n} && {}+{} &&\boldsymbol{s}_{n} && {}-{} 
+                    &2&\boldsymbol{u}_{n} &\le 0\\
+                \end{alignedat}
+                \quad \forall n \in N
+            \end{split}
+        \end{equation}    
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Complete Model -- Additional constraints (continued)}
+    \begin{itemize}
+    \item The preparation scheduling constraint can now be defined
+    \begin{equation}
+            \begin{split}
+                \begin{aligned}
+                    T \boldsymbol{q}_{k} - T \boldsymbol{q}_{n}
+                    + 2T \boldsymbol{u}_{n} + 2T \boldsymbol{v}_{nk}
+                    - 2T \sum_{p \in P} \boldsymbol{w}_{nkp} 
+                    - \boldsymbol{z}_{k} + \boldsymbol{z}_{n}\\
+                    \ge t_{\mathit{USE},n} - t_{\mathit{USE},k}
+                    + \Delta t_{\mathit{PREP}} - 2T
+                \end{aligned}\\
+                \begin{aligned}
+                    T \boldsymbol{q}_{k} - T \boldsymbol{q}_{n}
+                    - 2T \boldsymbol{u}_{n} + 2T \boldsymbol{v}_{nk}
+                    + 2T \sum_{p \in P} \boldsymbol{w}_{nkp} 
+                    - \boldsymbol{z}_{k} + \boldsymbol{z}_{n}\\
+                    \ge t_{\mathit{USE},n} - t_{\mathit{USE},k}
+                    - \Delta t_{\mathit{PREP}} + 4T
+                \end{aligned}\\
+                \begin{aligned}
+                    T \boldsymbol{q}_{k} - T \boldsymbol{q}_{n}
+                    - T \boldsymbol{r}_{n} + 2T \boldsymbol{u}_{n}
+                    + 2T \sum_{p \in P} \boldsymbol{w}_{nkp} 
+                    - \boldsymbol{z}_{k} + \boldsymbol{z}_{n}\\
+                    \ge t_{\mathit{USE},n} - t_{\mathit{USE},k}
+                    - \Delta t_{\mathit{PREP}} + 4T
+                \end{aligned}\\
+                \begin{aligned}
+                    T \boldsymbol{q}_{k} - T \boldsymbol{q}_{n}
+                    + T \boldsymbol{s}_{n} - 2T \boldsymbol{u}_{n}
+                    - 2T \sum_{p \in P} \boldsymbol{w}_{nkp} 
+                    - \boldsymbol{z}_{k} + \boldsymbol{z}_{n}\\
+                    \ge t_{\mathit{USE},n} - t_{\mathit{USE},k}
+                    + \Delta t_{\mathit{PREP}} - 4T
+                \end{aligned}\\
+                \begin{aligned}
+                    \forall n \in N, \enspace \forall k \in N; \; k > n
+                \end{aligned}\\
+            \end{split}
+        \end{equation}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Complete Model -- Variables}
+    \begin{equation}
+        \boldsymbol{q}_{n} \in \left\{0, 1\right\} \quad \forall n \in N
+    \end{equation}
+    \begin{equation}
+        \boldsymbol{r}_{n} \in \left\{ 0, 1 \right\} \quad \forall n \in N
+    \end{equation}
+    \begin{equation}
+        \boldsymbol{s}_{n} \in \left\{ 0, 1 \right\} \quad \forall n \in N
+    \end{equation} 
+    \begin{equation}
+        \boldsymbol{u}_{n} \in \left\{ 0, 1 \right\} \quad \forall n \in N
+    \end{equation}
+    \begin{equation}
+        \boldsymbol{v}_{nk} \in \left\{ 0, 1 \right\} \quad \forall n \in N,
+        \enspace \forall k \in N; \; k > n
+    \end{equation}
+    \begin{equation}
+        \boldsymbol{w}_{nkp} \in \left\{ 0, 1 \right\} \quad \forall n \in N, 
+        \enspace \forall k \in N; \; k > n, \enspace \forall p \in P
+    \end{equation}
+    \begin{equation}
+        \boldsymbol{x}_{np} \in \left\{ 0, 1 \right\} \quad \forall n \in N,
+        \enspace \forall p \in P
+    \end{equation}
+    \begin{equation}
+        \boldsymbol{y}_{mp} \in \left\{ 0, 1 \right\} \quad \forall m \in M,
+        \enspace \forall p \in P
+    \end{equation}
+    \begin{equation}
+        \Delta t_{\mathit{HOLD,MIN}} \le \boldsymbol{z}_{n} \le 
+        \Delta t_{\mathit{HOLD,MAX}}; \quad
+        \boldsymbol{z}_{n} \in \mathbb{R} \quad \forall n \in N
+    \end{equation}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Binary Variables in the Scheduling Constraint}
+    The binary var
+    \begin{table}
+        \centering
+        \small
+        \begin{tabular}{c c c c c | c}
+            $\boldsymbol{a}_{nk}$ & $\boldsymbol{u}_{n}$ & $\boldsymbol{v}_{n}$
+            & $\boldsymbol{r}_{n}$ & $\boldsymbol{s}_{n}$
+            & $\boldsymbol{t}_{\mathit{PREP},k} = \bullet$\\\hline
+            0 & $\ast$ & $\ast$ & $\ast$ & $\ast$ 
+            & (no active scheduling constraints)\\
+            1 & 0 & 0 & $\ast$ & $\ast$
+            & $\boldsymbol{t}_{\mathit{PREP},n} + \Delta t_{\mathit{PREP}} \le
+                \bullet \le T$\\
+            1 & 0 & 1 & $\ast$ & $\ast$ 
+            & $0 \le \bullet \le \boldsymbol{t}_{\mathit{PREP},n} 
+                - \Delta t_{\mathit{PREP}}$\\
+            1 & 1 & $\ast$ & 0 & 0 
+            & $\boldsymbol{t}_{\mathit{PREP},n} + \Delta t_{\mathit{PREP}}
+                \le \bullet \le \boldsymbol{t}_{\mathit{PREP},n} 
+                - \Delta t_{\mathit{PREP}}$\\
+            1 & 1 & $\ast$ & 0 & 1 
+            & $\boldsymbol{t}_{\mathit{PREP},n} + \Delta t_{\mathit{PREP}} - T
+                \le \bullet \le \boldsymbol{t}_{\mathit{PREP},n}
+                - \Delta t_{\mathit{PREP}}$\\
+            1 & 1 & $\ast$ & 1 & 0 
+            & $\boldsymbol{t}_{\mathit{PREP},n} + \Delta t_{\mathit{PREP}}
+                \le \bullet \le \boldsymbol{t}_{\mathit{PREP},n}
+                - \Delta t_{\mathit{PREP}} + T$\\
+            1 & 1 & $\ast$ & 1 & 1 
+            & $\boldsymbol{t}_{\mathit{PREP},n} + \Delta t_{\mathit{PREP}} - T
+                \le \bullet \le \boldsymbol{t}_{\mathit{PREP},n}
+                - \Delta t_{\mathit{PREP}} + T$\\
+        \end{tabular}
+    \end{table}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Implementation}
+    \begin{itemize}
+        \item The Complete Model was implemented in python, using the PuLP
+            library which acts as an API to several commercial and open-source
+            mixed-integer linear programming solvers
+        \item The proprietary IBM ILOG CPLEX Optimizer was primarily used to
+            solve the problem
+        \item The open-source CBC solver was also used, though it is
+            considerably slower
+        \item The matplotlib library was used to generate plots
+        \item Both random data and data from real-world examples were examined
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Complexity}
+    For a problem with $\mathcal{M}$ vessels and $\mathcal{N}$ buffers, there
+    are:
+    \begin{itemize}
+        \item $\mathcal{N} {{\mathcal{N}}\choose{2}} + \mathcal{N}^2 
+         + {{\mathcal{N}}\choose{2}} + \mathcal{N} \mathcal{M} + 5\mathcal{N}$
+        variables
+        \item $2\mathcal{N}{{\mathcal{N}}\choose{2}} 
+        + 4{{\mathcal{N}}\choose{2}} + 2\mathcal{N}^2 + 12\mathcal{N} + 1$
+        equations
+    \end{itemize}
+    \vspace{0.5cm}
+    For the random example detailed in this presentation, there are:
+    \begin{itemize}
+        \item 1242 variables
+        \item 2281 equations
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Complexity Plots}
+    \begin{columns}
+        \column{0.5\textwidth}
+        \begin{figure}
+            \centering
+            \includegraphics[angle=0,scale=0.55]{equations.pdf}
+        \end{figure}
+        \column{0.5\textwidth}
+        \begin{figure}
+            \centering
+            \includegraphics[angle=0,scale=0.55]{variables.pdf}
+        \end{figure}
+    \end{columns}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Results -- Random Example}
+    Solving the random example yields the following result:
+        \begin{table}
+            \centering
+            \caption{Required preparation vessels for random example}
+            \begin{tabular}{r}
+                vessel size\\ \hline
+                \SI{2000}{\litre}\\
+                \SI{8000}{\litre}\\
+                \SI{25000}{\litre}\\
+                \SI{30000}{\litre}\\
+            \end{tabular}
+        \end{table}
+    Note that there may be many ways of assigning the buffers to these vessels
+    and many feasible ways of scheduling these buffers.
+    
+    A feasible schedule may be represented graphically using an \emph{equipment
+    time utilisation} plot.
+\end{frame}
+
+\begin{frame}
+    \frametitle{Equipment Time Utilisation -- Random Example}
+    \begin{figure}
+        \centering
+        \includegraphics[angle=0,scale=0.6]{./../figures/plot1.pdf}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Goal Programming -- Reducing Hold Times}
+    A \emph{better} feasible schedule may be obtained using \emph{goal
+    programming}.
+    
+    The (original) objective function value is fixed as a parameter and we
+    replace the original objective function with a new one, which seeks to 
+    minimise hold times.
+    
+    In doing so, hold times are minimised, but only to the extent that they
+    don't interfere with the original list of required preparation vessels.
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.495\textwidth]{./../figures/plot1.pdf}
+        %\hfill
+        \includegraphics[width=0.495\textwidth]{./../figures/plot2.pdf}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Solution Time}
+    \begin{figure}
+        \centering
+        \includegraphics[angle=0,scale=0.75]{timing.pdf}
+    \end{figure}
+\end{frame}
+
+
+\end{document}

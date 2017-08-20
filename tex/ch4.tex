@@ -27,55 +27,30 @@ assimilate our own knowledge and get it into our power.
 \end{quote}
 
 \section{Introduction}\label{S.intro4}
-
-% TODO:
-\textbf{TODO: Rewrite this section?}
-
 At first glance, the pathway to solving the vessel selection problem was
 unclear.
 There are two aspects to the problem; scheduling and selection.
-The selection problem appears to be a close relative of a number of classic
-\textbf{NP}-hard problems in the ``bin-packing'' genre.
+
 For the scheduling aspect of the problem, initial concepts involved finding an
 API to one of the commercial scheduling packages.
-One initial concept included developing an algorithm to intelligently guess
-possible vessel selections, and pass these into a scheduling model which
-could be repeatedly be solved using a commercial scheduling package
-to find an optimum selection.
+One initial concept included developing an algorithm or heuristic to
+intelligently guess at possible vessel selections, and pass these into a
+scheduling model which could be repeatedly be solved using a commercial
+scheduling package to find an optimum selection.
+It became evident that this concept would be cumbersome and computationally
+difficult.
 
-On completion of the module on linear programming, it became apparent that
-many bin-packing type problems are most efficiently solved using linear
-programming techniques.
-Additionally, linear programming could be used to model scheduling constraints.
+The vessel selection problem appears to be a close relative of a number of
+classic \textbf{NP}-hard problems in the `bin-packing' genre so another
+concept was to look at how such problems were solved and see if any
+methodologies could be adapted to suit the problem at hand.
+It was noted that bin-packing problems, as well as some scheduling problems,
+such as job-shop scheduling, were solved using mixed-integer linear
+programming (MILP) -- see, e.g.\ \citet{Martello:1990}, \citet{Taha:2017}.
 
-The vessel selection problem was thus formulated as a MILP problem.
+The focus thus centred on formulating the problem as a MILP problem.
 Firstly, the problem was described mathematically.
 Next, attention was focused on the method of solution.
-There are many available linear programming solvers, both proprietary and open
-source.
-Many proprietary solvers have free academic licenses.
-The XPRESS solver from FICO was familiar to the author from the course module
-in linear programming, but the documentation is poor and the licensing system
-required connection to university servers which proved unreliable remotely.
-The version available through the university also had no python API (one is
-available in more recent versions), which was a strong preference for output
-data analysis and plotting.
-
-The CPLEX solver from IBM was investigated.
-The quality of the documentation is excellent, and there is a full python API
-which also has excellent documentation.
-
-The MILP problem was thus constructed in python and then solved via the CPLEX
-python API.
-It was apparent that comparatively few lines of the code involved interface
-with the API.
-With a view to making this research as useful as possible, open-source
-alternatives were also investigated.
-In the end, the PuLP python library was used as a bridge between problem
-generation and problem solution.
-PuLP is an open-source python library which acts as an API to several
-(MI)LP solvers, both commercial and open source, allowing the possibility of a
-fully open-source tool-chain for solving the problem.
 
 \section{Slots}\label{S.slots}
 
@@ -249,7 +224,7 @@ $\boldsymbol{\alpha}$ and $\boldsymbol{\beta}$, e.g.\
 $\boldsymbol{\alpha} \ge \boldsymbol{\beta}$, and a binary variable,
 $\boldsymbol{\gamma}$, and we only want to apply the constraint if
 $\boldsymbol{\gamma} = 1$.
-We intoduce a new constant, $\mathbb{M}$, which is a \emph{sufficiently large}
+We introduce a new constant, $\mathbb{M}$, which is a \emph{sufficiently large}
 number and rewrite the constraint as:
 \begin{equation}
     \mathbb{M} + \boldsymbol{\alpha} \ge \boldsymbol{\beta}+ \mathbb{M}
@@ -288,7 +263,7 @@ In the absence of detailed scheduling data (i.e.\ knowledge of when the buffers
 are used by the process and their durations of use), an allowance can be made
 for unknown scheduling constraints by limiting the maximum allowed utilisation
 of the preparation vessels.
-A slot is deemed to be utilised if there is a preparation event occuring in
+A slot is deemed to be utilised if there is a preparation event occurring in
 it. A slot's utilisation ratio is the total duration of all such events in a
 cycle, expressed as a fraction of the cycle time.
 
@@ -494,7 +469,7 @@ The latter binary variable, $ \boldsymbol{w}_{nkp} $, is defined below.
 \end{equation}
 Note that $\boldsymbol{w}_{nkp}$ has dimensions
 $\binom{\mathcal{N}}{2} \times \mathcal{P}$; since $\boldsymbol{w}_{nnp}$ is
-not required (we don't need to comapre a buffer with itself) and
+not required (we don't need to compare a buffer with itself) and
 $\boldsymbol{w}_{nkp} = \boldsymbol{w}_{knp}$, we only need to describe
 constraints where $k > n$.
 
@@ -600,7 +575,7 @@ The pair of expressions in
 \hyperref[eq.alphabeta1]{equation \ref*{eq.alphabeta1}}
 represent an \emph{or} constraint, which must be converted to an \emph{and}
 constraint if they are to be included in a MILP model.
-This conversion requires the definition of an addtional binary variable,
+This conversion requires the definition of an additional binary variable,
 $\boldsymbol{\gamma}$, which is used to select between the two cases in
 \hyperref[eq.alphabeta1]{equation \ref*{eq.alphabeta1}}.
 The \emph{big-M} method (see \hyperref[SS.constr3]{Section \ref*{SS.constr3}})
@@ -721,7 +696,7 @@ $\boldsymbol{q}_{n} = \boldsymbol{q}_{n}^{\left( 1 \right)} \land
 Note that $\boldsymbol{t}_{\mathit{PREP},n}$ is actually the time, in the
 current cycle, when the hold operation of buffer $n$ commences (i.e.\ it is the
 time, in the current cycle, when the transfer of buffer from the preparation
-vessel to the hold vessel ends.  It may appear more intutive to define
+vessel to the hold vessel ends.  It may appear more intuitive to define
 $\boldsymbol{t}_{\mathit{PREP},n}$ as the start time of the preparation
 procedure for buffer $n$, but this would lead to a longer expression in
 \hyperref[eq.tprep]{equation \ref*{eq.tprep}}.
@@ -741,7 +716,7 @@ the most concise.
 \end{figure}
 Imagine, for instance, that a preparation procedure for buffer $n$ occurs in a
 given slot such that it is scheduled well away from the cycle time boundaries.
-In such a case, we would envisage two feasible timespans wherein a second
+In such a case, we would envisage two feasible time spans wherein a second
 preparation procedure (for, e.g., buffer $k$) may be scheduled in the same
 slot.
 In terms of the variables defined in 
@@ -1347,7 +1322,7 @@ i.e.\ we define:
 \end{equation}
 In \hyperref[eq.Zprime]{equation \ref*{eq.Zprime}}, $Z^{\prime}$ is the optimal objective function value
 obtained by solving the complete model.
-Note that $Z^{\prime}$ is not bolded, as it is treated as a constant parameter
+Note that $Z^{\prime}$ is not in bold, as it is treated as a constant parameter
 in our second-pass model.
 The complete model is then re-run with the original objective function replaced
 by the new objective, $\min \boldsymbol{Y}$, with the following constraint
@@ -1594,13 +1569,16 @@ Input data files are either in \texttt{csv} format or \texttt{ini} format, as
 parsers for both of these formats are included in the standard python library.
 
 \subsection{MILP Solvers}\label{SS.impl1}
+
+\textbf{TODO: Software references \& bibliography where applicable}
+
 There are several MILP solver packages available that can be used to solve
 problems such as the basic, complete and secondary problems summarised in this
 chapter. Both commercial and open-source MILP solvers exist.
 Proprietary solvers include Gurobi, CPLEX and XPRESS. Open source solvers
 include GLPK and CBC.
 
-Initial coding efforts centered around CPLEX, since it has a free and
+Initial coding efforts centred around CPLEX, since it has a free and
 readily available academic license, good documentation and a well-documented
 python API.
 
@@ -1612,7 +1590,7 @@ It is available under a free and permissive open source license.
 
 A python API is currently available for recent versions of XPRESS and an
 academic license for XPRESS was also available via the University.
-Unfortunately, the version of XPRESS avaialble under the academic licence
+Unfortunately, the version of XPRESS available under the academic licence
 predates the release of the python API.
 It was also not possible to get XPRESS working reliably with PuLP due to
 intermittent issues with the network-based license key system used for the
@@ -1638,9 +1616,9 @@ static versions of all libraries used in the code which is advantageous in
 preventing breakages during software updates (these can be common with
 rolling-release operating systems).
 As it happened, version 1.6.6 of PuLP was the current version during early
-stage development, but it was incompatible with CPLEX versiuon 12.7.1 due to a
+stage development, but it was incompatible with CPLEX version 12.7.1 due to a
 change in the CPLEX python API.  A patch was required to maintain
-interoperability.  The patch was merged into version 1.6.7 of PuLP and so this,
+inter-operability.  The patch was merged into version 1.6.7 of PuLP and so this,
 and all other software was then installed unmodified.
 \hyperref[tbl.libs]{Table \ref*{tbl.libs}} lists the installed python
 libraries.
@@ -1651,7 +1629,6 @@ libraries.
     \label{tbl.libs}
     \begin{tabular}{l  l  l }
         library & version & reason for installation\\ \hline
-        cplex & 12.7.1.0 & API for CPLEX solver \\
         matplotlib & 2.0.2 & generating plots \\
         numpy & 1.13.0 & working with arrays \\
         pulp & 1.6.7 & API for multiple solvers \\
@@ -1661,7 +1638,7 @@ libraries.
     \end{tabular}
 \end{table}
 
-The source code may be cheked out from github by running:
+The source code may be checked out from GitHub by running:
 
 \texttt{\$ git clone https://github.com/multipitch/dissertation}
 
@@ -1673,8 +1650,8 @@ contains some example input files and the \texttt{tex} folder contains the
 
 The \texttt{src} folder contains three files:
 \begin{itemize}
-    \item \texttt{model.py} contains the model
-    \item \texttt{plots.py} contains code for genrating various plots
+    \item \texttt{model.py} contains the code specifying and solving models
+    \item \texttt{plots.py} contains code for generating various plots
     \item \texttt{runmodel} is a short executable script that runs the model(s)
         in \texttt{model.py}
 \end{itemize}
@@ -1732,7 +1709,7 @@ The \texttt{Variables} class simply exists to contain a group of
 The \texttt{Results} class is a container for holding the solution variables.
 It has an \texttt{add} method for populating itself with data.
 
-The \texttt{model.py} file contains the following functions:
+The \texttt{model.py} file also contains the following functions:
 \begin{itemize}
     \item \texttt{csv\_columns\_to\_dict\_of\_lists}
     \item \texttt{variable\_iterator}
@@ -1768,7 +1745,7 @@ which actually performs the recursion.
 These are required to flatten a multidimensional variable into a list so that
 it is suitable for passing to \texttt{pulp}.
 
-The \texttt{unflatten\_variable} varaible function essentially performs the
+The \texttt{unflatten\_variable} variable function essentially performs the
 reverse of the above iterator functions; given a required set of dimensions
 and a list of objects, it unflattens the list into a multidimensional array of
 objects with the requisite dimensions.
@@ -1796,10 +1773,56 @@ This function is used to define the secondary problem, as summarised in
 complete problem summarised in 
 \hyperref[SS.model2summary]{Section \ref*{SS.model2summary}}.
 
-
+The remaining functions are used to generate models from defined or random
+data and to run the models via pulp.
 
 \subsection{Plotting Code}\label{SS.plotcode}
 
-\subsection{Executable}\label{SS.plotcode}
+The \texttt{plot.py} file contains a number of functions, listed below, for
+generating various plots.  It uses the \texttt{matplotlib} library extensively.
+\begin{itemize}
+    \item \texttt{single\_cycle\_plot}
+    \item \texttt{explanatory\_plot}
+    \item \texttt{sched\_plot\_single}
+    \item \texttt{sched\_plot\_all}
+    \item \texttt{complexity\_plot}
+    \item \texttt{timing\_plot}
+    \item \texttt{cyclic\_xranges}
+    \item \texttt{read\_durations}
+\end{itemize}
 
+The \texttt{single\_cycle\_plot} function produces an equipment time
+utilisation plot for a solved problem. Examples in this document include
+figures \ref{fig.primary} and \ref{fig.secondary} in this chapter.  This is the
+main visual output from a solved problem.
 
+\sloppy
+The \texttt{explanatory\_plot} function produces the plot in
+\hyperref[fig.explanatory]{Figure \ref*{fig.explanatory}}.
+The \texttt{sched\_plot\_single} and \texttt{sched\_plot\_all} functions are
+used to produce the plots in Figures \ref{fig.sched1} and \ref{fig.sched2}
+respectively.
+The \texttt{complexity\_plot} function produces is used to produce the plots
+in Figures \ref{fig.dims} and \ref{fig.eqns}.
+These are all static, explanatory plots used to illustrate the
+report only.
+
+\fussy
+The \texttt{timing\_plot} function is used to generate a box-plot showing the 
+duration taken to solve a random problem as a function of the number of buffers
+in the problem. \hyperref[fig.timing]{Figure \ref*{fig.timing}} is an example
+of such a plot.
+
+The \texttt{cyclic\_xranges} function is called by the
+\texttt{single\_cycle\_plot} function and the \texttt{sched\_plot\_all}
+function.
+If an operation overlaps the single cycle range boundary, it splits the
+operation into two segments, one from the start of the operation to $T$ and the
+other from $t=0$ to the end of the operation.
+
+The \texttt{read\_durations} function is used to read timing data from a file.
+This may be used by \texttt{timing\_plot}.  The capability to read and write
+duration data to a file is useful as it can take a considerable amount of time
+to obtain the duration data and if it was destroyed when the program
+terminates, tweaking the appearance of the plot would otherwise require
+re-running all the constituent simulations again.
