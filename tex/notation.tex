@@ -32,11 +32,13 @@
         & \ref{SS.randomdata}\\
     $f_{\mathit{UTIL}}$ & preparation slot maximum utilisation ratio
         & \ref{S.parameters}\\
-    $k$ & secondary buffer index $\left( k \in N, k \ne n \right)$
+    $k$ & secondary buffer index $\left( k \in \mathcal{N}, k \ne n \right)$
         & \ref{SS.schedintro}\\
-    $m$ & vessel size index $\left( m \in M \right)$ & \ref{S.vesseldata}\\
-    $n$ & buffer index $\left( n \in N \right)$ & \ref{S.bufferdata}\\
-    $p$ & slot index $\left( p \in P \right)$ & \ref{S.slots}\\
+    $m$ & vessel size index $\left( m \in \mathcal{M} \right)$ 
+        & \ref{S.vesseldata}\\
+    $n$ & buffer index $\left( n \in \mathcal{N} \right)$ 
+        & \ref{S.bufferdata}\\
+    $p$ & slot index $\left( p \in \mathcal{P} \right)$ & \ref{S.slots}\\
     $\boldsymbol{q}_{n}$ & the buffer $n$ hold operation crosses the
         single-cycle boundaries (binary) & \ref{SS.prepreftimes}\\
     $\boldsymbol{r}_{n}$ & $\boldsymbol{t}_{\mathit{LOWER},n}$ occurs before
@@ -93,12 +95,12 @@
     $\boldsymbol{y}_{mp}$ & a vessel of size $m$ is in slot $p$ (binary)
         & \ref{S.objfn}\\
     $\boldsymbol{z}_{n}$ & buffer $n$ hold duration & \ref{SS.constr5}\\
-    $M$ & Set of vessel sizes & \ref{S.vesseldata}\\
-    $\mathcal{M}$ & number of vessel sizes & \ref{S.vesseldata}\\
-    $N$ & Set of buffers & \ref{S.bufferdata}\\
-    $\mathcal{N}$ & number of buffers & \ref{S.bufferdata}\\
-    $P$ & Set of slots & \ref{S.slots}\\
-    $\mathcal{P}$ & number of slots & \ref{S.slots}\\
+    $M$ & number of vessel sizes & \ref{S.vesseldata}\\
+    $\mathcal{M}$ & set of vessel sizes & \ref{S.vesseldata}\\
+    $N$ & number of buffers & \ref{S.bufferdata}\\
+    $\mathcal{N}$ & set of buffers & \ref{S.bufferdata}\\
+    $P$ & number of slots & \ref{S.slots}\\
+    $\mathcal{P}$ & set of slots & \ref{S.slots}\\
     $T$ & process cycle time (start--to--start duration) & \ref{S.parameters}\\
     $U_{n}$ & volume of buffer $n$ to be prepared & \ref{S.bufferdata}\\
     $V_{m}$ & maximum working volume of vessel size $m$ & \ref{S.vesseldata}\\
@@ -124,5 +126,5 @@ $t_{USE,n}$.
 
 A prime superscript denotes an optimum value, e.g. $Z^{\prime}$.
 
-Greek letters are used throughout the text as `throwaway' variables, to
-explain certain concepts and are not included in the list of notation.
+Lower-case Greek letters are used throughout the text as `throwaway' variables,
+to explain certain concepts and are not included in the list of notation.
