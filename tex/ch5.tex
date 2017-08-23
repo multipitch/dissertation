@@ -98,7 +98,7 @@ An equipment time utilisation plot for the random example is shown in
 \hyperref[fig.etu1]{Figure \ref*{fig.etu1}}.
 \begin{figure}
     \centering
-    \includegraphics[angle=0,scale=0.8]{./figures/plot1.pdf}
+    \includegraphics[width=\linewidth]{./figures/plot1.pdf}
     \caption{Equipment time utilisation for random example}
     \label{fig.etu1}
 \end{figure}
@@ -142,28 +142,20 @@ The problem complexity depends on both the number of buffers, $N$,
 and the number of vessels, $M$.
 The complexity may be evaluated in terms of both the number of variables and
 the number of equations in the problem.
-The complexity of the basic and complete problems are summarised in tables
-\ref{tbl.complexity1} and \ref{tbl.complexity1b}.
+The complexity of the basic and complete problems are summarised in
+\hyperref[tbl.complexity]{Table \ref*{tbl.complexity}}.
 For example, a complete problem with twelve buffers and twelve vessels has
 \num{2281} equations in \num{1206} variables.
 \begin{table}[t]
     \centering
-    \caption{Model complexity -- variables}
-    \label{tbl.complexity1}
-    \begin{tabular}{l | c }
-        model & no. of variables \\ \hline
-        basic & $N^2 + NM$\\
-        complete & $N {{N}\choose{2}} + N^2 + {{N}\choose{2}} + NM + 5N$\\
-    \end{tabular}
-\end{table}
-\begin{table}[t]
-    \centering
-    \caption{Model complexity -- equations}
-    \label{tbl.complexity1b}
-    \begin{tabular}{l | c }
-        model & no. of equations\\ \hline
-        basic & $2N^2 + 3N + 1$\\
-        complete  & $2N{{N}\choose{2}} + 4{{N}\choose{2}} + 2N^2 + 12N + 1$\\
+    \caption{Model complexity}
+    \label{tbl.complexity}
+    \small
+    \begin{tabular}{l | c | c}
+        model & no. of variables & no. of equations \\ \hline
+        basic & $N^2 + NM$ & $2N^2 + 3N + 1$\\
+        complete & $N {{N}\choose{2}} + N^2 + {{N}\choose{2}} + NM + 5N$
+        & $2N{{N}\choose{2}} + 4{{N}\choose{2}} + 2N^2 + 12N + 1$\\
     \end{tabular}
 \end{table}
 \begin{table}[t]
@@ -181,30 +173,38 @@ For example, a complete problem with twelve buffers and twelve vessels has
 Noting that there is a weak dependence on $M$ and that, as the problem
 grows larger in terms of $N$, it is likely that $M$ will
 reach a maximum value, the approximation $M \approx N$ may
-be used as a conservative simplification when considering complexity (see
-\hyperref[tbl.complexity2]{Table \ref*{tbl.complexity2}}).
-Plots of the functions in
-\hyperref[tbl.complexity2]{Table \ref*{tbl.complexity2}} are given in
+be used as a conservative simplification when considering complexity.
+This simplification has been used to generate the plots in 
 Figures \ref{fig.dims} and \ref{fig.eqns}.
+The complexity can be further simplified by noting that for the binomial
+coefficient term, 
+\begin{equation}
+    \lim_{N\to\infty}{{N}\choose{2}} = \tfrac{1}{2} N^{2}
+\end{equation}
+Applying both approximations gives the simplified complexities tabulated in
+\hyperref[tbl.complexity2]{Table \ref*{tbl.complexity2}}.
 
+For the basic model, we can see that both the number of variables and the
+number of equations is $O \left( N^2 \right)$.
 
-For the simple model, we can see that both the number of variables and the
-number of equations is $\Theta \left( N^2 \right)$.
+For the complete model, the number of variables and the number of equations
+are both $O \left( N^3 \right)$.
 
-Note that ${{N}\choose{2}}$ is $\Theta \left( N^2 \right)$.
-Accordingly, for the complete model, the number of variables is 
-$\Theta \left( N^3 \right)$ and the number of equations is
-$\Theta \left( N^2 \right)$.
+The addition of the scheduling constraints in the complete model requires the
+comparison of pairs of buffers, which is $O \left( N^2 \right)$. 
+These comparisons occur for each slot, giving a multiplicative factor of 
+$O \left( N \right)$, leading to an overall complexity of
+$O \left( N^3 \right)$.
 
 \begin{figure}
     \centering
-    \includegraphics{./figures/variables.pdf}
+    \includegraphics[width=\linewidth]{./figures/variables.pdf}
     \caption{Model complexity -- variables}
     \label{fig.dims}
 \end{figure}
 \begin{figure}
     \centering
-    \includegraphics{./figures/equations.pdf}
+    \includegraphics[width=\linewidth]{./figures/equations.pdf}
     \caption{Model complexity -- equations}
     \label{fig.eqns}
 \end{figure}
@@ -236,12 +236,18 @@ In the case of $N=20$, the highest outlier is approximately two
 orders of magnitude greater than the mean duration, indicating a high degree
 of variability.
 
+Such variability in solution time is not uncommon in MILP problems (as distinct
+from LP problems on continuous variables).
+Methods for solving problems with binary variables necessarily involve some
+searching through large binary trees, where search time can vary greatly
+depending on the location of the optimum result and the search strategy.
+
 \textbf{TODO: Other solvers}
 
 \begin{figure}
     \label{fig.timing}
     \centering
-    \includegraphics{./figures/timing.pdf}
+    \includegraphics[width=\linewidth]{./figures/timing.pdf}
     \caption{Solution time as a function of buffer count}
 \end{figure}
 

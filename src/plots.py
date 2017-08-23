@@ -2,6 +2,7 @@ import csv
 
 import matplotlib.cm
 import matplotlib.pyplot
+import matplotlib.patches
 import numpy
 import pylatexenc.latexencode
 from scipy.misc import comb
@@ -30,7 +31,8 @@ def single_cycle_plot(parameters, buffers, vessels, filename=None):
     sorted_prep_names = [buffers.p_to_m[i] for i in sorted_slots]
     prep_index = [slot_ranks[i] for i in buffers.prep_slots] 
     bar_height = 0.6
-    fig, ax = matplotlib.pyplot.subplots(figsize=(6.875, 0.25*(N + nslots +5)))
+    fs = (6.875, 0.25*(N + nslots + 6.5)) # figsize
+    fig, ax = matplotlib.pyplot.subplots(figsize=fs)
     
     # Buffer Hold Vessel Bars
     hold_xranges = []
@@ -39,7 +41,7 @@ def single_cycle_plot(parameters, buffers, vessels, filename=None):
         hold_xranges.append((cyclic_xranges(buffers.hold_start_times[n], 
                                             buffers.hold_total_durations[n],
                                             ct)))
-        hold_yranges.append((N - (0.5 + n + 0.5 * bar_height), bar_height))
+        hold_yranges.append((N + 1 - (n + 0.5 * bar_height), bar_height)) ###
     for n in range(N):
         ax.broken_barh(hold_xranges[n], hold_yranges[n], facecolors=colors[n],
                        zorder=3)
@@ -51,7 +53,7 @@ def single_cycle_plot(parameters, buffers, vessels, filename=None):
         prep_xranges.append(cyclic_xranges(buffers.prep_start_times[n],
                                            buffers.prep_total_durations[n],
                                            ct))
-        ystart =  N + nslots - (prep_index[n] - 0.5 + 0.5 * bar_height)
+        ystart =  N + nslots + 2 - (prep_index[n] + 0.5 * bar_height) ###
         prep_yranges.append((ystart, bar_height))
     for n in range(N):
         ax.broken_barh(prep_xranges[n], prep_yranges[n], facecolors=colors[n],
@@ -61,9 +63,9 @@ def single_cycle_plot(parameters, buffers, vessels, filename=None):
     for n in range(N):
         t_tx = parameters.transfer_duration
         xranges = cyclic_xranges(buffers.transfer_start_times[n], t_tx, ct)
-        ystart =  N + nslots - (prep_index[n] - 0.5 + 0.5 * bar_height)
+        ystart =  N + nslots + 2 - (prep_index[n] + 0.5 * bar_height) ###
         yranges = [(ystart, bar_height), 
-                   (N - (0.5 + n + 0.5 * bar_height), bar_height)]
+                   (N + 1 - (n + 0.5 * bar_height), bar_height)] ###
         for yrange in yranges:
             ax.broken_barh(xranges, yrange, facecolors=colors[n], hatch="////",
                            edgecolors="black", linewidth=0.5, zorder=3)
@@ -72,25 +74,25 @@ def single_cycle_plot(parameters, buffers, vessels, filename=None):
     for n in range(N):
         xranges = cyclic_xranges(buffers.use_start_times[n],
                                  buffers.use_durations[n], ct)
-        ystart =  N +  nslots - (prep_index[n] - 0.5 + 0.5 * bar_height)
-        yrange = (N - (0.5 + n + 0.5 * bar_height), bar_height)
+        ystart =  N + nslots + 2 - (prep_index[n] + 0.5 * bar_height) ###
+        yrange = (N + 1 - (n + 0.5 * bar_height), bar_height) ###
         ax.broken_barh(xranges, yrange, facecolors=colors[n], hatch="\\\\\\\\",
                        edgecolors="black", linewidth=0.5, zorder=3)
     
     # Procedure Outlines
     for n in range(N):
         ax.broken_barh(hold_xranges[n], hold_yranges[n], facecolors="none",
-                       edgecolors="black", linewidth=0.75, zorder=4)
+                       edgecolors="black", linewidth=1, zorder=4)
         ax.broken_barh(prep_xranges[n], prep_yranges[n], facecolors="none",
-                       edgecolors="black", linewidth=0.75, zorder=4)
+                       edgecolors="black", linewidth=1, zorder=4)
     
     # Axes and Labels
     ax.grid(axis="x", linestyle="solid", linewidth=1, zorder=0)
     ax.grid(axis="y", linestyle="dashed", linewidth=1, zorder=0)
     ax.set_xlabel("time (h)")
     ax.set_ylabel("Vessels")
-    ax.set_yticks([n + 0.5 for n in range(N)]
-                  + [i + 0.5 for i in range (N + 1, N + nslots + 2)])
+    ax.set_yticks([n + 2 for n in range(N)] ###
+                  + [i + 2 for i in range (N + 1, N + nslots + 2)]) ###
     ax.set_xticks([8 * t for t in range(int(parameters.cycle_time / 8) + 1)])
     prep_labels = []
     for i in sorted_prep_names:
@@ -102,7 +104,18 @@ def single_cycle_plot(parameters, buffers, vessels, filename=None):
         hold_labels.append(pylatexenc.latexencode.utf8tolatex(hold_label))
     ax.set_yticklabels(hold_labels[::-1] + prep_labels[::-1])
     ax.set_xlim(0, parameters.cycle_time)
-    ax.set_ylim(0, N + nslots + 1)
+    ax.set_ylim(0, N + nslots + 2.5) ###
+    proc = matplotlib.patches.Rectangle((0, 0), 1, 1, fc="white", ec="black",
+                                        lw=1)
+    op = matplotlib.patches.Rectangle((0, 0), 1, 1, fc="white", ec="black",
+                                      lw=0.5)
+    tx = matplotlib.patches.Rectangle((0, 0), 1, 1, fc="white", ec="black",
+                                      lw=0.5, hatch="////")
+    use = matplotlib.patches.Rectangle((0, 0), 1, 1, fc="white", ec="black",
+                                       lw=0.5, hatch="\\\\\\\\")
+    ax.legend([proc, op, tx, use], 
+              ["procedure", "operation", "transfer", "use"],
+              loc=8, ncol=4, mode="expand")
     matplotlib.pyplot.title("Steady-State Equipment Time Utilisation")
     
     # Write to file or plot to screen
@@ -126,7 +139,7 @@ def explanatory_plot():
     ax.broken_barh([(16, 12)], (150, 20), facecolors="white",
                    edgecolors="black", linewidth=0.5, zorder=3, hatch="///")
     ax.broken_barh([(6, 35)], (150, 20), facecolors="none",
-                   edgecolors="black", linewidth=0.75, zorder=4)
+                   edgecolors="black", linewidth=1, zorder=4)
     ax.broken_barh([(5, 11), (28, 36), (84, 11)], (90, 20),
                    facecolors="white", edgecolors="black", linewidth=0.5,
                    zorder=3)
@@ -138,14 +151,14 @@ def explanatory_plot():
     ax.broken_barh([(64, 20)], (90, 20), facecolors="white",
                    edgecolors="black", linewidth=0.5, zorder=3, hatch="\\\\\\")
     ax.broken_barh([(5, 90)], (90, 20), facecolors="none",
-                   edgecolors="black", linewidth=0.75, zorder=4)
+                   edgecolors="black", linewidth=1, zorder=4)
     ax.broken_barh([(-10, 120)], (30, 20), facecolors="white",
-                   edgecolors="none", linewidth=0.75, zorder=3) 
+                   edgecolors="none", linewidth=0.5, zorder=3) 
     ax.broken_barh([(64, 3), (69, 2), (73, 5), (80, 4)], (30, 20),
                    facecolors="white", edgecolors="black", linewidth=0.5,
                    zorder=3, hatch="\\\\\\")  
     ax.broken_barh([(-10, 120)], (30, 20), facecolors="none",
-                   edgecolors="black", linewidth=0.75, zorder=4,
+                   edgecolors="black", linewidth=1, zorder=4,
                    linestyle="dashed") 
                        
     ax.set_ylim(0, 200)
@@ -318,12 +331,12 @@ def complexity_plot(parameter, figsize=(5.5, 3)):
     N = numpy.arange(1, 41, 1)
     
     # baselines
-    ax.plot(N, N, "--k", linewidth=1, label="$\mathcal{N}$")
-    ax.scatter(N[1:], comb(N[1:], 2), label="${{\mathcal{N}}\choose{2}}$",
+    ax.plot(N, N, "--k", linewidth=1, label="$N$")
+    ax.scatter(N[1:], comb(N[1:], 2), label="${{N}\choose{2}}$",
                marker=".", color="k", s=2)
-    ax.plot(N, N**2, "-.k", linewidth=1, label="$\mathcal{N}^2$")
+    ax.plot(N, N**2, "-.k", linewidth=1, label="$N^2$")
     ax.plot(N, N**3, "-k", dashes=[4, 2, 1, 2, 1, 2], linewidth=1, 
-            label="$\mathcal{N}^3$")
+            label="$N^3$")
     
     if parameter == "variables":
         # basic model
@@ -342,7 +355,7 @@ def complexity_plot(parameter, figsize=(5.5, 3)):
         raise ValueError("{} is not a valid parameter".format(parameter))
     
     ax.set_yscale("log")
-    ax.set_xlabel("number of buffers, $\mathcal{N}$")
+    ax.set_xlabel("number of buffers, $N$")
     ax.set_ylabel("number of {}".format(parameter))
     matplotlib.pyplot.legend(loc=0, ncol=3)
     matplotlib.pyplot.tight_layout()
@@ -358,7 +371,7 @@ def timing_plot(inputdata, figsize=(5.5, 5.5)):
     fig, ax = matplotlib.pyplot.subplots(figsize=figsize)
     ax.boxplot(durations.transpose(), positions=sizes, labels=sizes)
     ax.set_yscale("log")
-    ax.set_xlabel("number of buffers, $\mathcal{N}$")
+    ax.set_xlabel("number of buffers, $N$")
     ax.set_ylabel("solution time (seconds)")
     matplotlib.pyplot.tight_layout()
     matplotlib.pyplot.savefig("timing.pdf")
@@ -384,14 +397,18 @@ def read_durations(filename="durations.csv"):
     sizes = [int(i) for i in _sizes]
     return sizes, durations
 
-
 if __name__ == "__main__":
     
-    
+    # For thesis
     #explanatory_plot()
     #sched_plot_single()
     #sched_plot_all()
     #complexity_plot("variables")
     #complexity_plot("equations")
-    timing_plot("durations.csv", (6,4.5))
+    #timing_plot("durations.csv", (6,4.5))
+    
+    # For presentation
+    complexity_plot("variables", (4.3, 4.3))
+    complexity_plot("equations", (4.3, 4.3))
+    timing_plot("durations.csv", (6, 4.2))
     pass

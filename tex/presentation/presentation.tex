@@ -158,17 +158,20 @@
     \frametitle{Basic Model}
     Objective Function: Minimise total preparation vessel cost\\
     \begin{equation}
-        \boldsymbol{Z} = \sum_{m \in M} \sum_{p \in P} c_m \boldsymbol{y}_{mp}
+        \boldsymbol{Z} = \sum_{m \in \mathcal{M}} \sum_{p \in \mathcal{P}} c_m
+        \boldsymbol{y}_{mp}
     \end{equation}
     Subject to \ldots
     \begin{itemize}
     \item Each buffer must be prepared in exactly one slot\\
     \begin{equation}
-        \sum_{p \in P} \boldsymbol{x}_{np} = 1 \quad \forall n \in N
+        \sum_{p \in \mathcal{P}} \boldsymbol{x}_{np} = 1 \quad \forall n \in 
+        \mathcal{N}
     \end{equation}
     \item Each slot may contain at most one vessel instance
     \begin{equation}
-        \sum_{m \in M} \boldsymbol{y}_{mp} \le 1 \quad \forall p \in P
+        \sum_{m \in \mathcal{M}} \boldsymbol{y}_{mp} \le 1 \quad \forall p \in 
+        \mathcal{P}
     \end{equation}
     \end{itemize}
 \end{frame}
@@ -178,19 +181,20 @@
     \begin{itemize}
     \item Each vessel must be adequately sized for all buffers prepared in it
     \begin{equation}
-        U_{n} \boldsymbol{x}_{np} \le \sum_{m \in M} V_{m} \boldsymbol{y}_{mp}
-        \quad \forall n \in N, \enspace \forall p \in P
+        U_{n} \boldsymbol{x}_{np} \le \sum_{m \in \mathcal{M}} V_{m}
+        \boldsymbol{y}_{mp} \quad \forall n \in \mathcal{N}, \enspace \forall
+        p \in \mathcal{P}
     \end{equation}
     \begin{equation}
         V_{\mathit{MAX}} + U_{n} \ge 
-        f_{\mathit{MINFILL}} \sum_{m \in M} V_{m} \boldsymbol{y}_{mp}
+        f_{\mathit{MINFILL}} \sum_{m \in \mathcal{M}} V_{m} \boldsymbol{y}_{mp}
         + V_{\mathit{MAX}} \boldsymbol{x}_{np} 
-        \quad \forall n \in N, \enspace \forall p \in P
+        \quad \forall n \in \mathcal{N}, \enspace \forall p \in \mathcal{P}
     \end{equation}
     \item Each preparation slot must not be too busy
     \begin{equation}
-        \Delta t_{\mathit{PREP}} \sum_{n \in N} \boldsymbol{x}_{np} \le
-        f_{\mathit{UTIL}} T \quad \forall p \in P
+        \Delta t_{\mathit{PREP}} \sum_{n \in \mathcal{N}} \boldsymbol{x}_{np}
+        \le f_{\mathit{UTIL}} T \quad \forall p \in \mathcal{P}
     \end{equation}
     \end{itemize}
 \end{frame}
@@ -216,7 +220,8 @@
         \begin{multline}
             \Delta t_{\mathit{HOLD,PRE}} + \Delta t_{\mathit{TRANSFER}}
             + \boldsymbol{z}_{n} + \Delta t_{\mathit{USE},n} 
-            + \Delta t_{\mathit{HOLD,POST}} \le T\\ \quad \forall n \in N
+            + \Delta t_{\mathit{HOLD,POST}} \le T\\ \quad \forall n \in 
+            \mathcal{N}
         \end{multline}
         \item Identify if a pair of distinct buffers are both prepared in a
         \emph{particular} slot (note: cubic)
@@ -232,16 +237,17 @@
             \end{split}
             \quad
             \begin{split}
-                \forall n \in N, \enspace \forall k \in N; \; k > n, \enspace 
-                \forall p \in P
+                \forall n \in \mathcal{N}, \enspace \forall k \in \mathcal{N};
+                \; k > n, \enspace \forall p \in \mathcal{P}
             \end{split}
             \label{eq.w1}
         \end{equation}
         \item The above can be used to tell us if  a pair of distinct buffers
         are both prepared in the \emph{same} slot
         \begin{equation}
-            \boldsymbol{a}_{nk} = \sum_{p \in P} \boldsymbol{w}_{nkp} \quad
-            \forall n \in N, \enspace \forall k \in N; \; k > n
+            \boldsymbol{a}_{nk} = \sum_{p \in \mathcal{P}} \boldsymbol{w}_{nkp}
+            \quad \forall n \in \mathcal{N}, \enspace \forall k \in 
+            \mathcal{N}; \; k > n
             \label{eq.a1}
         \end{equation}
     \end{itemize}
@@ -261,7 +267,7 @@
                     - t_{\mathit{USE},n} + T\\
                 \end{alignedat}
             \end{split}
-            \quad \forall n \in N
+            \quad \forall n \in \mathcal{N}
         \end{equation}
         \begin{equation}
             \begin{split}
@@ -273,7 +279,7 @@
                     + \boldsymbol{z}_{n}
                     &\ge t_{\mathit{USE},n} + \Delta t_{\mathit{PREP}} - T\\
                     \end{alignedat}
-                \quad \forall n \in N
+                \quad \forall n \in \mathcal{N}
             \end{split}
         \end{equation}
         \begin{equation}
@@ -286,7 +292,7 @@
                     - \boldsymbol{z}_{n}
                     &\ge -t_{\mathit{USE},n} + \Delta t_{\mathit{PREP}} + T\\
                     \end{alignedat}
-                \quad \forall n \in N
+                \quad \forall n \in \mathcal{N}
             \end{split}
         \end{equation}
         \begin{equation}
@@ -297,7 +303,7 @@
                     &&\boldsymbol{r}_{n} && {}+{} &&\boldsymbol{s}_{n} && {}-{} 
                     &2&\boldsymbol{u}_{n} &\le 0\\
                 \end{alignedat}
-                \quad \forall n \in N
+                \quad \forall n \in \mathcal{N}
             \end{split}
         \end{equation}    
     \end{itemize}
@@ -312,7 +318,7 @@
                 \begin{aligned}
                     T \boldsymbol{q}_{k} - T \boldsymbol{q}_{n}
                     + 2T \boldsymbol{u}_{n} + 2T \boldsymbol{v}_{nk}
-                    - 2T \sum_{p \in P} \boldsymbol{w}_{nkp} 
+                    - 2T \sum_{p \in \mathcal{P}} \boldsymbol{w}_{nkp} 
                     - \boldsymbol{z}_{k} + \boldsymbol{z}_{n}\\
                     \ge t_{\mathit{USE},n} - t_{\mathit{USE},k}
                     + \Delta t_{\mathit{PREP}} - 2T
@@ -320,7 +326,7 @@
                 \begin{aligned}
                     T \boldsymbol{q}_{k} - T \boldsymbol{q}_{n}
                     - 2T \boldsymbol{u}_{n} + 2T \boldsymbol{v}_{nk}
-                    + 2T \sum_{p \in P} \boldsymbol{w}_{nkp} 
+                    + 2T \sum_{p \in \mathcal{P}} \boldsymbol{w}_{nkp} 
                     - \boldsymbol{z}_{k} + \boldsymbol{z}_{n}\\
                     \ge t_{\mathit{USE},n} - t_{\mathit{USE},k}
                     - \Delta t_{\mathit{PREP}} + 4T
@@ -328,7 +334,7 @@
                 \begin{aligned}
                     T \boldsymbol{q}_{k} - T \boldsymbol{q}_{n}
                     - T \boldsymbol{r}_{n} + 2T \boldsymbol{u}_{n}
-                    + 2T \sum_{p \in P} \boldsymbol{w}_{nkp} 
+                    + 2T \sum_{p \in \mathcal{P}} \boldsymbol{w}_{nkp} 
                     - \boldsymbol{z}_{k} + \boldsymbol{z}_{n}\\
                     \ge t_{\mathit{USE},n} - t_{\mathit{USE},k}
                     - \Delta t_{\mathit{PREP}} + 4T
@@ -336,13 +342,14 @@
                 \begin{aligned}
                     T \boldsymbol{q}_{k} - T \boldsymbol{q}_{n}
                     + T \boldsymbol{s}_{n} - 2T \boldsymbol{u}_{n}
-                    - 2T \sum_{p \in P} \boldsymbol{w}_{nkp} 
+                    - 2T \sum_{p \in \mathcal{P}} \boldsymbol{w}_{nkp} 
                     - \boldsymbol{z}_{k} + \boldsymbol{z}_{n}\\
                     \ge t_{\mathit{USE},n} - t_{\mathit{USE},k}
                     + \Delta t_{\mathit{PREP}} - 4T
                 \end{aligned}\\
                 \begin{aligned}
-                    \forall n \in N, \enspace \forall k \in N; \; k > n
+                    \forall n \in \mathcal{N}, \enspace \forall k 
+                    \in \mathcal{N}; \; k > n
                 \end{aligned}\\
             \end{split}
         \end{equation}
@@ -352,37 +359,42 @@
 \begin{frame}
     \frametitle{Complete Model -- Variables}
     \begin{equation}
-        \boldsymbol{q}_{n} \in \left\{0, 1\right\} \quad \forall n \in N
+        \boldsymbol{q}_{n} \in \left\{0, 1\right\} \quad \forall n \in 
+        \mathcal{N}
     \end{equation}
     \begin{equation}
-        \boldsymbol{r}_{n} \in \left\{ 0, 1 \right\} \quad \forall n \in N
+        \boldsymbol{r}_{n} \in \left\{ 0, 1 \right\} \quad \forall n \in 
+        \mathcal{N}
     \end{equation}
     \begin{equation}
-        \boldsymbol{s}_{n} \in \left\{ 0, 1 \right\} \quad \forall n \in N
+        \boldsymbol{s}_{n} \in \left\{ 0, 1 \right\} \quad \forall n \in 
+        \mathcal{N}
     \end{equation} 
     \begin{equation}
-        \boldsymbol{u}_{n} \in \left\{ 0, 1 \right\} \quad \forall n \in N
+        \boldsymbol{u}_{n} \in \left\{ 0, 1 \right\} \quad \forall n \in 
+        \mathcal{N}
     \end{equation}
     \begin{equation}
-        \boldsymbol{v}_{nk} \in \left\{ 0, 1 \right\} \quad \forall n \in N,
-        \enspace \forall k \in N; \; k > n
+        \boldsymbol{v}_{nk} \in \left\{ 0, 1 \right\} \quad \forall n \in 
+        \mathcal{N}, \enspace \forall k \in \mathcal{N}; \; k > n
     \end{equation}
     \begin{equation}
-        \boldsymbol{w}_{nkp} \in \left\{ 0, 1 \right\} \quad \forall n \in N, 
-        \enspace \forall k \in N; \; k > n, \enspace \forall p \in P
+        \boldsymbol{w}_{nkp} \in \left\{ 0, 1 \right\} \quad \forall n \in 
+        \mathcal{N}, \enspace \forall k \in \mathcal{N}; \; k > n, \enspace
+        \forall p \in \mathcal{P}
     \end{equation}
     \begin{equation}
-        \boldsymbol{x}_{np} \in \left\{ 0, 1 \right\} \quad \forall n \in N,
-        \enspace \forall p \in P
+        \boldsymbol{x}_{np} \in \left\{ 0, 1 \right\} \quad \forall n \in 
+        \mathcal{N}, \enspace \forall p \in \mathcal{P}
     \end{equation}
     \begin{equation}
-        \boldsymbol{y}_{mp} \in \left\{ 0, 1 \right\} \quad \forall m \in M,
-        \enspace \forall p \in P
+        \boldsymbol{y}_{mp} \in \left\{ 0, 1 \right\} \quad \forall m \in 
+        \mathcal{M}, \enspace \forall p \in \mathcal{P}
     \end{equation}
     \begin{equation}
         \Delta t_{\mathit{HOLD,MIN}} \le \boldsymbol{z}_{n} \le 
         \Delta t_{\mathit{HOLD,MAX}}; \quad
-        \boldsymbol{z}_{n} \in \mathbb{R} \quad \forall n \in N
+        \boldsymbol{z}_{n} \in \mathbb{R} \quad \forall n \in \mathcal{N}
     \end{equation}
 \end{frame}
 
@@ -439,25 +451,25 @@
     \end{itemize}
 \end{frame}
 
-\begin{frame}
-    \frametitle{Complexity}
-    For a problem with $\mathcal{M}$ vessels and $\mathcal{N}$ buffers, there
-    are:
-    \begin{itemize}
-        \item $\mathcal{N} {{\mathcal{N}}\choose{2}} + \mathcal{N}^2 
-         + {{\mathcal{N}}\choose{2}} + \mathcal{N} \mathcal{M} + 5\mathcal{N}$
-        variables
-        \item $2\mathcal{N}{{\mathcal{N}}\choose{2}} 
-        + 4{{\mathcal{N}}\choose{2}} + 2\mathcal{N}^2 + 12\mathcal{N} + 1$
-        equations
-    \end{itemize}
-    \vspace{0.5cm}
-    For the random example detailed in this presentation, there are:
-    \begin{itemize}
-        \item 1242 variables
-        \item 2281 equations
-    \end{itemize}
-\end{frame}
+%\begin{frame}
+%    \frametitle{Complexity}
+%    For a problem with $M$ vessels and $N$ buffers, there
+%    are:
+%    \begin{itemize}
+%        \item $N {{N}\choose{2}} + N^2 
+%        + {{N}\choose{2}} + NM + 5N$
+%        variables
+%        \item $2N{{N}\choose{2}} 
+%        + 4{{N}\choose{2}} + 2N^2 + 12N + 1$
+%        equations
+%    \end{itemize}
+%    \vspace{0.5cm}
+%    For the random example detailed in this presentation, there are:
+%    \begin{itemize}
+%        \item 1242 variables
+%        \item 2281 equations
+%    \end{itemize}
+%\end{frame}
 
 \begin{frame}
     \frametitle{Complexity Plots}
@@ -500,7 +512,7 @@
     \frametitle{Equipment Time Utilisation -- Random Example}
     \begin{figure}
         \centering
-        \includegraphics[angle=0,scale=0.6]{./../figures/plot1.pdf}
+        \includegraphics[angle=0,scale=0.55]{./../figures/plot1.pdf}
     \end{figure}
 \end{frame}
 
@@ -531,5 +543,49 @@
     \end{figure}
 \end{frame}
 
+\begin{frame}
+    \begin{columns}
+        \column{0.15\textwidth}
+            \begin{figure}
+                \centering
+                \includegraphics[angle=0,scale=0.03]{ucd_logo.png}
+            \end{figure}
+        \column{0.7\textwidth}
+        \centering MSc in Business Analytics -- Dissertation\\
+        \large \textbf{Optimising the design of buffer 
+                       preparation in bioprocessing facilities}
+        \column{0.15\textwidth}
+            \begin{figure}
+                \centering
+                \includegraphics[angle=0,scale=0.03]{ucd_logo.png}
+            \end{figure}
+    \end{columns}
+    \centering \small \emph{Author: Sean Tully \quad Supervisor: Prof. Michael
+        O'Neill}\par
+    \vspace{0.5cm}
+    \begin{columns}
+        \column{0.4\textwidth}
+            %This is some text that i have written. This is some text that i have written. This is some text that i have written. This is some text that i have written. This is some text that i have written. This is some text that i have written. This is some text that i have written. This is some text that i have written. This is some text that i have written. This is some text that i have written. This is some text that i have written. This is some text that i have written.
+            \scriptsize \textbf{Aim}:
+            \begin{itemize}
+                \item  Development of a methodology and tool
+                for finding the optimum number, size and assignment of buffer
+                preparation vessels in the design of a large-scale bioprocess
+                facility
+            \end{itemize}
+            \textbf{Key Achievements}:
+            \begin{itemize}
+                \item The problem was modelled as a MILP problem.
+                \item The MILP problem was implemented in code.
+                \item Generation of graphical production schedules 
+            \end{itemize}
+
+        \column{0.6\textwidth}
+            \begin{figure}
+                \centering
+                \includegraphics[width=0.95\textwidth]{./../figures/plot2.pdf}
+            \end{figure}  
+    \end{columns}
+\end{frame}
 
 \end{document}

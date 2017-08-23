@@ -1311,20 +1311,21 @@ vessels may not necessarily be used to prepare the same buffers).
 Thus, there may be many ways to represent an optimal process schedule.
 
 If, for example, the data described in
-\hyperref[C.data]{Chapter \ref*{C.data}} were to be used as an input to the
-complete model, a feasible optimal schedule, such as that shown in
-\hyperref[fig.primary]{Figure \ref*{fig.primary}} may be generated.
-Note that this is identical to \hyperref[fig.etu1]{Figure \ref*{fig.etu1}}
-discussed in \hyperref[C.data]{Chapter \ref*{C.data}},
-but it is also included here to illustrate the effects of goal programming.
-\textbf{TODO: Some of this stuff has moved about!!!}
-
+\hyperref[C.data]{Chapter \ref*{C.data}} were used as an input to the complete
+model, an \emph{equipment time utilisation} plot (see
+\hyperref[S.outputdata]{Section \ref*{S.outputdata}}) for the feasible optimal
+schedule (such as that shown in 
+\hyperref[fig.primary]{Figure \ref*{fig.primary}})
+may be generated.
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{./figures/plot1.pdf}
-    \caption{Random example -- primary objective}
+    \caption{Random example -- primary objective (note that buffers are
+        individually coloured; each buffer has its own hold vessel, from which
+        its colour may be determined)}
     \label{fig.primary}
 \end{figure}
+
 Note that the solution requires four vessels, with sizes
 \SI{2000}{\litre}, \SI{8000}{\litre}, \SI{25000}{\litre} and \SI{30000}{\litre}
 respectively.  
