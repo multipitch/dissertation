@@ -169,7 +169,7 @@ def explanatory_plot():
     ax.set_ylabel("Process Equipment")
     ax.set_yticks([40, 100, 160])
     ax.set_xticks([0, 64, 100])
-    ax.set_xticklabels(["0", "$t_{USE,n}$", "$\lambda$"])
+    ax.set_xticklabels(["0", "$t_{USE,n}$", "$T$"])
     ax.set_yticklabels(["(Process Users)", "Hold Vessel", 
                         "Preparation Vessel"])
                         
@@ -408,7 +408,7 @@ if __name__ == "__main__":
     #timing_plot("durations.csv", (6,4.5))
     
     # For presentation
-    complexity_plot("variables", (4.3, 4.3))
-    complexity_plot("equations", (4.3, 4.3))
-    timing_plot("durations.csv", (6, 4.2))
+    #complexity_plot("variables", (4.3, 4))
+    #complexity_plot("equations", (4.3, 4))
+    #timing_plot("durations.csv", (6, 4.2))
     pass
