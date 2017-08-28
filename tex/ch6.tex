@@ -23,74 +23,105 @@ it.
 \emph{Thinking, Fast and Slow}
 \end{quote}
 
-The models derived in \hyperref[C.methodology]{Chapter \ref*{C.methodology}}
-succeed in describing the buffer vessel selection problem.
-The code which implements the models produces feasible
-solutions from input data sets and gives both quantitative outputs (values for
-all variables) and a useful visual output (equipment time utilisation plot).
+\section{Comment on Results}\label{S.rescomment}
+The results obtained show that the model is suitable for generating optimal
+buffer preparation designs.
+For problem sizes in the expected range of 10--20 buffers, it is important to
+note that an exact solution can be obtained in a reasonable amount of time.
+This is an important result; prior to carrying out this exercise, it was not
+known if an optimum solution could feasibly be obtained.
 
-The basic model represents the simplest manifestation of the buffer vessel
-selection problem, requiring a minimal amount of information
-This has been built on by the complete model, which accounts for the scheduling
-and accordingly requires some timing information.
-The secondary model builds on the complete model to provide a more realistic
-schedule, but does not improve on the primary objective, namely the
-minimisation of vessel costs.
+The use of the proprietary CPLEX solver produced the fastest solutions and
+produced a feasible solution for all problems examined.
+The Cbc solver was less robust; on several occasions it crashed while running.
+The worst performance was obtained from the GLPK solver, which appears incapable
+of arriving at an optimum solution in under an hour for a medium sized problem.
 
-The model contains a number of simplifications.
-Some of these simplifications are required due to the probable lack of
-sufficient information.
-One such example is fixed operation durations for operations such as
-transfers.
-If only a single model of pump were available, a flow rate could be
-defined, so the transfer duration would scale linearly with the buffer volume.
-In reality, given the range of volumes in a typical process, several sizes of
-pumps and pipework may be specified so that pumps aren't oversized for small
-transfers and pumps aren't so small that large transfers take an unacceptable
-length of time.  As a result, the assumption that transfer duration is fixed
-allows the selection of a conservative transfer time to cover all
-eventualities.
+\section{Challenges}\label{S.challenges}
+The most challenging part of this study was the development of the constraint
+equations required for the complete model, particularly in the area of cyclic
+task scheduling.  The PuLP API is easy to use and well documented, so building
+the model in python was a more straightforward task.
 
-Another assumption is that buffer volumes are fixed.
-For example, if a buffer is used in two operations which occur in different
-procedures at very different times in the cycle, we do not allow the
-possibility that we may split this buffer into two separate preparations.
-If, for instance, the particular buffer was the largest-volume buffer being
-prepared by some margin, it may make sense to split it into two batches to
-reduce the maximum size of preparation vessel required.
-There are trade-offs here between the saving from reducing the volume of the
-largest reparation vessel and the increased operating costs from performing an
-extra preparation.
-Apart from the difficulty for building such flexibility into the model, the
-objective function would potentially become a good deal more difficult to
-define, involving data on operating versus capital cost which may not be
-available with any degree of accuracy.
+\section{Complexity}\label{S.complexity}
+The notation for complexity in this section is according to \citet{Knuth:1976}.
 
-One additional feature which warrants further work is material compatibility.
-Certain buffers may require the use of high-nickel alloys instead of the
-usual grades of stainless steel; these alloys may be several times the price
-of stainless steel.
-A more resistant vessel can be used to prepare all buffers that may be prepared
-in a less resistant vessel.
-This would require a compatibility matrix between buffers and vessel materials
-(the latter being a new dimension).
-Additional logic would also be required to prevent incorrect vessel material
-selection.
+The problem complexity depends on both the number of buffers, $N$,
+and the number of vessels, $M$.
+The complexity may be evaluated in terms of both the number of variables and
+the number of equations in the problem.
+The complexities of the basic and complete problems are summarised in
+\hyperref[tbl.complexity]{Table \ref*{tbl.complexity}}.
+For example, a complete problem with twelve buffers and twelve vessels has
+\num{2281} equations in \num{1206} variables.
+\begin{table}[t]
+    \centering
+    \caption{Model complexity}
+    \label{tbl.complexity}
+    \small
+    \begin{tabular}{l | c | c}
+        model & no. of variables & no. of equations \\ \hline
+        basic & $N^2 + NM$ & $2N^2 + 3N + 1$\\
+        complete & $N {{N}\choose{2}} + N^2 + {{N}\choose{2}} + NM + 5N$
+        & $2N{{N}\choose{2}} + 4{{N}\choose{2}} + 2N^2 + 12N + 1$\\
+    \end{tabular}
+\end{table}
+\begin{table}[t]
+    \centering
+    \caption{Simplified model complexity}
+    \label{tbl.complexity2}
+    \begin{tabular}{l | c | c}
+        model & no. of variables & no. of equations\\ \hline
+        basic & $2N^2$ & $2N^2 + 3N + 1$\\
+        complete & $\tfrac{1}{2} N^{3} + \tfrac{5}{2} N^{2} + 5 N$
+            & $N^{3} + 4 N^{2} + 12 N + 1$\\
+    \end{tabular}
+\end{table}
 
-Similar logic could be used in the case of flammable buffers.
-Occasionally, ethanol is used in buffers. While the final buffer may not be
-flammable, due to dilution, the handling of pure ethanol at the preparation
-stage requires explosion-rated preparation vessels, which can be considerably
-more expensive.
-The vessels themselves may be similar, but all sensors, pumps, impellers,
-actuated valves, etc.\ would need to be explosion-rated and this can add
-significantly to the overall vessel cost.
-If such a vessel were required, it could be used to produce non-flammable
-buffers, but a non-explosion-rated vessel could not be used to handle flammable
-materials.
+Noting that there is a weak dependence on $M$ and that, as the problem
+grows larger in terms of $N$, it is likely that $M$ will
+reach a maximum value, the approximation $M \approx N$ may
+be used as a conservative simplification when considering complexity.
+This simplification has been used to generate the plots in 
+Figures \ref{fig.dims} and \ref{fig.eqns}.
+The complexity can be further simplified by noting that for the binomial
+coefficient term, 
+\begin{equation}
+    \lim_{N\to\infty}{{N}\choose{2}} = \tfrac{1}{2} N^{2}
+\end{equation}
+Applying both approximations gives the simplified complexities tabulated in
+\hyperref[tbl.complexity2]{Table \ref*{tbl.complexity2}}.
 
-Other scope for further work includes the application of the model to
-multi-product facilities.
-Generally, a multi-product facility will run a campaign of batches of one
-product, then switch over to run a campaign of some other process.
-Such a facility would need buffer vessels capable of supporting each process.
+For the basic model, we can see that both the number of variables and the
+number of equations is $O \left( N^2 \right)$.
+
+For the complete model, the number of variables and the number of equations
+are both $O \left( N^3 \right)$.
+
+The addition of the scheduling constraints in the complete model requires the
+comparison of pairs of buffers, which is $O \left( N^2 \right)$. 
+These comparisons occur for each slot, giving a multiplicative factor of 
+$O \left( N \right)$, leading to an overall complexity of
+$O \left( N^3 \right)$.
+
+As was mentioned in \hyperref[SS.solvers]{Section \ref*{SS.solvers}}, the time
+complexity of the complete problem is exponential in $N$, which indicated the
+complete model is \textbf(NP)-hard.
+It was noted in \hyperref[S.intro4]{Section \ref*{S.intro4}}
+that the problem appeared to bear similarities to the
+bin-packing problem, which is also known to be \textbf{NP}-hard
+\citep{Korte:2012}, so this result was as expected.
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{./figures/variables.pdf}
+    \caption{Model complexity -- variables}
+    \label{fig.dims}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{./figures/equations.pdf}
+    \caption{Model complexity -- equations}
+    \label{fig.eqns}
+\end{figure}

@@ -36,16 +36,17 @@ reviewed.
 Current bioprocess facility design leverages software packages for creating mass
 balances and for schedule simulation.  The mass balance tool
 \emph{SuperPro Designer\textsuperscript{\textregistered}} 
-and the scheduling tool \emph{SchedulePro\textsuperscript{\textregistered}}
-from Intelligen, Inc. (\emph{Scotch Plains, New Jersey, U.S.A.}) are examples of
-software packages that are widely used, particularly by American firms.
+and the scheduling tool \emph{SchedulePro\textsuperscript{\textregistered}},
+both from Intelligen, Inc. (\emph{Scotch Plains, New Jersey, U.S.A.}) are
+examples of software packages that are widely used, particularly by American
+firms.
 The \emph{INOSIM} family of software from INOSIM Software GmbH
 \emph{Dortmund, Germany} is used particularly by German and Swiss firms.
 
 \citet{Petrides:2014} outline a workflow for 
 the design of a ``typical'' monoclonal antibody facility using 
 \emph{SuperPro Designer\textsuperscript{\textregistered}} and
-\emph{SchedulePro\textsuperscript{\textregistered}} and compares the use of
+\emph{SchedulePro\textsuperscript{\textregistered}} and compare the use of
 these packages with other methodologies.
 While this paper does touch on buffer preparation,
 it does not elaborate on a strategy for optimising the area, stating:
@@ -81,11 +82,11 @@ to support the main process being carried out in the facility, similar to the
 role of buffer hold vessels.  There are a great deal of papers that deal with
 optimising throughput or productivity of existing tank farms or existing batch
 processes, but very little articles relating to the optimisation of the design
-of such processes.
+of the facilities required to run such processes.
 
-\citet{Al-Otaibi:2004} describes efforts to optimise the design of a tank farm
+\citet{Al-Otaibi:2004} describe efforts to optimise the design of a tank farm
 for the oil \& gas industry using both linear programming and Monte Carlo
-simulation methods.  Their brief magazine article does not provide any detail on
+simulation.  Their brief magazine article does not provide any detail on
 how the simulations were carried out.
 
 \citet{Stewart:2005} cite the work of \citet{Al-Otaibi:2004} and outline a
@@ -94,7 +95,7 @@ mention the use of a software tool called \emph{GRTMPS} from
 \emph{Haverley Systems, Inc., Houston, Texas, U.S.A}, supported by \emph{Excel}
 spreadsheet software and \emph{Access} database software
 (\emph{Microsoft Inc, Redmond, Washington, U.S.A}).
-Again, this is a short magazine article.  It indicates that the scheduling 
+Again, theirs is a short magazine article.  It indicates that the scheduling 
 produced useful results but does not give any technical detail as to how the
 simulation was carried out.
 
@@ -107,8 +108,9 @@ utilisation of existing tank farm facilities and cite the work of
 \citet{Terrazas-Moreno:2012}, citing \citet{Stewart:2005} and 
 \citet{Sharda:2009} provide a far more detailed description of efforts to
 optimise tank farm operations using mixed integer linear programming 
-\emph{MILP}.  Their work looks at optimising both schedule and tank selection, 
-but is not strictly designed with the design of the facility itself, but rather
+(\emph{MILP}).
+Their work looks at optimising both schedule and tank selection.
+It is not strictly designed with the design of the facility itself, but rather
 the optimal operation of a designed facility.
 
 The work of \citet{Terrazas-Moreno:2012} provides some useful information on
@@ -131,7 +133,7 @@ research is required to decide which techniques, if any, are relevant to the
 problem at hand.
 
 There are two aspects to optimising the design.  The first aspect is scheduling,
-as the ability to make a tank do more than one task will depend on the times
+as the ability of a tank to perform more than one task will depend on the times
 at which the tasks must (or may) occur.  The second aspect is selecting the
 optimal sizes and numbers of vessels, which can be seen as a combinatorial
 optimisation problem.
@@ -152,6 +154,9 @@ problem.  \citet{Martello:1990} describes the bin packing problem as one in
 which there are a number of items with associated weights and a number of bins
 with associated capacities.  The aim is to assign each item to a bin so that the
 weight capacity of the bin is not exceeded and the number of bins is minimised.
+The concepts of \emph{slots} introduced in
+\hyperref[S.slots]{Section \ref*{S.slots}}
+is somewhat analogous to the concept of bins in the bin-packing problem.
 A number of algorithms for both exact and approximate solutions of the
 bin-packing problem have been developed. \citet{Korte:2012} state that the
 bin-packing problem is strongly \textbf{NP}-hard, indicating that efforts
@@ -164,7 +169,8 @@ consideration in vessel selection, usually some minimum fill level, e.g.\
 20--30\% is defined so that the impeller in the vessel remains submerged during
 the mixing process and to reduce the volume of cleaning solutions or water
 required to clean the vessel as a fraction of the volume of buffer produced.
-
+The application of fill level constraints is discussed in 
+\hyperref[SS.constr3]{Section \ref*{SS.constr3}}.
 In terms of process scheduling methodologies, a number of papers exist in the 
 field of chemical engineering \citep{Ahmed:2000},
 

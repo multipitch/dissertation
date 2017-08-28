@@ -5,14 +5,82 @@
 %              facilities
 %   Author:    Sean Tully
 %
-%   Appendix 1: long tables
+%   Appendix 1: Running the Model
 %
 %   Change Control:
 %   When     Who   Ver  What
 %   -------  ----  ---  --------------------------------------------------------
 %   06Jun16  ST    0.1  Begun 
 %
+\addappheadtotoc
+\chapter{Program installation and usage}\label{C.Appendix1}
+\begin{itemize}
+\item
+Python should be installed, along with the third-party python libraries
+listed in \hyperref[tbl.libs]{Table \ref*{tbl.libs}}.
+Note that the code in \texttt{model.py} requires version 3.3 (or newer) of
+python.
+The specific versions of all packages and libraries mentioned in
+\hyperref[S.implementation]{Section \ref*{S.implementation}}
+were found to be compatible.
+It may be possible that breakages occur with other versions.
+The pyenv package may be required to ensure the correct version of python is
+available to the modelling code.
+Optionally, additional
+MILP solvers may be installed, such as those mentioned in
+\hyperref[SS.impl1]{Section \ref*{SS.impl1}}.
 
-\chapter{Detailed tables}\label{C.Appendix1}
+\item
+Clone the model repository by running the following from the terminal:
+\texttt{\$ mkdir -p \textasciitilde/git\\
+        \$ cd \textasciitilde/git\\
+        \$ git clone \url{https://github.com/multipitch/dissertation}}
 
-Xyz
+\item
+To make the \texttt{runmodel} executable available to the user, it must be
+appended to the user's \texttt{PATH} environment variable.
+This can be achieved, for the active terminal session, by running the following
+from within the terminal:
+
+\texttt{\$ export PATH=\$PATH:<location>}
+
+where \texttt{<location>} is the path to the directory containing
+\texttt{runmodel} e.g.
+
+\texttt{\$ export PATH=\$PATH:\textasciitilde/git/dissertation/src}
+
+The above redefinition of \texttt{PATH} can be made permanent by appending the
+command to e.g.\ the user's \texttt{\textasciitilde/.bashrc} file.
+
+\item
+To run using the default settings, given a directory containing valid input data
+ (\texttt{buffers.csv},
+\texttt{vessels.csv} and \texttt{parameters.ini} files), navigate to the
+directory and run the following from the command line:
+
+\texttt{\$ runmodel}
+
+The above command uses PuLP's default solver (Cbc), without any arguments.
+It solves for both the primary and secondary models and generates equipment
+time utilisation plots for both, saving them to the directory as
+\texttt{plot1.pdf} and \texttt{plot2.pdf}.
+
+\item
+Several optional parameters may be passed to the \texttt{runmodel} executable,
+e.g.\ running
+
+\texttt{\$ runmodel -s CPLEX -{}-no-secondary}
+
+will run the model using the CPLEX solver and won't perform the secondary
+optimisation.
+
+A description of all input parameters is available by running \texttt{runmodel}
+with the \texttt{-h} or \texttt{-{}-help} flags.
+
+\item
+Sample data is available in the examples directory of the repository.
+The command below gives an example of how to carry out a run on one of the 
+sample data sets:
+
+\texttt{\$ runmodel -P ~/git/dissertation/examples/random/}
+\end{itemize}

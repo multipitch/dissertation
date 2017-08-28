@@ -129,7 +129,7 @@ def single_cycle_plot(parameters, buffers, vessels, filename=None):
 
 def explanatory_plot():
     
-    fig, ax = matplotlib.pyplot.subplots(figsize=(10, 3))
+    fig, ax = matplotlib.pyplot.subplots(figsize=(8, 3))
     
     ax.broken_barh([(6, 10), (28,13)], (150, 20), facecolors="white",
                    edgecolors="black", linewidth=0.5, zorder=3)
@@ -140,21 +140,21 @@ def explanatory_plot():
                    edgecolors="black", linewidth=0.5, zorder=3, hatch="///")
     ax.broken_barh([(6, 35)], (150, 20), facecolors="none",
                    edgecolors="black", linewidth=1, zorder=4)
-    ax.broken_barh([(5, 11), (28, 36), (84, 11)], (90, 20),
+    ax.broken_barh([(5, 11), (28, 36), (64, 11)], (90, 20),
                    facecolors="white", edgecolors="black", linewidth=0.5,
                    zorder=3)
     ax.broken_barh([(16, 12)], (90, 20), facecolors="white",
                    edgecolors="black", linewidth=0.5, zorder=3, hatch="///")
-    ax.broken_barh([(64, 20)], (30, 80), facecolors="white",
+    ax.broken_barh([(44, 20)], (30, 80), facecolors="white",
                    edgecolors="black", linewidth=0.5, zorder=3, 
                    linestyle="dotted")
-    ax.broken_barh([(64, 20)], (90, 20), facecolors="white",
+    ax.broken_barh([(44, 20)], (90, 20), facecolors="white",
                    edgecolors="black", linewidth=0.5, zorder=3, hatch="\\\\\\")
-    ax.broken_barh([(5, 90)], (90, 20), facecolors="none",
+    ax.broken_barh([(5, 70)], (90, 20), facecolors="none",
                    edgecolors="black", linewidth=1, zorder=4)
     ax.broken_barh([(-10, 120)], (30, 20), facecolors="white",
                    edgecolors="none", linewidth=0.5, zorder=3) 
-    ax.broken_barh([(64, 3), (69, 2), (73, 5), (80, 4)], (30, 20),
+    ax.broken_barh([(44, 3), (49, 2), (53, 5), (60, 4)], (30, 20),
                    facecolors="white", edgecolors="black", linewidth=0.5,
                    zorder=3, hatch="\\\\\\")  
     ax.broken_barh([(-10, 120)], (30, 20), facecolors="none",
@@ -162,13 +162,13 @@ def explanatory_plot():
                    linestyle="dashed") 
                        
     ax.set_ylim(0, 200)
-    ax.set_xlim(0, 100)
+    ax.set_xlim(0, 80)
     ax.grid(axis="x", linestyle="solid", linewidth=1, zorder=0)
     ax.grid(axis="y", linestyle="dashed", linewidth=1, zorder=0)
     ax.set_xlabel("time (h)")
     ax.set_ylabel("Process Equipment")
     ax.set_yticks([40, 100, 160])
-    ax.set_xticks([0, 64, 100])
+    ax.set_xticks([0, 44, 80])
     ax.set_xticklabels(["0", "$t_{USE,n}$", "$T$"])
     ax.set_yticklabels(["(Process Users)", "Hold Vessel", 
                         "Preparation Vessel"])
@@ -179,13 +179,13 @@ def explanatory_plot():
             horizontalalignment="center", verticalalignment="center")
     ax.text(10.5, 100, "$\Delta t_{\mathit{HOLD,PRE}}$", fontsize=8,
             horizontalalignment="center", verticalalignment="center")
-    ax.text(89.5, 100, "$\Delta t_{\mathit{HOLD,POST}}$", fontsize=8,
+    ax.text(69.5, 100, "$\Delta t_{\mathit{HOLD,POST}}$", fontsize=8,
             horizontalalignment="center", verticalalignment="center")
     ax.text(22, 130, "$\Delta t_{\mathit{TRANSFER}}$", fontsize=8,
             horizontalalignment="center", verticalalignment="center")
-    ax.text(74, 70, "$\Delta t_{\mathit{USE},n}$", fontsize=8,
+    ax.text(54, 70, "$\Delta t_{\mathit{USE},n}$", fontsize=8,
             horizontalalignment="center", verticalalignment="center")
-    ax.text(48, 100, "$\\textbf{\\textit{z}}_{n}$", fontsize=8,
+    ax.text(36, 100, "$\\textbf{\\textit{z}}_{n}$", fontsize=8,
             horizontalalignment="center", verticalalignment="center")
             
     matplotlib.pyplot.title("Steady-State Equipment Time Utilisation")
@@ -368,7 +368,7 @@ def timing_plot(inputdata, figsize=(5.5, 5.5)):
         sizes, durations = read_durations(inputdata)
     else:
         (sizes, durations) = inputdata
-    fig, ax = matplotlib.pyplot.subplots(figsize=figsize)
+    fig, ax = matplotlib.pyplot.subplots(figsize=figsize)        
     ax.boxplot(durations.transpose(), positions=sizes, labels=sizes)
     ax.set_yscale("log")
     ax.set_xlabel("number of buffers, $N$")
@@ -392,7 +392,7 @@ def read_durations(filename="durations.csv"):
     with open(filename) as f:
         reader = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
         _sizes = next(reader)
-    durations = numpy.genfromtxt("durations.csv", delimiter=",", 
+    durations = numpy.genfromtxt(filename, delimiter=",", 
                                  skip_header=True)
     sizes = [int(i) for i in _sizes]
     return sizes, durations

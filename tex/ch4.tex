@@ -19,7 +19,7 @@
 Just as the largest library, badly arranged, is not so useful as a very
 moderate one that is well arranged, so the greatest amount of knowledge, if not
 elaborated by our own thoughts, is worth much less than a far smaller volume
-that has been abundantly and repeatedly though over.  For only by universally
+that has been abundantly and repeatedly thought over.  For only by universally
 combining what we know, by comparing every truth with every other, do we fully
 assimilate our own knowledge and get it into our power.
 
@@ -41,9 +41,9 @@ It became evident that this concept would be cumbersome and computationally
 difficult.
 
 The vessel selection problem appears to be a close relative of a number of
-classic \textbf{NP}-hard problems in the `bin-packing' genre so another
-concept was to look at how such problems were solved and see if any
-methodologies could be adapted to suit the problem at hand.
+classic \textbf{NP}-hard problems in the `bin-packing' genre so methods for
+solving such problems were investigated to see if any methodologies could be
+adapted to suit the problem at hand.
 It was noted that bin-packing problems, as well as some scheduling problems,
 such as job-shop scheduling, were solved using mixed-integer linear
 programming (MILP) -- see, e.g.\ \citet{Martello:1990}, \citet{Taha:2017}.
@@ -58,7 +58,7 @@ To model the problem as an MILP problem, we must introduce the concept of
 \emph{slots}.
 Noting that there is a buffer hold vessel for each buffer, it is evident that
 a feasible but inefficient solution could involve installing a dedicated,
-suitably sized, preparation vessel for each hold vessel.
+suitably sized, preparation vessel for each buffer.
 Any solution involving more than this number of preparation vessels cannot
 be optimal.
 As a result, we have an upper limit of $N$ on the number of required
@@ -67,8 +67,8 @@ The model is thus constructed with $P$ \emph{slots}, where
 \begin{equation}
     P = N.
 \end{equation}
-A slot, $p \in \mathcal{P}$, is a notional space which may be occupied by a
-vessel, or may be empty;
+A slot, $p \in \mathcal{P}$, is a notional space which may either be occupied
+by a vessel, or remain empty;
 \begin{equation}
     p \in \mathcal{P}; \quad \mathcal{P} = \left\{ 0, 1, 2, \ldots, p, \ldots,
     \left( P - 1 \right) \right\}
@@ -129,12 +129,13 @@ process and only provides a rough estimation of vessel requirements as a
 result.
 The complete model, detailed in
 \hyperref[S.completemodel]{Section \ref*{S.completemodel}}, exists as an
-extension of the basic model.
+extension of the basic model, with the introduction of scheduling constraints.
 
 \subsection{Buffers Dedicated to Slots}\label{SS.constr1}
 
 The first constraint to be added is the limitation that a buffer must be
 prepared in exactly one slot.
+Recall that we process one batch per cycle.
 This constraint means that we must prepare each buffer once per cycle
 and also that the buffer is always prepared in the same slot, i.e.\ slot
 selection is identical for every cycle.
@@ -183,7 +184,7 @@ less than the number of available slots (and hence the number of buffers).
 
 The third constraint is the requirement that, if a vessel is in a given slot,
 it has an appropriate volume to prepare all buffers assigned to the slot.
-There are two facets to the above requirement.
+There are two facets to this requirement.
 Firstly, we cannot produce buffer volumes greater than the preparation vessel
 maximum working volume.
 Additionally, vessels have a minimum fill ratio, $f_{\mathit{MINFILL}}$,
@@ -210,9 +211,9 @@ The maximum vessel capacity constraint is given by:
     \label{eq.constr3a}
 \end{equation}
 Note that the summation on the right hand side of
-\hyperref[eq.constr3a]{equation \ref*{eq.constr3a}} will contain at most one
-non-zero term. If there is no vessel in slot $p$, then 
-$\boldsymbol{y}_{mp} = 0 \quad \forall m \in \mathcal{M}$.
+\hyperref[eq.constr3a]{equation \ref*{eq.constr3a}} will contain \emph{at most}
+one non-zero term. If there is no vessel in slot $p$, then 
+$\boldsymbol{y}_{mp} = 0 \enspace \forall m \in \mathcal{M}$.
 If there is a vessel of size $m$ in slot $p$, then $\boldsymbol{y}_{mp} = 1$.
 Thus, the summation term is used to select the volume of the vessel (if any)
 in slot $p$.
@@ -224,9 +225,9 @@ The \emph{big-M} method is explained in detail in e.g.\ Chapter 3 of
 
 Imagine we have a constraint involving two positive, real variables, 
 $\boldsymbol{\alpha}$ and $\boldsymbol{\beta}$, e.g.\ 
-$\boldsymbol{\alpha} \ge \boldsymbol{\beta}$, and a binary variable,
-$\boldsymbol{\gamma}$, and we only want to apply the constraint if
-$\boldsymbol{\gamma} = 1$.
+$\boldsymbol{\alpha} \ge \boldsymbol{\beta}$, and
+we only want to apply the constraint if a particular
+binary variable, $\boldsymbol{\gamma}$, has a value of one.
 We introduce a new constant, $\mathbb{M}$, which is a \emph{sufficiently large}
 number and rewrite the constraint as:
 \begin{equation}
@@ -238,11 +239,11 @@ $\boldsymbol{\beta} \le \boldsymbol{\alpha} + \mathbb{M}$.
 This is always true since we have chosen a sufficiently large value for
 $\mathbb{M}$, i.e.\ the constraint is \emph{deactivated} when
 $\boldsymbol{\gamma} = 0$.
-Conversely, if $\boldsymbol{\gamma} = 1$, the terms containing $\mathbb{M}$
+Conversely, if $\boldsymbol{\gamma} = 1$, the two terms containing $\mathbb{M}$
 cancel and we are left with the original constraint,
-$\boldsymbol{\alpha} \ge \boldsymbol{\beta}$, i.e.\ the constraint is
+$\boldsymbol{\alpha} \ge \boldsymbol{\beta}$, i.e.\ the original constraint is
 \emph{activated} when $\boldsymbol{\gamma} = 1$.
-By inspection, a suitable value for $\mathbb{M}$ in the above would be
+By inspection, a suitably large value for $\mathbb{M}$ in the above would be
 $\mathbb{M} = \text{max} \left( \boldsymbol{\beta} - \boldsymbol{\alpha} 
  \right)$.
 
@@ -267,8 +268,9 @@ In the absence of detailed scheduling data (i.e.\ knowledge of when the buffers
 are used by the process and their durations of use), an allowance can be made
 for unknown scheduling constraints by limiting the maximum allowed utilisation
 of the preparation vessels.
-A slot is deemed to be utilised if there is a preparation event occurring in
-it. A slot's utilisation ratio is the total duration of all such events in a
+A slot is deemed to be utilised when a preparation procedure is occurring
+therein.
+A slot's utilisation ratio is the total duration of all such utilisation in a
 cycle, expressed as a fraction of the cycle time.
 
 We thus introduce the parameter $f_{\mathit{UTIL}}$, the maximum utilisation
@@ -277,15 +279,16 @@ The total duration of all preparation procedures in a given slot must not be
 above $f_{\mathit{UTIL}} \times T$, where $T$ is the cycle time of the
 process.
 
-The total duration of a single preparation procedure,
+As can be seen from \hyperref[fig.explanatory]{Figure \ref*{fig.explanatory}}, 
+the total duration of a single preparation procedure,
 $\Delta t_{\mathit{PREP}}$, is given by:
 \begin{equation}
     \Delta t_{\mathit{PREP}} = \Delta t_{\mathit{PREP,PRE}} + 
     \Delta t_{\mathit{TRANSFER}} + \Delta t_{\mathit{PREP,POST}}
 \end{equation}
-Note that, for the basic case, it is only strictly necessary to know
-$\Delta t_{\mathit{PREP}}$; the constituent durations do not need to be
-known individually.
+Note that, for the basic case, it is only strictly necessary to estimate the
+preparation procedure duration, $\Delta t_{\mathit{PREP}}$; the constituent
+operation durations do not need to be known individually.
 
 The following constraint is now defined:
 \begin{equation}
@@ -308,7 +311,7 @@ a first guess at the vessel requirements and may be sufficient for a rough
 feasibility-stage cost estimate.
 It is thus apparent that accurate scheduling data are required if a more
 accurate result is necessary.  The application of scheduling constraints forms
-the basis of the complete model, detailed in
+the basis of the \emph{complete} model, detailed in
 \hyperref[S.completemodel]{Section \ref*{S.completemodel}}.
 
 \subsection{Basic Model Summary}\label{SS.basicsummary}
@@ -392,7 +395,7 @@ $\boldsymbol{z}_{n}$:
     \boldsymbol{z}_{n} \in \mathbb{R} \quad \forall n \in \mathcal{N}
     \label{eq.z}
 \end{equation}
-This is the only variable in the model that is not a binary variable.
+This is the only decision variable in the model that is not a binary variable.
 
 The first constraint required for the complete model is the limitation that the
 total duration of each hold procedure must not be greater than the cycle time.
@@ -407,7 +410,7 @@ have finished before the hold procedure for the next batch is due to start.
 
 \subsection{Introducing the Scheduling Constraint}\label{SS.schedintro}
 
-The scheduling constraint may be described quite simply;
+The buffer preparation scheduling constraint may be described quite simply;
 \emph{Two events requiring the same piece of equipment must not occur
 simultaneously.}
 
@@ -419,10 +422,11 @@ following equation, which is only valid for \emph{non-cyclic} operation:
     \lvert \boldsymbol{t}_{\mathit{PREP},k} - \boldsymbol{t}_{\mathit{PREP},n}
     \rvert \ge \Delta t_{\mathit{PREP}} \quad \forall n \in \mathcal{N},
     \enspace \forall k \in \mathcal{N}; \; k > n
+    \label{eq.mod}
 \end{equation}
 \noindent where $\boldsymbol{t}_{\mathit{PREP},k}$ and
-$\boldsymbol{t}_{\mathit{PREP},n}$ are the reference times for the preparation
-procedures of buffers $k$ and $n$ respectively.
+$\boldsymbol{t}_{\mathit{PREP},n}$ are the \emph{reference times}
+for the preparation procedures of buffers $k$ and $n$ respectively.
 Note that the range of $ k $ is limited to $ k > n $ to prevent duplication
 of constraints.
 The above formula is not yet in a format that can be applied in a MILP model.
@@ -445,8 +449,9 @@ Finally, the above expression isn't always a valid representation of the
 constraint when dealing with a cyclic process.
 For example, if $\boldsymbol{t}_{\mathit{PREP},k}$ has a value just below $T$
 and $\boldsymbol{t}_{\mathit{PREP},n}$ has a value just above zero, the two
-preparations may clash due to them crossing the cycle boundary; some additional
-logic is required to ensure such boundary cases are treated properly.
+preparation procedures may clash due to them crossing the cycle boundary; some
+additional logic is required to ensure such boundary cases are treated
+properly.
 
 To overcome the issues outlined above, several additional constraints and
 variables must be introduced.
@@ -454,9 +459,9 @@ variables must be introduced.
 \subsection{Pairs of Distinct Buffers Prepared in the Same Slot}
 \label{SS.constr6}
 We want to specify a binary variable which indicates if two distinct
-buffers are made in the same slot.
+buffers are prepared in the same slot.
 This, in turn requires an additional binary variable which indicates if two
-distinct buffers are made in a \emph{particular} slot.
+distinct buffers are prepared in a \emph{particular} slot.
 The latter binary variable, $ \boldsymbol{w}_{nkp} $, is defined as follows:
 \begin{equation}
     \boldsymbol{w}_{nkp} \in \left\{ 0, 1 \right\} \quad \forall n \in 
@@ -481,9 +486,10 @@ The latter binary variable, $ \boldsymbol{w}_{nkp} $, is defined as follows:
     \label{eq.w1}
 \end{equation}
 Note that $\boldsymbol{w}_{nkp}$ has dimensions
-$\binom{N}{2} \times P$; since $\boldsymbol{w}_{nnp}$ is
+$\binom{N}{2} \times P$.
+Since $\boldsymbol{w}_{nnp}$ is
 not required (we do not need to compare a buffer with itself) and
-$\boldsymbol{w}_{nkp} = \boldsymbol{w}_{knp}$, we only need to describe
+$\boldsymbol{w}_{nkp} = \boldsymbol{w}_{knp}$, we only need to model
 constraints where $k > n$.
 
 A truth table for the constraints in 
@@ -517,10 +523,8 @@ buffer $k$ and buffer $n$ are both prepared in slot $p$.
     \end{tabular}
 \end{table}
 
-Given the constraint defined in
-\hyperref[SS.constr6]{Section \ref*{SS.constr6}}, we can now define a binary
-variable, $\boldsymbol{a}_{nk}$ which indicates if two distinct buffers are
-made in the same slot.
+We can now define a binary variable, $\boldsymbol{a}_{nk}$ which indicates if
+two distinct buffers are prepared in the \emph{same} slot.
 \begin{equation}
     \boldsymbol{a}_{nk} \in \left\{ 0, 1 \right\} \quad \forall n \in
     \mathcal{N}, \enspace \forall k \in \mathcal{N}; \; k > n
@@ -563,10 +567,11 @@ one another.
 \end{table}
 
 \subsection{Absolute value constraints}\label{SS.absval}
-Recall that we still cannot apply our scheduling constraint due to the presence
-of an absolute value expression in the equation.
-Given two events, both of duration $\delta$, with respective (variable) start
-times $\boldsymbol{\alpha}$ and $\boldsymbol{\beta}$, the absolute
+We still cannot apply the scheduling constraint introduced in
+\hyperref[eq.mod]{equation \ref*{eq.mod}} due to the presence of the absolute
+value expression.
+Given two events, both of (fixed) duration $\delta$, with respective (variable)
+start times $\boldsymbol{\alpha}$ and $\boldsymbol{\beta}$, the absolute
 value expression may be though of as representing a pair of constraints, e.g.\ 
 $ \lvert \boldsymbol{\beta} - \boldsymbol{\alpha} \rvert \ge \delta $
 is essentially shorthand for the expression
@@ -589,7 +594,7 @@ The pair of expressions in
 represent an \emph{or} constraint, which must be converted to an \emph{and}
 constraint if they are to be included in a MILP model.
 This conversion requires the definition of an additional binary variable,
-$\boldsymbol{\gamma}$, which is used to select between the two cases in
+$\boldsymbol{\epsilon}$, which is used to select between the two cases in
 \hyperref[eq.alphabeta1]{equation \ref*{eq.alphabeta1}}.
 The \emph{big-M} method (see \hyperref[SS.constr3]{Section \ref*{SS.constr3}})
 is used to arrive at correct equations suitable for a
@@ -597,17 +602,17 @@ MILP model:
 \begin{equation}
     \begin{split}
         \begin{alignedat}{4}
-            \mathbb{M} \boldsymbol{\gamma} + \boldsymbol{\beta} 
+            \mathbb{M} \boldsymbol{\epsilon} + \boldsymbol{\beta} 
             - \boldsymbol{\alpha} {}\ge{} & &&\delta\\
-            \mathbb{M} \boldsymbol{\gamma} + \boldsymbol{\beta}
+            \mathbb{M} \boldsymbol{\epsilon} + \boldsymbol{\beta}
             - \boldsymbol{\alpha} {}\le{} & - &&\delta {}+{} \mathbb{M}\\
         \end{alignedat}
     \end{split}
     \label{eq.alphabeta2}
 \end{equation}
-Note that the binary variable $\boldsymbol{\gamma}$ is not constrained by any
-other equations, i.e.\ $\boldsymbol{\gamma}$ is a free variable that allows for
-selection between the two constraints in
+Note that the binary variable $\boldsymbol{\epsilon}$ is not constrained by any
+other equations, i.e.\ $\boldsymbol{\epsilon}$ is a free variable that allows
+for selection between the two constraints in
 \hyperref[eq.alphabeta2]{equation \ref*{eq.alphabeta2}}.
 Also note that $\mathbb{M}$ is a \emph{suitably large} number, e.g.\ by 
 inspection,
@@ -626,7 +631,7 @@ zero duration; a trivial edge case which will not arise in the proposed model.
     \caption{Truth table for $\boldsymbol{\beta} - \boldsymbol{\alpha}$}
     \label{tbl.truthalphabeta}
     \begin{tabular}{c c | c}
-        $\boldsymbol{\beta} - \boldsymbol{\alpha}$ & $\boldsymbol{\gamma}$ &
+        $\boldsymbol{\beta} - \boldsymbol{\alpha}$ & $\boldsymbol{\epsilon}$ &
         active constraint\\ \hline
         $< 0$ & 1 & $\boldsymbol{\beta} - \boldsymbol{\alpha} \ge \delta$\\
         0 & $\left\{ 0,1 \right\}$ & $\delta \le 0$\\
@@ -1052,9 +1057,10 @@ The final preparation constraint is given in equation
 A truth table for \hyperref[eq.k5]{equation \ref*{eq.k5}} is given in
 \hyperref[tbl.truthsched]{Table \ref*{tbl.truthsched}}, with `$\ast$' denoting
 the binary set, $\left\{0,1\right\}$.
-Recall also that \hyperref[eq.tprep1]{equation \ref*{eq.tprep1}} implies
-$0 \le \boldsymbol{t}_{\mathit{PREP},k} \le T$, so we do not need
-\hyperref[eq.k5]{equation \ref*{eq.k5}} to duplicate that constraint.
+Recall also that \hyperref[eq.tprep1]{equation \ref*{eq.tprep1}} already
+ensures 
+$0 \le \boldsymbol{t}_{\mathit{PREP},k} \le T$, so we do not need duplication
+of that constraint in \hyperref[eq.k5]{equation \ref*{eq.k5}}.
 \begin{table}[h!]
     \centering
     \caption{Truth table for equation \ref{eq.k5}}
@@ -1095,7 +1101,14 @@ $0 \le \boldsymbol{t}_{\mathit{PREP},k} \le T$, so we do not need
 
 The complete model is summarised below.
 The constraint equations have been rearranged so that variables are on the left
-hand side and constants are on the right. 
+hand side and constants are on the right.
+
+Note that variables $\boldsymbol{a}_{nk}$, $\boldsymbol{t}_{\mathit{PREP},n}$,
+$\boldsymbol{t}_{\mathit{PREP},k}$, $\boldsymbol{t}_{\mathit{LOWER},n}$ and
+$\boldsymbol{t}_{\mathit{UPPER},n}$ are not required in the summary model.
+Values for these variables can be obtained, post solution, by applying
+equations \ref{eq.a1}, \ref{eq.tprep}, \ref{eq.tprep} (replacing $n$ with $k$),
+\ref{eq.lower1} and \ref{eq.upper1} respectively.
 
 Minimise:
 \begin{equation}
@@ -1209,6 +1222,13 @@ Subject to:
 \begin{equation}
     \begin{split}
         \begin{aligned}
+            T \boldsymbol{q}_{k} - T \boldsymbol{q}_{n} - 2T \boldsymbol{u}_{n} 
+            + 2T \boldsymbol{v}_{nk} + 2T \sum_{p \in \mathcal{P}}
+            \boldsymbol{w}_{nkp} - \boldsymbol{z}_{k} + \boldsymbol{z}_{n}\\
+            \le t_{\mathit{USE},n} - t_{\mathit{USE},k}
+            - \Delta t_{\mathit{PREP}} + 4T
+        \end{aligned}\\
+        \begin{aligned}
             T \boldsymbol{q}_{k} - T \boldsymbol{q}_{n} + 2T \boldsymbol{u}_{n} 
             + 2T \boldsymbol{v}_{nk} - 2T \sum_{p \in \mathcal{P}}
             \boldsymbol{w}_{nkp} - \boldsymbol{z}_{k} + \boldsymbol{z}_{n}\\
@@ -1216,17 +1236,10 @@ Subject to:
             + \Delta t_{\mathit{PREP}} - 2T
         \end{aligned}\\
         \begin{aligned}
-            T \boldsymbol{q}_{k} - T \boldsymbol{q}_{n} - 2T \boldsymbol{u}_{n} 
-            + 2T \boldsymbol{v}_{nk} + 2T \sum_{p \in \mathcal{P}}
-            \boldsymbol{w}_{nkp} - \boldsymbol{z}_{k} + \boldsymbol{z}_{n}\\
-            \ge t_{\mathit{USE},n} - t_{\mathit{USE},k}
-            - \Delta t_{\mathit{PREP}} + 4T
-        \end{aligned}\\
-        \begin{aligned}
             T \boldsymbol{q}_{k} - T \boldsymbol{q}_{n} - T \boldsymbol{r}_{n}
             + 2T \boldsymbol{u}_{n} + 2T \sum_{p \in \mathcal{P}}
             \boldsymbol{w}_{nkp} - \boldsymbol{z}_{k} + \boldsymbol{z}_{n}\\
-            \ge t_{\mathit{USE},n} - t_{\mathit{USE},k}
+            \le t_{\mathit{USE},n} - t_{\mathit{USE},k}
             - \Delta t_{\mathit{PREP}} + 4T
         \end{aligned}\\
         \begin{aligned}
@@ -1291,13 +1304,6 @@ Where:
     \tag{\ref{eq.z}}
 \end{equation}
 
-Note that variables $\boldsymbol{a}_{nk}$, $\boldsymbol{t}_{\mathit{PREP},n}$,
-$\boldsymbol{t}_{\mathit{PREP},k}$, $\boldsymbol{t}_{\mathit{LOWER},n}$ and
-$\boldsymbol{t}_{\mathit{UPPER},n}$ are not required in the model. Values for
-these variables can be obtained, post solution, by applying equations
-\ref{eq.a1}, \ref{eq.tprep}, \ref{eq.tprep} (replacing $n$ with $k$),
-\ref{eq.lower1} and \ref{eq.upper1} respectively.
-
 \section{Further Optimisation}\label{S.secondary}
 
 \subsection{Goal programming}\label{SS.goal}
@@ -1317,18 +1323,21 @@ model, an \emph{equipment time utilisation} plot (see
 schedule (such as that shown in 
 \hyperref[fig.primary]{Figure \ref*{fig.primary}})
 may be generated.
+
+Equipment time utilisation plots are discussed in more detail in
+\hyperref[C.results]{Chapter \ref*{C.results}}; they show the scheduling of
+procedures or operations (bars) in equipment (broken lines), coloured by
+buffers. They show a single-cycle window at steady-state.
+
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{./figures/plot1.pdf}
     \caption{Random example -- primary objective (note that buffers are
-        individually coloured; each buffer has its own hold vessel, from which
-        its colour may be determined)}
+        individually coloured; each buffer has a dedicated hold vessel, from
+        which its colour may be determined)}
     \label{fig.primary}
 \end{figure}
-
-Note that the solution requires four vessels, with sizes
-\SI{2000}{\litre}, \SI{8000}{\litre}, \SI{25000}{\litre} and \SI{30000}{\litre}
-respectively.  
+ 
 Recall that one of our decision variables is $\boldsymbol{z}_{n}$, the buffer
 hold duration.
 In \hyperref[fig.primary]{Figure \ref*{fig.primary}}, we can see that Buffer
@@ -1339,7 +1348,7 @@ For this buffer, it can also be seen that there exists some free time after
 its preparation procedure.
 
 Delaying the preparation of Buffer \#2 by e.g.\ three hours would
-also give an optimal solution, with the vessel selection unchanged and would
+also give an optimal solution, with the vessel selection unchanged, and would
 prevent the hold procedure for Buffer \#2 from being bottlenecked.
 There exists sufficient free time in the \SI{8000}{\litre} vessel to do this.
 Note that delaying a preparation by some amount $\delta$ is equivalent to 
@@ -1382,8 +1391,8 @@ following constraint added:
 Implementing the secondary goal programming model on the same data-set yields
 the plot shown in \hyperref[fig.secondary]{Figure \ref*{fig.secondary}}.
 Note that the buffer hold procedure for Buffer \#2 is no longer bottlenecked.
-We can also see that the hold times for Buffers \#1, \#6, \#7 and \#12 have
-all decreased, but the hold time for buffer \#4 has increased.
+We can also see that the hold times for Buffers \#1, \#4, \#6, \#7 and \#12
+have all decreased, while hold times for the remaining buffers are unchanged.
 Overall, there has been a reduction in total hold time, which was our aim.
 Note also that, although the same preparation vessels are selected (i.e.\ the
 same minimal cost is obtained), some buffers are now prepared in different
@@ -1403,144 +1412,9 @@ Minimise:
     \boldsymbol{Y} = \sum_{n \in \mathcal{N}} \boldsymbol{z}_{n}
     \tag{\ref{eq.objfn2}}
 \end{equation}
-Subject to:
-\begin{equation}
-    \sum_{p \in \mathcal{P}} \boldsymbol{x}_{np} = 1 \quad \forall n \in
-    \mathcal{N}
-    \tag{\ref{eq.constr1}}
-\end{equation}
-\begin{equation}
-    \sum_{m \in \mathcal{M}} \boldsymbol{y}_{mp} \le 1 \quad \forall p \in
-    \mathcal{P}
-    \tag{\ref{eq.constr2}}
-\end{equation}
-\begin{equation}
-    U_{n} \boldsymbol{x}_{np} - \sum_{m \in \mathcal{M}} V_{m}
-    \boldsymbol{y}_{mp} \le 0 \quad \forall n \in \mathcal{N}, \enspace \forall
-    p \in \mathcal{P}
-    \tag{\ref{eq.constr3a}}
-\end{equation}
-\begin{equation}
-    V_{\mathit{MAX}} \boldsymbol{x}_{np} + f_{\mathit{MINFILL}} \sum_{m \in 
-    \mathcal{M}} V_{m} \boldsymbol{y}_{mp} \le U_{n} + V_{\mathit{MAX}} \quad
-    \forall n \in \mathcal{N}, \enspace \forall p \in \mathcal{P}
-    \tag{\ref{eq.constr3b}}
-\end{equation}
-\begin{equation}
-    \Delta t_{\mathit{PREP}} \sum_{n \in \mathcal{N}} \boldsymbol{x}_{np} \le
-    f_{\mathit{UTIL}} T \quad \forall p \in \mathcal{P}
-    \tag{\ref{eq.constr4}}
-\end{equation}
-\begin{equation}
-    \begin{aligned}
-        \boldsymbol{z}_{n} \le T - \Delta t_{\mathit{HOLD,PRE}}
-        - \Delta t_{\mathit{TRANSFER}} - \Delta t_{\mathit{USE},n}
-        - \Delta t_{\mathit{HOLD,POST}}\\
-        \quad \forall n \in \mathcal{N}
-    \end{aligned}
-    \tag{\ref{eq.z1}}
-\end{equation}
-\begin{equation}
-    \begin{split}
-        \begin{alignedat}{11}
-            2&\boldsymbol{w}_{nkp} {}-{} &&\boldsymbol{x}_{np}
-            {}-{} && \boldsymbol{x}_{kp} {}&&\le{} &{}-{} 2\\
-            &\boldsymbol{w}_{nkp} {}-{} &&\boldsymbol{x}_{np}
-            {}-{} && \boldsymbol{x}_{kp} {}&&\ge{} &{}-{} 1\\
-        \end{alignedat}
-    \end{split}
-    \quad
-    \begin{split}
-        \forall n \in \mathcal{N}, \enspace \forall k \in \mathcal{N}; \;
-        k > n, \enspace \forall p \in \mathcal{P}
-    \end{split}
-    \tag{\ref{eq.w1}}
-\end{equation}
-\begin{equation}
-    \begin{split}
-        \begin{alignedat}{2}
-            T \boldsymbol{q}_{n} - \boldsymbol{z}_{n} &\ge
-            - t_{\mathit{USE},n}\\
-            T \boldsymbol{q}_{n} - \boldsymbol{z}_{n} &\le
-            - t_{\mathit{USE},n} + T\\
-        \end{alignedat}
-    \end{split}
-    \quad \forall n \in \mathcal{N}
-    \tag{\ref{eq.q1}}
-\end{equation}
-\begin{equation}
-    \begin{split}
-        \begin{alignedat}{2}
-            -T \boldsymbol{q}_{n} + T \boldsymbol{r}_{n} + \boldsymbol{z}_{n}
-            &\le t_{\mathit{USE},n} + \Delta t_{\mathit{PREP}}\\
-            -T \boldsymbol{q}_{n} + T \boldsymbol{r}_{n} + \boldsymbol{z}_{n}
-            &\ge t_{\mathit{USE},n} + \Delta t_{\mathit{PREP}} - T\\
-            \end{alignedat}
-        \quad \forall n \in \mathcal{N}
-    \end{split}
-    \tag{\ref{eq.r2}}
-\end{equation}
-\begin{equation}
-    \begin{split}
-        \begin{alignedat}{2}
-            T \boldsymbol{q}_{n} + T \boldsymbol{s}_{n} - \boldsymbol{z}_{n}
-            &\le -t_{\mathit{USE},n} + \Delta t_{\mathit{PREP}}\\
-            T \boldsymbol{q}_{n} + T \boldsymbol{s}_{n} - \boldsymbol{z}_{n}
-            &\ge -t_{\mathit{USE},n} + \Delta t_{\mathit{PREP}} + T\\
-            \end{alignedat}
-        \quad \forall n \in \mathcal{N}
-    \end{split}
-    \tag{\ref{eq.s2}}
-\end{equation}
-\begin{equation}
-    \begin{split}
-        \begin{alignedat}{8}
-            &&\boldsymbol{r}_{n} && {}+{} &&\boldsymbol{s}_{n} && {}-{} 
-            &&\boldsymbol{u}_{n} &\ge 0\\
-            &&\boldsymbol{r}_{n} && {}+{} &&\boldsymbol{s}_{n} && {}-{} 
-            &2&\boldsymbol{u}_{n} &\le 0\\
-        \end{alignedat}
-        \quad \forall n \in \mathcal{N}
-    \end{split}
-    \tag{\ref{eq.u1}}
-\end{equation}
-\begin{equation}
-    \begin{split}
-        \begin{aligned}
-            T \boldsymbol{q}_{k} - T \boldsymbol{q}_{n} + 2T \boldsymbol{u}_{n} 
-            + 2T \boldsymbol{v}_{nk} - 2T \sum_{p \in P} \boldsymbol{w}_{nkp} 
-            - \boldsymbol{z}_{k} + \boldsymbol{z}_{n}\\
-            \ge t_{\mathit{USE},n} - t_{\mathit{USE},k}
-            + \Delta t_{\mathit{PREP}} - 2T
-        \end{aligned}\\
-        \begin{aligned}
-            T \boldsymbol{q}_{k} - T \boldsymbol{q}_{n} - 2T \boldsymbol{u}_{n} 
-            + 2T \boldsymbol{v}_{nk} + 2T \sum_{p \in P} \boldsymbol{w}_{nkp} 
-            - \boldsymbol{z}_{k} + \boldsymbol{z}_{n}\\
-            \ge t_{\mathit{USE},n} - t_{\mathit{USE},k}
-            - \Delta t_{\mathit{PREP}} + 4T
-        \end{aligned}\\
-        \begin{aligned}
-            T \boldsymbol{q}_{k} - T \boldsymbol{q}_{n} - T \boldsymbol{r}_{n}
-            + 2T \boldsymbol{u}_{n} + 2T \sum_{p \in P} \boldsymbol{w}_{nkp} 
-            - \boldsymbol{z}_{k} + \boldsymbol{z}_{n}\\
-            \ge t_{\mathit{USE},n} - t_{\mathit{USE},k}
-            - \Delta t_{\mathit{PREP}} + 4T
-        \end{aligned}\\
-        \begin{aligned}
-            T \boldsymbol{q}_{k} - T \boldsymbol{q}_{n} + T \boldsymbol{s}_{n}
-            - 2T \boldsymbol{u}_{n} - 2T \sum_{p \in P} \boldsymbol{w}_{nkp} 
-            - \boldsymbol{z}_{k} + \boldsymbol{z}_{n}\\
-            \ge t_{\mathit{USE},n} - t_{\mathit{USE},k}
-            + \Delta t_{\mathit{PREP}} - 4T
-        \end{aligned}\\
-        \begin{aligned}
-            \forall n \in \mathcal{N}, \enspace \forall k \in \mathcal{N}; \;
-            k > n
-        \end{aligned}\\
-    \end{split}
-    \tag{\ref{eq.k6}}
-\end{equation}
+Subject to all constraints summarised in 
+\hyperref[SS.completesummary]{Section \ref*{SS.completesummary}}, and
+additionally:
 \begin{equation}
     \sum_{m \in \mathcal{M}} \sum_{p \in \mathcal{P}} c_m 
     \boldsymbol{y}_{mp} = Z^{\prime}
@@ -1608,9 +1482,10 @@ speed of an interpreted language is not an important consideration.
 There exist several useful open-source plotting and statistical libraries for
 python, allowing both generation and manipulation of the results.
 
-The git version control software package was used to manage the development,
-including the \LaTeX\ scripts that comprise this thesis document.
-The git repository is hosted on GitHub, at 
+The git\footnote{\emph{git}, \url{https://git-scm.com/}} version control
+software package was used to manage the development, including the \LaTeX\
+scripts that comprise this document.
+The git repository for this project is hosted on GitHub, at 
 \url{https://github.com/multipitch/dissertation}
 
 Input data files are either in \texttt{csv} format (for tabular data) or
@@ -1619,80 +1494,96 @@ included in the standard python library.
 
 \subsection{MILP Solvers}\label{SS.impl1}
 
-\textbf{TODO: Software references \& bibliography where applicable}
-
 There are several MILP solver packages available that can be used to solve
 problems such as the basic, complete and secondary problems summarised in this
-chapter. Both commercial and open-source MILP solvers exist.
-Proprietary solvers include Gurobi, CPLEX and XPRESS. Open source solvers
-include GLPK and CBC.
+chapter. Both proprietary and open-source MILP solvers exist.
+Proprietary solvers include
+Gurobi\footnote{\emph{Gurobi Optimizer},
+                \url{http://www.gurobi.com/products/gurobi-optimizer}},
+CPLEX\footnote{\emph{IBM ILOG CPLEX Optimizer} ,
+    \url{https://www.ibm.com/software/commerce/optimization/cplex-optimizer/}}
+and XPRESS\footnote{\emph{FICO Xpress Solver},
+    \url{http://www.fico.com/en/products/fico-xpress-solver}}.
+Open source solvers include
+GLPK\footnote{\emph{GLPK}, \url{https://www.gnu.org/software/glpk/}}
+and Cbc\footnote{\emph{Cbc}, \url{https://projects.coin-or.org/Cbc}}.
 
-\textbf{TODO: make this less narrative in style as per David's comment}
 Initial coding efforts centred around CPLEX, since it has a free and
 readily available academic license, good documentation and a well-documented
 python API.
 
-In an effort to produce a more open-source-friendly code base, development was
-switched away from CPLEX and the PuLP python library was used instead.
-The PuLP library can call several MILP solvers, including all of those used
-above.
-It is available under a free and permissive open source license.
+One area of interest is the comparison of different MILP solvers, so a more
+general modelling approach was required.
+It was also noted during development that the bulk of the code dealt with the
+construction of the model (reading from input files and constructing the
+equations summarised in Sections \ref{SS.completesummary} and 
+\ref{SS.model2summary}); less than ten lines of code involved interfacing with
+the solver.
+Accordingly, development was switched away from the CPLEX API and towards the
+PuLP\footnote{\emph{PuLP}, \url{https://pypi.python.org/pypi/PuLP}} API.
+PuLP is an open-source python library that provides an API to many proprietary
+and open-source MILP solvers.
+This change provided a pathway for comparing the effectiveness of several
+different solvers.
 
-A python API is currently available for recent versions of XPRESS and an
-academic license for XPRESS was also available via the University.
-Unfortunately, the version of XPRESS available under the academic licence
-predates the release of the python API.
-It was also not possible to get XPRESS working reliably with PuLP due to
-intermittent issues with the network-based license key system used for the
-available version of XPRESS.
-Accordingly, the use of XPRESS was not pursued.
+Ultimately, the solvers investigated were CPLEX (version 12.7.1), Cbc
+(as bundled with version 1.6.7 of PuLP) and GLPK (version 4.63).
 
-PuLP comes packaged with a compiled static version of the CBC solver (version
-unknown).
-The GLPK solver was also installed (version 4.63)
+\subsection{Development Environment}\label{SS.envir}
 
-\subsection{Environment}\label{SS.envir}
-
-Development was chiefly done on a computer running Arch Linux 64 bit.
+Development was mainly carried on a computer running Arch Linux 64 bit.
 This is a rolling-release operating system and so does not have a version
 number.
 
 The current (at time of writing) available version of CPLEX is version 12.7.1.
 This version is not compatible with current python versions (3.6 and above).
-To overcome this, the pyenv package was used to locally install python version
+To overcome this, the
+pyenv\footnote{\emph{pyenv} \url{https://github.com/pyenv/pyenv}}
+package was used to locally install python version
 3.5.1 for use with the working repository.
 Using a local pyenv version in this manner required the installation of local
 static versions of all libraries used in the code which is advantageous in
 preventing breakages during software updates (these can be common with
 rolling-release operating systems).
-As it happened, version 1.6.6 of PuLP was the current version during early
-stage development, but it was incompatible with CPLEX version 12.7.1 due to a
-change in the CPLEX python API.  A patch was required to maintain
-inter-operability.  The patch was merged into version 1.6.7 of PuLP and so this,
-and all other software was then installed unmodified.
-\hyperref[tbl.libs]{Table \ref*{tbl.libs}} lists the installed python
-libraries.
+
+The initial version of PuLP used during development was version 1.6.6.
+This version was found to be incompatible with CPLEX version 12.7.1 due to a
+change in the CPLEX python API between versions 12.7.0 and 12.7.1.
+A patch to PuLP was required to maintain inter-operability.
+As development progressed, version 1.6.7 of PuLP was released which contained
+the same patch, restoring CPLEX compatibility.
+At this point, version 1.6.7 of PuLP was installed unmodified.  All other
+software was also installed un-patched and unmodified.
+\hyperref[tbl.libs]{Table \ref*{tbl.libs}} lists the relevant third-party
+python libraries installed.
 
 \begin{table}[h!]
     \centering
-    \caption{Python libraries}
+    \caption{Installed third-party python libraries}
     \label{tbl.libs}
     \begin{tabular}{l  l  l }
         library & version & reason for installation\\ \hline
-        matplotlib & 2.0.2 & generating plots \\
-        numpy & 1.13.0 & working with arrays \\
+        matplotlib\footnote{\emph{matplotlib}, \url{https://matplotlib.org/}}
+            & 2.0.2 & generation of plots \\
+        numpy\footnote{\emph{numpy} \url{http://www.numpy.org/}} & 1.13.0
+            & working with arrays \\
         pulp & 1.6.7 & API for multiple MILP solvers \\
-        pylatexenc & 1.2 & converting strings to a \LaTeX-compatible format \\
-        scipy & 0.19.1 & calculating binomial coefficients for complexity
-            plots \\
+        pylatexenc\footnote{\emph{pylatexenc}
+            \url{https://pypi.python.org/pypi/pylatexenc}} & 1.2
+            & converting strings to a \LaTeX-compatible format \\
+        scipy\footnote{\emph{scipy} \url{https://www.scipy.org/}} & 0.19.1
+            & calculating binomial coefficients for complexity plots \\
     \end{tabular}
 \end{table}
 
-The source code may be checked out from GitHub by running:
+Using Linux, the source code repository may be checked out from GitHub by
+installing
+git\footnote{\emph{git} \url{https://git-scm.com/}}
+and running the following command in a terminal:
 
-\texttt{\$ git clone https://github.com/multipitch/dissertation}
+\texttt{\$ git clone \url{https://github.com/multipitch/dissertation}}
 
-The repository contains three folders; \texttt{examples}, \texttt{src},
+The repository contains three folders; \texttt{examples}, \texttt{src}, and
 \texttt{tex}.
 All code is contained in the \texttt{src} folder.  The \texttt{examples} folder
 contains some example input files and the \texttt{tex} folder contains the
@@ -1702,10 +1593,14 @@ The \texttt{src} folder contains three files:
 \begin{itemize}
     \item \texttt{model.py} contains the code specifying and solving models
     \item \texttt{plots.py} contains code for generating various plots
-    \item \texttt{runmodel} is a short executable script that runs the model(s)
-        in \texttt{model.py}
+    \item \texttt{runmodel} is a short executable script that acts as a
+        command-line front-end for running the models in \texttt{model.py}
 \end{itemize}
 
+A brief description of the code in \texttt{model.py} and \texttt{plots.py} is
+given in as an \hyperref[C.Appendix2]{appendix} to this report. 
+
+\begin{comment}
 \subsection{Model Code}\label{SS.modelcode}
 
 The \texttt{model.py} file contains the following classes; a brief overview of
@@ -1876,3 +1771,4 @@ duration data to a file is useful as it can take a considerable amount of time
 to obtain the duration data and if it was destroyed when the program
 terminates, tweaking the appearance of the plot would otherwise require
 re-running all the constituent simulations again.
+\end{comment}

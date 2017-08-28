@@ -26,8 +26,8 @@ other people as useful.
 \section{Introduction}\label{S.intro3}
 This chapter will outline the requirements for input data.
 
-For modelling a single process, a typical data-set consists of three distinct
-files.
+For modelling a single process, a typical data-set will consist of three
+distinct files.
 The first file is a table of data relating to the available selection of
 vessels.
 The second file is a table of data relating to parameters specific
@@ -76,19 +76,22 @@ A vessel data-set will contain entries for $M$ vessel sizes:
     M = |\mathcal{M}|
 \end{equation}
 
+Note that the computer scientists' convention, whereby counting starts at zero,
+is used throughout this report.
+
 Typically, when designing a large-scale production facility, buffer preparation
 vessel volumes range from \SI{1000}{\litre} to \SI{30000}{\litre}.
 
 When ordering such a vessel, the stated size of the vessel is usually a nominal
-volume, which will differ from the liquid fill volume and may also differ from
+volume, which may differ from the liquid fill volume and may also differ from
 the maximum working volume.
 It is usual to round the stated or nominal volume to the nearest thousand
 litres.
 
 For the purposes of this study, it is assumed that, for each vessel
-$m \in \mathcal{M}$, the specified vessel volume, $V_{m}$ is the maximum
-working volume (in litres) of the vessel, which is taken to be the maximum
-volume of buffer which can be prepared in that vessel.
+$m \in \mathcal{M}$, the specified vessel volume, $V_{m}$, is the maximum
+working volume (in litres) of the vessel. This is taken to be equivalent to
+the maximum volume of buffer which can be prepared in that vessel.
 
 Vessels will also have a minimum working volume.
 It is usual to assume a minimum fill ratio of about 30\% of the vessel volume.
@@ -158,7 +161,7 @@ A buffer data-set will contain entries for $N$ buffers:
 \begin{equation}
     N = |\mathcal{N}|
 \end{equation}
-For each buffer, $n \in \mathcal{N}$, the data-set will contain, at a minimum,
+For each buffer, $n \in \mathcal{N}$, the data set will contain, at a minimum,
 its required preparation volume (in litres), $U_{n}$.
 
 If nothing was known about the scheduling of the production process, a simple
@@ -198,7 +201,8 @@ windows either side of it will be identical, and so on until we approach the
 edges of the long campaign.
 As a result, we want to normalise $t_{\mathit{USE},n}^{*}$ with respect to the
 cycle time, $T$.
-Accordingly, we define:
+Accordingly, we define the (normalised) time of first use,
+$t_{\mathit{USE},n}$:
 \begin{equation}
     t_{\mathit{USE},n} = t_{\mathit{USE},n}^{*} \enspace \text{mod} \enspace 
     T \quad \forall n \in \mathcal{N}.
@@ -226,7 +230,7 @@ For each buffer, $n \in \mathcal{N}$, $\Delta t_{\mathit{USE},n}$ must be
 sufficiently less than the cycle time so that there is opportunity to
 \emph{turn around} its hold vessel (i.e.\ sufficient time must exist after use
 of the buffer to clean and sterilise the vessel, receive the subsequent batch
-of buffer and hold for a sufficient duration before use of that buffer is
+of the sane buffer and hold it for a sufficient duration before it is
 required by the subsequent batch).
 
 \section{Parameters}\label{S.parameters}
@@ -281,16 +285,18 @@ This degree of granularity could be added as a future model enhancement.
 
 The following durations are specified as global parameters:
 
+\begin{itemize}
+\item
 The parameter $\Delta t_{\mathit{PREP,PRE}}$ is the duration of all operations
-in the preparation procedure prior to the transfer of buffer to the buffer hold
-vessel.  
+in the preparation procedure prior to the transfer of buffer from the
+preparation vessel to the hold vessel.  
 This may include pressure testing, steam-in-place (SIP) and cool-down, although
 these tasks are not always carried out on preparation vessels.
-The period will include the charging of WFI, the charging of other liquids
-and/or solids, and time for mixing the buffer.
+The period will include the charging of water for injection (WFI), the charging
+of other liquids and/or solids, and time for mixing the buffer.
 It may also include some time for sampling or testing and adjustment of the
 buffer.
-
+\item
 The parameter $\Delta t_{\mathit{PREP,POST}}$ is the duration of all operations
 in the preparation procedure that take place after the transfer of the buffer
 to the buffer hold vessel is complete.
@@ -298,7 +304,7 @@ This is typically just comprised of the clean-in-place (CIP) of the vessel.
 CIP involves a separate piece of equipment, the CIP skid, which circulates
 cleaning fluids (detergents and/or acids, bases) through the vessel and some of
 its attached pipework.
-
+\item
 The parameter $\Delta t_{\mathit{TRANSFER}}$ is the duration of the transfer
 of buffer from the preparation vessel to the hold vessel, via a sterile filter.
 Although this varies with the buffer volume, the relationship is not that
@@ -307,18 +313,18 @@ As buffer and vessel volumes increase, a change in pipe diameter or pump size
 may be appropriate, giving large step changes to the transfer duration.
 Accordingly, a conservative global parameter for transfer duration is
 appropriate for early-stage design.
-
+\item
 The parameter $\Delta t_{\mathit{HOLD,PRE}}$ is the duration of all operations
 in the hold procedure prior to the commencement of receipt of buffer from the
 preparation vessel.
-This typically includes pressure testing, SIP and cooldown.
-
+This typically includes pressure testing, SIP and cool-down.
+\item
 The parameter $\Delta t_{\mathit{HOLD,POST}}$ is the duration of all operations
 in the hold procedure that take place after the last use of buffer by the
 process is complete.
 Like $\Delta t_{\mathit{PREP,POST}}$, this is primarily comprised of a CIP of
 the respective vessel.
-
+\item
 Looking at \hyperref[fig.explanatory]{Figure \ref*{fig.explanatory}}, the one
 symbol not yet mentioned is the buffer hold duration, $\boldsymbol{z}_{n}$.
 Note that this is a decision variable, and not a parameter; it is discussed in
@@ -335,25 +341,26 @@ duration of the buffer hold operation.
 In practice, the operators of a plant do not want to schedule buffer
 preparations so that the transfer is complete moments before the buffer is
 required by the process, as any delays at this stage could impact production.
-A value, typically in the range of several hours to one day, can be specified
-to ensure that buffers are prepared with some flexibility to handle delays.
+A value of $\Delta t_{\mathit{HOLD,MIN}}$, typically in the range of several
+hours to one day, can be specified to ensure that buffers are prepared with
+some flexibility to handle delays.
 At the other end of the scale, buffers may expire and the global variable 
 $\Delta t_{\mathit{HOLD,MAX}}$ is defined to set a maximum allowable hold
 duration.
-
+\item
 When selecting a vessel, a minimum fill ratio, $f_{\mathit{MINFILL}}$ is
 defined to ensure that a vessel isn't selected that is far too big for the
-buffer being prepared. The rationale for this was mentioned in
+buffer being prepared. The rationale for this was discussed in
 \hyperref[S.vesseldata]{Section \ref*{S.vesseldata}}.
-
+\item
 Finally, the utilisation ratio, $f_{\mathit{UTIL}}$, places an upper limit on
 how busy a preparation vessel is allowed to be.
 In the absence of detailed buffer scheduling information, this may represent an
 `engineering factor' to account for unforeseeable scheduling clashes.
 If detailed scheduling information is available, the ratio can be set to unity
 to effectively remove its influence as a constraint, or the ratio could be
-maintained at some value less than one to allow for some overhead in the
-design.
+maintained at some value less than one to allow for overhead in the design.
+\end{itemize}
 
 \section{Data Sources}\label{S.sources}
 
@@ -378,15 +385,17 @@ The use durations, $\Delta t_{\mathit{USE},n}$ are uniformly distributed and
 depend on several parameters so that the model is feasible.  The feasible range
 may be further scaled back using $f_{\mathit{MINUSE}}$ and
 $f_{\mathit{MAXUSE}}$ to ensure values are credible, i.e.\
-$f_{\mathit{MINUSE}} \times T < \Delta t_{\mathit{USE},n} < f_{\mathit{MAXUSE}}
- \times \Delta t_{\mathit{FEAS}}$
+\begin{equation}
+    f_{\mathit{MINUSE}} \times T < \Delta t_{\mathit{USE},n}
+    < f_{\mathit{MAXUSE}} \times \Delta t_{\mathit{FEAS}}
+\end{equation}
 where
 \begin{equation}
     \Delta t_{\mathit{FEAS}} = T - \left( 
     \Delta t_{\mathit{HOLD,PRE}}
     + \Delta t_{\mathit{TRANSFER}}
     + \Delta t_{\mathit{HOLD,MIN}}
-    + \Delta t_{\mathit{HOLD,POST}} \right)
+    + \Delta t_{\mathit{HOLD,POST}} \right).
 \end{equation}
 
 These values are bound below by the minimum duration ratio times the cycle time
@@ -394,7 +403,7 @@ These values are bound below by the minimum duration ratio times the cycle time
 \subsection{Real-World Data}\label{SS.realdata}
 Real-world data sets are based on mass balances and scheduling simulations
 performed by the author for biopharmaceutical clients.
-Since these processes are highly confidential, the data has been obfuscated in
+Since these processes are confidential, the data has been obfuscated in
 several ways.
 Firstly, the buffers are all given terse names, such as `Buffer \#1', and are
 in no particular order.
@@ -405,6 +414,7 @@ factor.
 These changes serve to make the data unrecognisable but do not affect vessel
 selection or scheduling (save for scaling the time axis).
 
+Two real-world data sets are included as appendices to this report.
 
 
 

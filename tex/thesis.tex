@@ -42,9 +42,14 @@ subfigure}
 
 \usepackage{longtable,tabu}
 \usepackage{siunitx}
-\sisetup{input-ignore={,},input-decimal-markers={.}}
+\sisetup{input-ignore={,},input-decimal-markers={.},binary-units=true}
 \usepackage[hidelinks]{hyperref}
 \usepackage{doi}
+\usepackage{footnote}
+\makesavenoteenv{tabular}
+\makesavenoteenv{table}
+\usepackage{verbatim}
+%\usepackage{appendix}
 %\usepackage{showframe} % comment this out to remove page layout frames
 
 \input{macros}
@@ -79,7 +84,9 @@ subfigure}
   ch6,
   ch7,
   appendix1, 
-  appendix2, 
+  appendix2,
+  appendix3,
+  appendix4, 
   glossary,
   notation
 }
@@ -129,7 +136,7 @@ University College Dublin
 
 %% Dedication
 \chapter*{Dedication} 
-To \ldots
+To Seona.
 
 
 %% Table of Contents
@@ -155,27 +162,36 @@ To \ldots
 
 %% Acknowledgements (including permissions and other credits).
 \chapter*{Acknowledgements}
+I would like to thank David Lynch for reviewing many iterations of this
+document and providing much helpful feedback.
 
-I would like to thank my supervisor, Prof. Michael O'Neill.
+I would also like to thank Dr.\ Paula Carroll for her advice on linear
+programming during the early stages of development.
 
-I would also like to thank David Lynch for the helpful feedback on the write-up
-and Dr. Paula Carroll for her advice on linear programming.
+I would also like to acknowledge my supervisor, Prof.\ Michael O'Neill.
 
 %% Abstract
 %%\begin{abstract}
 \chapter*{Abstract} 
 This dissertation seeks to define the problem of buffer vessel selection in
 bioprocessing facility design.
-It succeeded in modelling the problem mathematically, as a series of linear
-constraints on binary and real variables.
+It succeeded in modelling the problem mathematically, as a mixed integer linear
+programming problem.
 The problem was then implemented such that it can be solved using one of a
 range of mixed-integer linear programming packages.
 Equipment time utilisation plots were designed to visualise the results.
 The models were trialled on both random and real-world data and found to be
 robust.
-The complexity of the models and time taken for solution were investigated.
+The complexity of the models and the time taken for solution were investigated.
 Scope for further work was outlined in terms of some additional features or
 constraints that could be added to the model.
+
+\vspace{1cm}
+\textbf{Keywords: \emph{Process engineering},
+    \emph{process design},
+    \emph{biotechnology},
+    \emph{linear programming},
+    \emph{mixed integer linear programming}.}
 %%\end{abstract}
 
 %%   List of important abbreviations (including special fonts, e.g.,
@@ -205,20 +221,23 @@ constraints that could be added to the model.
 %%   accompanying CD/DVD. \include appendix/ces as it/they will be big enough to
 %%   justify its/their own ``chapter(s)''
 \cleardoublepage
-%\appendix          %%%%% Removed this line and next two - ST   
+\appendix
 %\addappheadtotoc         % adds a separating entry to the TOC, saying Appendices
-%\noappendicestocpagenum  % ensures there is no page number after that TOC 
+\noappendicestocpagenum  % ensures there is no page number after that TOC 
 %                          separating entry
 % It may happen that the first appendix (e.g., Detailed Tables) appears before
 % the "Appendices" line in the table of contents.  If so, edit thesis.toc and
 % move the Appendices line there above the first appendix, then re-run LaTeX to 
 % get the thesis.dvi file right.  You may have to repeatedly do this every time 
 % you LaTeX!
-%\cleardoublepage    %%%%% Removed - ST
-%\include{appendix1} %%%%% Removed - ST
-%\include{appendix2} %%%%% Removed - ST
-% and so on
+\cleardoublepage
+\appendixtocon
+\include{appendix1}
+\include{appendix2}
+\include{appendix3}
+\include{appendix4}
 
+% and so on
 %%   Endnotes (if needed)
 
 %%   Glossary of terms

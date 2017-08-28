@@ -22,19 +22,81 @@ knowing.
 \hspace{2cm}--- Hunter S. Thompson, \emph{The Rum Diary}
 \end{quote}
 
-This dissertation seeks to define the problem of buffer vessel selection in
-bioprocessing facility design.
-It succeeded in modelling the problem mathematically, as a series of linear
-constraints on binary and real variables.
-The problem was then implemented such that it can be solved using one of a
-range of mixed-integer linear programming packages.
-Equipment time utilisation plots were designed to visualise the results.
-The models were trialled on both random and real-world data and found to be
-robust.
-The complexity of the models and time taken for solution were investigated.
-Scope for further work was outlined in terms of some additional features or
-constraints that could be added to the model.
-It is hoped that the work can contribute to the fields of engineering design
-and process optimisation and in particular that the code may be used on future
-design projects to aid rapid and accurate early-stage design of large-scale
-bioprocessing facilities.
+The models derived in \hyperref[C.methodology]{Chapter \ref*{C.methodology}}
+succeed in describing the buffer vessel selection problem.
+The code which implements the models produces feasible
+solutions from input data sets and gives both quantitative outputs (values for
+all variables) and useful visual output (the equipment time utilisation plot).
+
+Out of the MILP solvers investigated, it was found that CPLEX provided the
+fastest and most robust solutions.
+
+The number of equations in the complete model was found to be cubic with
+respect to the number of buffers.  The number of variables in the complete
+model was also found to be cubic in the number of buffers.
+The time complexity of the complete problem was found to be exponential in
+the number of vessels.
+
+The basic model represents the simplest manifestation of the buffer vessel
+selection problem, requiring a minimal amount of information
+This has been built on by the complete model, which accounts for the scheduling
+and accordingly requires some timing information.
+
+The secondary model builds on the complete model, using goal programming, to
+provide a more realistic schedule, but does not improve on the primary
+objective function value, i.e.\ the minimisation of vessel costs.
+
+The models contain a number of simplifications.
+Some of these simplifications are required due to the probable lack of
+sufficient information.
+One such example is fixed operation durations for operations such as
+transfers.
+If only a single model of pump were available, a flow rate could be
+defined, so the transfer duration would scale linearly with the buffer volume.
+In reality, given the range of volumes in a typical process, several sizes of
+pumps and pipework may be specified so that pumps aren't oversized for small
+transfers and pumps aren't so small that large transfers take an unacceptable
+length of time.  As a result, the assumption that transfer duration is fixed
+allows the selection of a conservative transfer time to cover all
+eventualities.
+
+Another assumption is that buffer volumes are fixed.
+For example, if a buffer is used in two operations which occur in different
+procedures at very different times in the cycle, we do not allow the
+possibility that we may split this buffer into two separate preparations.
+If, for instance, the particular buffer was the largest-volume buffer being
+prepared by some margin, it may make sense to split it into two batches to
+reduce the maximum size of preparation vessel required.
+There are trade-offs here between the saving from reducing the volume of the
+largest reparation vessel and the increased operating costs from performing an
+extra preparation.
+Apart from the difficulty for building such flexibility into the model, the
+objective function would potentially become a good deal more difficult to
+define, involving data on operating versus capital cost which may not be
+available with any degree of accuracy.
+
+One additional feature which warrants further work is material compatibility.
+Certain buffers may require the use of high-nickel alloys instead of the
+usual grades of stainless steel; these alloys may be several times the price
+of stainless steel.
+A more resistant vessel can be used to prepare all buffers that may be prepared
+in a less resistant vessel.
+This would require a compatibility matrix between buffers and vessel materials
+(the latter being a new dimension).
+Additional logic would also be required to prevent incorrect vessel material
+selection.
+
+Other scope for further work includes the application of the model to
+multi-product facilities.
+Generally, a multi-product facility will run a campaign of batches of one
+product, then switch over to run a campaign of some other process.
+Such a facility would need buffer vessels capable of supporting each process.
+
+Further exploration of results is possible through e.g. Monte Carlo simulation.
+For instance, the sensitivity of a solution to variation in input data could
+be explored, which would give a client greater certainty that a proposed
+solution would be able to handle expected variations.
+
+The methodology detailed in this report will be of use in future bioprocessing
+facility design projects and adds to the body of knowledge in the fields of
+process engineering and linear programming.

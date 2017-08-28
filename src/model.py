@@ -10,7 +10,8 @@ import pulp
 
 from plots import single_cycle_plot, timing_plot
 
-parser = argparse.ArgumentParser(prog="model.py",
+# input parser
+parser = argparse.ArgumentParser(prog="model.py", add_help=True,
                                  description="Run buffer vessel simulation.")
 parser.add_argument("-P", "--path", default=".", type=str,
                     help="file path (default: <working directory>)")
@@ -22,14 +23,13 @@ parser.add_argument("-v", "--vessels", default="vessels.csv", type=str,
                     help="vessel filename (default: vessels.csv)")
 parser.add_argument("-s", "--solver", default=None, type=str,
                     help="solver to be used (default: <PuLP default>)")
-parser.add_argument("-n", "--no-secondary", action='store_true',
+parser.add_argument("-n", "--no-secondary", action="store_true",
                     help="do not solve for secondary constraint")
-parser.add_argument("-w", "--write", action='store_true',
+parser.add_argument("-w", "--write", action="store_true",
                     help="write problem to file in .lp format")
 
 
 # globals
-#DEADBAND = 0.01
 ARGS = parser.parse_args()
 PATH = os.path.abspath(os.path.expanduser(ARGS.path)) + "/"
 PARAMETERS = PATH + ARGS.parameters
@@ -522,17 +522,24 @@ def run_random_models(sizes, count=100, to_file=True, verbose=True, ret=True):
             problem, variables = define_problem(parameters, buffers, vessels)
             initial_objective(problem, variables, buffers, vessels)
             start = timeit.default_timer()
-            problem.solve(SOLVER)
-            end = timeit.default_timer()
-            if problem.status != 1:
-                raise Exception("Problem size {}, run {} cannot be optimised"
-                                .format(N, c))
-            duration = end - start
-            durations[n][c] = duration
-            if verbose:
-                print("\n\nCompleted run {}, size {}".format(c, N))
+            try:
+                problem.solve(SOLVER)
+                end = timeit.default_timer()
+                if problem.status != 1:
+                    durations[n][c] = numpy.inf
+                    print("\n\nWarning: Optimium not found for run {}, size {}"
+                          .format(c, N))
+                else:
+                    duration = end - start
+                    durations[n][c] = duration
+                if verbose:
+                    print("\n\nCompleted run {}, size {}".format(c, N))
                 print("Solver time: {0:.32f} s\n\n".format(duration))
-               
+            except:
+                durations[n][c] = numpy.inf
+                print("\n\nWarning: Optimium not found for run {}, size {}"
+                      .format(c, N))
+              
         if to_file:
             with open("durations.csv", "ab") as f:
                 numpy.savetxt(f, durations, delimiter=",")
@@ -555,20 +562,19 @@ def one_random(seed=None):
                           max_duration_ratio=0.9, to_file=True)
     standard_run()
 
-            
 if __name__ == "__main__":
-    from plots import single_cycle_plot, timing_plot
-    
     # TODO: error handling for failed optimisations
     
     #standard_run()
    
     #many_random(100)
     
-    # the line below was used to generate example plots used in ch3/ch4
+    # the line below was used to generate example data used in ch3/ch4
     #one_random(123456)    
     
     #sizes = [2, 4, 6, 8, 10, 12]
     #durations = run_random_models(sizes, 100)
     #avg_durations = dict(zip(sizes, durations.mean(axis=1)))
     #timing_plot(sizes, durations)
+    
+    pass

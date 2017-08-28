@@ -157,11 +157,10 @@ the solution and then it is typically sterile filtered into a separate hold
 vessel.
 
 \hyperref[fig.pfd]{Figure \ref*{fig.pfd}} is a \emph{process flow diagram}; a
-simplified schematic that shows the main elements in the buffer preparation
-area, for the example of a single buffer.
+simplified schematic that shows the main equipment used in buffer preparation.
 
 Note that we define a complete processing step in a piece of equipment as a
-\emph{procedure}, e.g.\ `buffer preparation of buffer $n$'.
+\emph{procedure}, e.g.\ `preparation of buffer $n$'.
 Each procedure consists of one or more \emph{operations}, e.g.\ `charge solids
 to vessel'.
 These definitions will be used throughout this document. 
@@ -175,8 +174,8 @@ Heating or cooling may be applied via the vessel jacket.
 Sampling or testing may be performed, and adjustments made by adding more 
 solids or WFI.
 
-Once the buffer has passed all required quality checks, it is pressure
-transferred via a sterile filter to a sterile hold vessel.
+Once the buffer has passed all required quality checks, it is
+pressure-transferred, via a sterile filter, to a sterile hold vessel.
 Prior to this point, the sterile filter, the hold vessel and all
 interconnecting pipework will have been sterilised, using clean steam, and then
 dried.  
@@ -214,15 +213,17 @@ required by the process.
 If the buffer is made ahead of time, it may be held for several hours before
 first use.
 A buffer may be used by one or more operations in one or more procedures in the
-production process, accordingly, it may be drawn discontinuously from the hold
-vessel during the course of a batch.
+production process.
+Accordingly, it may be drawn discontinuously from the hold vessel during the
+course of a batch.
+
 Once the last use of the buffer has finished, the buffer hold vessel undergoes
 a CIP.
-The CIP leaves it clean, but not sterile.
-Just before it is to be used again, it undergoes \emph{SIP} (steam-in-place);
-clean steam is passed through the vessel and pipework until it reaches a
-predefined temperature for a predefined hold time, after which the vessel is
-allowed to cool down to room temperature.
+The CIP leaves the vessel in a clean, but not sterile, state.
+Just before the vessel is to be used again, it undergoes \emph{SIP}
+(steam-in-place); clean steam is passed through the vessel and pipework until
+it reaches a predefined temperature for a predefined hold time, after which the
+vessel is allowed to cool down to room temperature.
 Once the SIP is complete, the hold vessel is ready to receive the next lot of
 buffer.
 
@@ -245,7 +246,7 @@ and media required to make a batch.
 Two optimisation problems now emerge; how do we design the buffer and media
 preparation areas?
 For media, the problem is relatively easy to solve with some trial and error,
-since there are typically only about 10 media used per batch and they often
+since there are typically only about ten media used per batch and they often
 differ vastly in scale; the initial bioreactor may be \SI{20}{\litre} in volume
 and the production bioreactor may be \SI{20,000}{\litre} in volume.
 Because of this, the sizing of preparation vessels usually proceeds by picking
@@ -280,26 +281,27 @@ Other factors that affect the design of the area are choices between fixed
 equipment (typically in stainless steel) or disposable equipment (disposable
 plastic preparation and hold bags are currently available in volumes up to
 \SI{5000}{\litre}), and material compatibility issues (high-nickel alloys,
-several times the cost of stainless steel, may be required for some
+several times the cost of stainless steel, may be required for some buffers to
+prevent corrosion).
 
 \section{Problem Definition}\label{SS.probdef}
 The task of designing a buffer preparation area is complex.
 Current workflows are largely based on trial-and-error methods using a process
-engineering scheduling software package (some of which are described in
+engineering scheduling software package (a selection of which are detailed in
 \hyperref[SS.bioprocdes]{Section \ref*{SS.bioprocdes}}).
-Using the package, a model is developed which captures the scheduling of the
-main process procedures and also the scheduling of the preparation and hold
-procedures for both buffer and media.
+Using a chosen software package, a model is developed which captures the
+scheduling of the main process procedures and also the scheduling of the
+preparation and hold procedures for both buffer and media.
 Typically, a conservatively large array of buffer vessels is chosen and the
 schedule scenario is run.
 If there is an individual vessel for each task, the scenario will resolve
 easily, but the capital and space requirements of such a design will be
 sub-optimal.
-Via trial-and-error, individual vessels may be removed or resized and
-the schedule re-run.
+Via trial-and-error, individual preparation vessels may be removed or resized
+and the model re-run.
 The above process is iterated until it becomes difficult or impossible to
-remove or reduce the vessels any further and obtain a feasible solution without
-scheduling clashes.
+remove or reduce the preparation vessels any further and obtain a feasible
+solution without scheduling clashes.
 At this point, iteration stops.
 It may appear that a `good' solution has been found at this point, but there
 is no clear methodology to ensure that the solution is optimal.
@@ -334,7 +336,7 @@ The aims are as follows:
 
 In this study a technique is developed for design of the buffer preparation
 process, including vessel selection, sizing, assignment and scheduling.
-Unlike existing methods which utilize trial-and-error optimization, the
+Unlike existing methods which utilise trial-and-error optimisation, the
 proposed tool provably produces an optimum solution.
 In addition, the algorithm converges to the optimum rapidly, for problems of
 typical real-world complexity, providing a much faster design.
@@ -343,6 +345,10 @@ The information is requested in a format that is easy to understand, making it
 accessible to process engineers without specific experience in using the
 complex scheduling tools outlined in
 \hyperref[SS.bioprocdes]{Section \ref*{SS.bioprocdes}}.
+
+This study provides a novel approach for solving a vessel assignment problem,
+and so contributes to the canon of knowledge in the areas of process
+engineering and linear programming.
 
 The business imperatives are twofold.
 Firstly, for an engineering consultancy, the ability to rapidly, accurately and

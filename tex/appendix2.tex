@@ -13,6 +13,179 @@
 %   06Jun16  ST    0.1  Begun 
 %
 
-\chapter{Program code}\label{C.Appendix2}
+\chapter{Program code description}\label{C.Appendix2}
 
-Xyz etc
+{\Large Classes in \texttt{model.py}}
+
+The \texttt{model.py} file contains the following classes; a brief overview of
+each class is given in the paragraphs hereafter.
+\begin{itemize}
+    \item \texttt{Parameters}
+    \item \texttt{Vessels}
+    \item \texttt{Buffers}
+    \item \texttt{Variable}
+    \item \texttt{Variables}
+    \item \texttt{Results}
+\end{itemize}
+
+%\paragraph{Parameters}
+The \texttt{Parameters} class is used to store parameters data (see 
+\hyperref[S.parameters]{Section \ref*{S.parameters}}). 
+It can read the data from a file, or be passed the data as a \texttt{dict}.
+
+%\paragraph{Vessels}
+The \texttt{Vessels} class is used to store vessel data (see 
+\hyperref[S.vesseldata]{Section \ref*{S.vesseldata}}).
+Similar to the \texttt{Parameters} class, it can read the data from a file, or
+be passed the data as a \texttt{dict}.
+
+%\paragraph{Buffers}
+The \texttt{Buffers} class is used to store buffer data (see 
+\hyperref[S.bufferdata]{Section \ref*{S.bufferdata}}). 
+Again, it can read the data from a file, or be passed the data as a
+\texttt{dict}. It is also used to store some results when a problem has been
+solved; it contains a class method, \texttt{get\_results} for this purpose.
+
+%\pararaph{Variable}
+The \texttt{Variable} class is used to define a variable, e.g.\
+$\boldsymbol{z}_{n}$ or $\boldsymbol{w}_{nkp}$. 
+From the point of view of the \texttt{pulp} module, a variable is a single
+scalar entity (a \texttt{pulp.LpVariable} object).
+An instance of the \texttt{Variable} class represents all the elements of a 
+multidimensional variable e.g.\
+$\boldsymbol{x}_{np} \enspace \forall n \in N, \enspace \forall p \in P$.
+The class is initialised with information on the multidimensional variable,
+such as dimensions, bounds and whether the variable is integer or real valued.
+When the model is solved, the \texttt{evaluate} class method is used to create
+a multidimensional array of the evaluated values of each scalar variable
+object.
+
+%\pararaph{Variables}
+The \texttt{Variables} class simply exists to contain a group of
+\texttt{Variable} class instances.
+
+%\pararaph{Results}
+The \texttt{Results} class is a container for holding the solution variables.
+It has an \texttt{add} method for populating itself with data.
+
+\vspace{1cm}
+{\Large Key functions in \texttt{model.py}}
+
+The \texttt{model.py} file also contains the following functions:
+\begin{itemize}
+    \item \texttt{csv\_columns\_to\_dict\_of\_lists}
+    \item \texttt{variable\_iterator}
+    \item \texttt{variable\_iterator\_loc}
+    \item \texttt{\_variable\_iterator\_loc}
+    \item \texttt{unflatten\_variable}
+    \item \texttt{define\_problem}
+    \item \texttt{initial\_objective}
+    \item \texttt{secondary\_objective}
+    \item \texttt{generate\_random\_model}
+    \item \texttt{run\_primary}
+    \item \texttt{run\_secondary}
+    \item \texttt{standard\_run}
+    \item \texttt{run\_random\_models}
+    \item \texttt{many\_random}
+    \item \texttt{one\_random}    
+\end{itemize}
+
+The \texttt{csv\_columns\_to\_dict\_of\_lists} function reads from csv files
+where the header row contains keys and subsequent rows contain values.
+It converts this data to a \texttt{dict}, with the header row entries as keys
+and the columns of data below a header as a list of values for that key.
+This is used to read from the \texttt{buffers.csv} and \texttt{vessels.csv}
+files.
+
+The \texttt{variable\_iterator} and \texttt{variable\_iterator\_loc}
+functions are recursive functions that may be used to access the components of
+a multidimensional variable in order.
+The former just returns the component, whilst the latter also returns its
+index.
+Both functions are wrappers to the function \texttt{\_variable\_iterator\_loc},
+which actually performs the recursion.
+These are required to flatten a multidimensional variable into a list so that
+it is suitable for passing to \texttt{pulp}.
+
+The \texttt{unflatten\_variable} variable function essentially performs the
+reverse of the above iterator functions; given a required set of dimensions
+and a list of objects, it unflattens the list into a multidimensional array of
+objects with the requisite dimensions.
+It calls \texttt{variable\_iterator\_loc} to do this, i.e.\ it also operates
+recursively.
+
+The \texttt{define\_problem} function implements all of the equations in
+\hyperref[SS.completesummary]{Section \ref*{SS.completesummary}}, except for
+the objective function. It starts by initialising a problem 
+instance (i.e.\ a \texttt{pulp.LpProblem} object), then defines all the
+variables used in the equations, then adds all the equations to the problem
+instance. The objective function is omitted because this allows the function to
+be used for both the primary and the secondary objective runs.
+
+The \texttt{initial\_objective} function sets the objective function as per
+\hyperref[eq.objfn]{equation \ref*{eq.objfn}}.  This is used, after
+\texttt{define\_problem} to fully define the complete problem summarised in 
+\hyperref[SS.completesummary]{Section \ref*{SS.completesummary}}.
+
+Similarly, the \texttt{secondary\_objective} function sets the objective
+function as per \hyperref[eq.objfn2]{equation \ref*{eq.objfn2}} and also
+implements the additional constraint required by the secondary problem
+(\hyperref[eq.constr10]{equation \ref*{eq.constr10}}).
+This function is used to define the secondary problem, as summarised in
+complete problem summarised in 
+\hyperref[SS.model2summary]{Section \ref*{SS.model2summary}}.
+
+The remaining functions are used to generate models from defined or random
+data and to run the models via pulp.
+
+\vspace{1cm}
+{\Large Key functions in \texttt{plot.py}}
+
+The \texttt{plot.py} file contains a number of functions, listed below, for
+generating various plots.  It uses the \texttt{matplotlib} library extensively.
+\begin{itemize}
+    \item \texttt{single\_cycle\_plot}
+    \item \texttt{explanatory\_plot}
+    \item \texttt{sched\_plot\_single}
+    \item \texttt{sched\_plot\_all}
+    \item \texttt{complexity\_plot}
+    \item \texttt{timing\_plot}
+    \item \texttt{cyclic\_xranges}
+    \item \texttt{read\_durations}
+\end{itemize}
+
+The \texttt{single\_cycle\_plot} function produces an equipment time
+utilisation plot for a solved problem. Examples in this document include
+figures \ref{fig.primary} and \ref{fig.secondary} in this chapter.  This is the
+main visual output from a solved problem.
+
+\sloppy
+The \texttt{explanatory\_plot} function produces the plot in
+\hyperref[fig.explanatory]{Figure \ref*{fig.explanatory}}.
+The \texttt{sched\_plot\_single} and \texttt{sched\_plot\_all} functions are
+used to produce the plots in Figures \ref{fig.sched1} and \ref{fig.sched2}
+respectively.
+The \texttt{complexity\_plot} function produces is used to produce the plots
+in Figures \ref{fig.dims} and \ref{fig.eqns}.
+These are all static, explanatory plots used to illustrate the
+report only.
+
+\fussy
+The \texttt{timing\_plot} function is used to generate a box-plot showing the 
+duration taken to solve a random problem as a function of the number of buffers
+in the problem. \hyperref[fig.timing]{Figure \ref*{fig.timing}} is an example
+of such a plot.
+
+The \texttt{cyclic\_xranges} function is called by the
+\texttt{single\_cycle\_plot} function and the \texttt{sched\_plot\_all}
+function.
+If an operation overlaps the single cycle range boundary, it splits the
+operation into two segments, one from the start of the operation to $T$ and the
+other from $t=0$ to the end of the operation.
+
+The \texttt{read\_durations} function is used to read timing data from a file.
+This may be used by \texttt{timing\_plot}.  The capability to read and write
+duration data to a file is useful as it can take a considerable amount of time
+to obtain the duration data and if it was destroyed when the program
+terminates, tweaking the appearance of the plot would otherwise require
+re-running all the constituent simulations again.
