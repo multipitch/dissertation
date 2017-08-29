@@ -39,11 +39,12 @@ the number of vessels.
 
 The basic model represents the simplest manifestation of the buffer vessel
 selection problem, requiring a minimal amount of information
-This has been built on by the complete model, which accounts for the scheduling
-and accordingly requires some timing information.
+Additionally, the basic model has been built upon to arrive at the complete
+model, which accounts for scheduling and accordingly requires some input data
+on timings.
 
-The secondary model builds on the complete model, using goal programming, to
-provide a more realistic schedule, but does not improve on the primary
+The secondary model builds upon the complete model and uses goal programming to
+provide a more realistic schedule. Note that it does not improve on the primary
 objective function value, i.e.\ the minimisation of vessel costs.
 
 The models contain a number of simplifications.
@@ -69,11 +70,11 @@ prepared by some margin, it may make sense to split it into two batches to
 reduce the maximum size of preparation vessel required.
 There are trade-offs here between the saving from reducing the volume of the
 largest reparation vessel and the increased operating costs from performing an
-extra preparation.
+extra preparation, in terms of personnel and the cost of cleaning utilities.
 Apart from the difficulty for building such flexibility into the model, the
 objective function would potentially become a good deal more difficult to
-define, involving data on operating versus capital cost which may not be
-available with any degree of accuracy.
+define, requiring knowledge on trade-offs between operating versus capital
+cost. Such knowledge may not be readily available.
 
 One additional feature which warrants further work is material compatibility.
 Certain buffers may require the use of high-nickel alloys instead of the

@@ -159,7 +159,9 @@ not a factor in the solution durations.
     \label{fig.timing}
     \centering
     \includegraphics[width=\linewidth]{./figures/timing.pdf}
-    \caption{Solution time as a function of buffer count}
+    \caption[Solution time as a function of buffer count using CPLEX]{Box plots
+        showing solution time as a function of buffer count, using CPLEX.
+        100 randomly-generated runs were performed for each value of $N$.}
 \end{figure}
 
 For a set of problem sizes (i.e.\ values of $N$), 100 random data sets
@@ -212,7 +214,10 @@ CPLEX proved robust over the range $2 \le N \le 20$.
     \label{fig.timings}
     \centering
     \includegraphics[width=\linewidth]{./figures/timings.pdf}
-    \caption{Solution time as a function of buffer count}
+    \caption[Solution time as a function of buffer count and solver]{Solution
+        time as a function of buffer count -- each data point represents the
+        mean solution time of 100 runs of size $N$ using the solvers indicated
+        in the legend.}
 \end{figure}
 
 Note that the data in \hyperref[fig.timings]{Figure \ref*{fig.timings}}
